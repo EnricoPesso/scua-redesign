@@ -44,7 +44,7 @@ function MultiSelect({
       >
         <label htmlFor={inputId} className="text-sm font-semibold text-foreground">{label}</label>
         <ComboboxPrimitive.Chips
-          className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-card px-2 py-1 hover:border-foreground focus-within:ring-3 focus-within:ring-ring data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 has-[[aria-invalid=true]]:border-destructive"
+          className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-card pr-0 pl-2 hover:border-foreground focus-within:ring-3 focus-within:ring-ring data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 has-[[aria-invalid=true]]:border-destructive"
         >
           <ComboboxPrimitive.Value>
             {(selected: string[]) => (
@@ -52,12 +52,12 @@ function MultiSelect({
                 {selected.map((v) => (
                   <ComboboxPrimitive.Chip
                     key={v}
-                    className="flex items-center gap-1 rounded-sm bg-secondary py-0.5 pr-0.5 pl-2 text-sm text-foreground"
+                    className="flex h-8 items-center gap-1 rounded-sm bg-secondary pr-0 pl-2 text-sm text-foreground"
                   >
                     {labelOf(v)}
                     <ComboboxPrimitive.ChipRemove
                       aria-label={`Remover ${labelOf(v)}`}
-                      className="flex size-7 items-center justify-center rounded-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring"
+                      className="-my-1 flex size-10 items-center justify-center rounded-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring"
                     >
                       <XIcon className="size-4" aria-hidden />
                     </ComboboxPrimitive.ChipRemove>
@@ -68,14 +68,14 @@ function MultiSelect({
                   placeholder={selected.length ? "" : placeholder}
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? errorId : undefined}
-                  className="h-8 min-w-24 flex-1 bg-transparent px-1 text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+                  className="h-10 min-w-24 flex-1 bg-transparent px-1 text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
                 />
               </>
             )}
           </ComboboxPrimitive.Value>
           <ComboboxPrimitive.Trigger
             aria-label={`Abrir opções de ${label}`}
-            className="ml-auto flex size-8 items-center justify-center rounded-sm text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring"
+            className="ml-auto flex size-10 items-center justify-center rounded-sm text-muted-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring"
           >
             <ChevronDownIcon className="size-4" aria-hidden />
           </ComboboxPrimitive.Trigger>

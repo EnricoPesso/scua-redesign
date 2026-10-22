@@ -59,7 +59,7 @@ export function CodeBlock({ code }: { code: string }) {
     <div className="relative min-w-0 rounded-lg border border-border bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2">
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Uso</p>
-        <Button variant="secondary" size="sm" onClick={copy}>
+        <Button variant="secondary" onClick={copy}>
           {status === "copied" ? <CheckIcon /> : <CopyIcon />}
           {status === "copied" ? "Copiado" : status === "failed" ? "Não foi possível copiar" : "Copiar"}
         </Button>

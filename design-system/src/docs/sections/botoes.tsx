@@ -14,9 +14,8 @@ export function BotoesSection() {
         <StateCell label="Carregando"><div><Button loading>Enviando…</Button></div></StateCell>
         <StateCell label="Desabilitado"><div><Button disabled>Desabilitado</Button></div></StateCell>
         <StateCell label="Só ícone (exige aria-label)"><div><Button size="icon" aria-label="Adicionar"><PlusIcon /></Button></div></StateCell>
-        <StateCell label="Tamanhos: sm, padrão, lg">
+        <StateCell label="Tamanhos: padrão, lg">
           <div className="flex flex-wrap items-center gap-3">
-            <Button size="sm">Pequeno</Button>
             <Button>Padrão</Button>
             <Button size="lg">Grande</Button>
           </div>
@@ -30,7 +29,7 @@ export function BotoesSection() {
 <Button variant="secondary">Cancelar</Button>
 <Button variant="destructive" loading={excluindo}>Excluir</Button>
 // variant: primary | secondary | destructive | ghost | link
-// size: default | sm | lg | icon`}
+// size: default | lg | icon`}
       />
     </DocSection>
   )

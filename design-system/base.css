@@ -1,0 +1,5 @@
+/* Opt-in: reset e fundo da página para telas novas. Aplique class="sc-root" no <body> (ou no contêiner raiz).
+   Não carregue ao lado do Angular atual sem escopo: por isso fica fora do components.css. */
+.sc-root, .sc-root *, .sc-root *::before, .sc-root *::after { box-sizing: border-box; }
+.sc-root { margin: 0; background: var(--color-bg); color: var(--color-text); font: var(--text-md)/var(--leading-body) var(--font-body); }
+.sc-root :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }

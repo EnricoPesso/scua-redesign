@@ -9,14 +9,15 @@
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="components.css">
 <style>
   .doc { max-width: 72rem; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); }
-  .doc h1, .doc h2, .doc h3 { font-family: var(--font-display); line-height: var(--leading-tight); margin: 0; }
+  .doc h1, .doc h2, .doc > section > h3 { font-family: var(--font-display); line-height: var(--leading-tight); margin: 0; }
   .doc h1 { font-size: var(--text-2xl); }
   .doc h1 span, .doc h2 span { color: var(--color-accent-text); }
   .doc h2 { font-size: var(--text-xl); margin-bottom: var(--space-4); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
-  .doc h3 { font-size: var(--text-md); margin: var(--space-5) 0 var(--space-2); color: var(--color-text-muted); font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; font-size: var(--text-xs); }
+  .doc > section > h3 { font-size: var(--text-md); margin: var(--space-5) 0 var(--space-2); color: var(--color-text-muted); font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; font-size: var(--text-xs); }
   .doc > header { padding-bottom: var(--space-5); }
   .doc > header p { max-width: 60ch; color: var(--color-text-muted); }
   .doc nav { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
@@ -34,17 +35,10 @@
   .radius-demo { width: 4.5rem; height: 4.5rem; background: var(--scua-orange-100); border: 2px solid var(--scua-orange-500); display: grid; place-items: center; font-size: var(--text-xs); }
   .shadow-demo { width: 6rem; height: 4.5rem; background: var(--color-surface); display: grid; place-items: center; font-size: var(--text-xs); border-radius: var(--radius-md); }
   .states-label { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0 0 var(--space-1); }
-  .force-hover.sc-btn--primary { background: var(--scua-orange-400); }
-  .force-hover.sc-btn--secondary { background: var(--scua-orange-100); border-color: var(--scua-orange-600); }
-  .force-hover.sc-btn--danger { background: var(--color-danger-hover); }
-  .force-hover.sc-btn--icon { background: var(--scua-gray-100); }
-  .force-focus { outline: 3px solid var(--color-focus); outline-offset: 2px; }
-  .force-hover.sc-input { border-color: var(--scua-gray-600); }
-  .force-focus.sc-input { border-color: var(--color-focus); }
 </style>
 </head>
-<body>
-<a class="sc-sr-only" href="#tokens">Pular para o conteúdo</a>
+<body class="sc-root">
+<a class="sc-skip" href="#tokens">Pular para o conteúdo</a>
 <main class="doc">
   <header>
     <h1>Scua Logon · <span>Sistema de design</span></h1>
@@ -87,8 +81,8 @@
     <p>Primário usa texto escuro sobre o laranja da marca: branco sobre <code>#E96B0A</code> dá só 3,2:1 e reprova no AA. Rótulo padrão: verbo + objeto, sem "+" (problema #16).</p>
     <div class="grid">
       <div><p class="states-label">Padrão</p><div class="row"><button class="sc-btn sc-btn--primary">Adicionar jornada</button><button class="sc-btn sc-btn--secondary">Exportar</button><button class="sc-btn sc-btn--danger">Excluir</button><button class="sc-btn sc-btn--icon" aria-label="Editar">✎</button></div></div>
-      <div><p class="states-label">Hover</p><div class="row"><button class="sc-btn sc-btn--primary force-hover">Adicionar jornada</button><button class="sc-btn sc-btn--secondary force-hover">Exportar</button><button class="sc-btn sc-btn--danger force-hover">Excluir</button><button class="sc-btn sc-btn--icon force-hover" aria-label="Editar">✎</button></div></div>
-      <div><p class="states-label">Foco (teclado)</p><div class="row"><button class="sc-btn sc-btn--primary force-focus">Adicionar jornada</button><button class="sc-btn sc-btn--secondary force-focus">Exportar</button></div></div>
+      <div><p class="states-label">Hover</p><div class="row"><button class="sc-btn sc-btn--primary is-hover">Adicionar jornada</button><button class="sc-btn sc-btn--secondary is-hover">Exportar</button><button class="sc-btn sc-btn--danger is-hover">Excluir</button><button class="sc-btn sc-btn--icon is-hover" aria-label="Editar">✎</button></div></div>
+      <div><p class="states-label">Foco (teclado)</p><div class="row"><button class="sc-btn sc-btn--primary is-focus">Adicionar jornada</button><button class="sc-btn sc-btn--secondary is-focus">Exportar</button></div></div>
       <div><p class="states-label">Desabilitado</p><div class="row"><button class="sc-btn sc-btn--primary" disabled>Adicionar jornada</button><button class="sc-btn sc-btn--secondary" disabled>Exportar</button><button class="sc-btn sc-btn--danger" disabled>Excluir</button></div></div>
       <div><p class="states-label">Carregando</p><div class="row"><button class="sc-btn sc-btn--primary" aria-busy="true">Enviando</button><button class="sc-btn sc-btn--secondary" aria-busy="true">Exportando</button><button class="sc-btn sc-btn--danger" aria-busy="true">Excluindo</button></div></div>
     </div>
@@ -98,8 +92,8 @@
     <h2 id="h-campos">Campos</h2>
     <div class="grid">
       <div class="sc-field"><label class="sc-label" for="f1">Login</label><input class="sc-input" id="f1" placeholder="nome.sobrenome"><span class="sc-hint">Padrão</span></div>
-      <div class="sc-field"><label class="sc-label" for="f2">Login (hover)</label><input class="sc-input force-hover" id="f2" value="ana.souza"><span class="sc-hint">Hover</span></div>
-      <div class="sc-field"><label class="sc-label" for="f3">Login (foco)</label><input class="sc-input force-focus" id="f3" value="ana.souza"><span class="sc-hint">Foco</span></div>
+      <div class="sc-field"><label class="sc-label" for="f2">Login (hover)</label><input class="sc-input is-hover" id="f2" value="ana.souza"><span class="sc-hint">Hover</span></div>
+      <div class="sc-field"><label class="sc-label" for="f3">Login (foco)</label><input class="sc-input is-focus" id="f3" value="ana.souza"><span class="sc-hint">Foco</span></div>
       <div class="sc-field"><label class="sc-label" for="f4">Login (desabilitado)</label><input class="sc-input" id="f4" value="admin" disabled><span class="sc-hint">Desabilitado</span></div>
       <div class="sc-field"><label class="sc-label" for="f5">Matrícula</label><input class="sc-input" id="f5" value="12a" aria-invalid="true" aria-describedby="f5e"><span class="sc-error-text" id="f5e">Use só números.</span></div>
       <div class="sc-field"><label class="sc-label" for="f6">Data de início</label><input class="sc-input" id="f6" type="date" value="2026-10-22"><span class="sc-hint">Data</span></div>
@@ -142,8 +136,8 @@
       <span class="sc-badge sc-badge--neutral">Inativa</span>
     </div>
     <div class="grid">
-      <article class="sc-kpi"><h3 class="sc-kpi__label" style="all:unset;display:block;font-size:var(--text-sm);color:var(--color-text-muted)">Colaboradores presentes</h3><p class="sc-kpi__value">128</p><p class="sc-kpi__period">Hoje, 22/10/2026</p></article>
-      <article class="sc-kpi"><h3 class="sc-kpi__label" style="all:unset;display:block;font-size:var(--text-sm);color:var(--color-text-muted)">Horas extras aprovadas</h3><p class="sc-kpi__value">2h</p><p class="sc-kpi__period">Em outubro de 2026</p></article>
+      <article class="sc-kpi"><h3 class="sc-kpi__label">Colaboradores presentes</h3><p class="sc-kpi__value">128</p><p class="sc-kpi__period">Hoje, 22/10/2026</p></article>
+      <article class="sc-kpi"><h3 class="sc-kpi__label">Horas extras aprovadas</h3><p class="sc-kpi__value">2h</p><p class="sc-kpi__period">Em outubro de 2026</p></article>
     </div>
   </section>
 
@@ -151,7 +145,7 @@
     <h2 id="h-tabela">Tabela com paginação</h2>
     <p>Paginação em português ("1 a 5 de 12") e excluir pede confirmação (problemas #7 e #19). Ação de excluir fica no fim da linha, em botão de ícone, nunca solta em vermelho.</p>
     <div class="sc-table-wrap">
-      <div class="sc-table-scroll">
+      <div class="sc-table-scroll" tabindex="0" role="region" aria-label="Tabela de extensão de jornada, role para os lados se faltar espaço">
         <table class="sc-table" id="demo-table">
           <caption>Extensão de jornada</caption>
           <thead><tr><th scope="col">Beneficiário</th><th scope="col">Solicitante</th><th scope="col">Início</th><th scope="col">Status</th><th scope="col"><span class="sc-sr-only">Ações</span></th></tr></thead>
@@ -179,15 +173,15 @@
   <section id="estados" aria-labelledby="h-estados">
     <h2 id="h-estados">Vazio, erro e carregando</h2>
     <div class="grid">
-      <div class="sc-state"><span class="sc-state__icon" aria-hidden="true">∅</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Nenhum registro encontrado</h3><p class="sc-state__text">Ajuste o período ou os filtros para ver resultados.</p><button class="sc-btn sc-btn--secondary">Limpar filtros</button></div>
-      <div class="sc-state sc-state--error" role="alert"><span class="sc-state__icon" aria-hidden="true">!</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Não conseguimos carregar</h3><p class="sc-state__text">Verifique sua conexão com a rede da empresa e tente de novo.</p><button class="sc-btn sc-btn--primary">Tentar novamente</button></div>
+      <div class="sc-state"><span class="sc-state__icon" aria-hidden="true">∅</span><h3 class="sc-state__title">Nenhum registro encontrado</h3><p class="sc-state__text">Ajuste o período ou os filtros para ver resultados.</p><button class="sc-btn sc-btn--secondary">Limpar filtros</button></div>
+      <div class="sc-state sc-state--error" role="alert"><span class="sc-state__icon" aria-hidden="true">!</span><h3 class="sc-state__title">Não conseguimos carregar</h3><p class="sc-state__text">Verifique sua conexão com a rede da empresa e tente de novo.</p><button class="sc-btn sc-btn--primary">Tentar novamente</button></div>
       <div class="sc-state" role="status" aria-busy="true" aria-label="Carregando" style="justify-items:stretch"><span class="sc-skeleton" style="width:60%"></span><span class="sc-skeleton"></span><span class="sc-skeleton"></span><span class="sc-skeleton" style="width:80%"></span></div>
     </div>
   </section>
 </main>
 
 <dialog class="sc-drawer" id="drawer" aria-labelledby="drawer-t">
-  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="drawer-t" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Ana Souza</h2><button class="sc-btn sc-btn--icon" aria-label="Fechar painel" data-close>✕</button></div>
+  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="drawer-t">Ana Souza</h2><button class="sc-btn sc-btn--icon" aria-label="Fechar painel" data-close>✕</button></div>
   <div class="sc-dialog__body">
     <div class="sc-field"><label class="sc-label" for="d1">E-mail</label><input class="sc-input" id="d1" value="ana.souza@empresa.com.br"></div>
     <label class="sc-toggle"><input type="checkbox" role="switch" checked><span>Aprovador de RH</span></label>
@@ -196,7 +190,7 @@
 </dialog>
 
 <dialog class="sc-modal" id="confirm" aria-labelledby="confirm-t">
-  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="confirm-t" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Excluir jornada?</h2></div>
+  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="confirm-t">Excluir jornada?</h2></div>
   <div class="sc-dialog__body"><p style="margin:0">A jornada "Comercial 8h" some do sistema e quem a usa fica sem jornada. Não dá para desfazer.</p></div>
   <div class="sc-dialog__foot"><button class="sc-btn sc-btn--secondary" data-close autofocus>Cancelar</button><button class="sc-btn sc-btn--danger" data-toast="success" data-close>Excluir</button></div>
 </dialog>
@@ -230,11 +224,11 @@
       `<tr><td>${r.n}</td><td>${r.s}</td><td class="sc-num">${r.d}</td><td><span class="sc-badge sc-badge--${r.st[0]}">${r.st[1]}</span></td>
        <td class="sc-actions"><button class="sc-btn sc-btn--icon" aria-label="Excluir extensão de ${r.n}" data-open="confirm"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></td></tr>`).join("");
     $("#page-info").textContent = `${from + 1} a ${Math.min(from + size, total)} de ${total}`;
-    $("#prev").disabled = page === 0;
-    $("#next").disabled = from + size >= total;
+    $("#prev").setAttribute("aria-disabled", page === 0);
+    $("#next").setAttribute("aria-disabled", from + size >= total);
   }
-  $("#prev").onclick = () => { page--; render(); };
-  $("#next").onclick = () => { page++; render(); };
+  $("#prev").onclick = () => { if ($("#prev").getAttribute("aria-disabled") !== "true") { page--; render(); } };
+  $("#next").onclick = () => { if ($("#next").getAttribute("aria-disabled") !== "true") { page++; render(); } };
   $("#page-size").onchange = () => { page = 0; render(); };
   render();
 

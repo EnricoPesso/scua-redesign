@@ -21,8 +21,10 @@
 
   /* Status */
   --scua-green-100: #dff3e4;
+  --scua-green-400: #58c274; /* borda de toast sobre fundo escuro */
   --scua-green-700: #17692f;
   --scua-red-100: #fbe0dd;
+  --scua-red-400: #ff7b6e; /* borda de toast sobre fundo escuro */
   --scua-red-600: #c0291b;
   --scua-red-700: #9c1f13;
   --scua-yellow-100: #fcefc4;
@@ -42,6 +44,7 @@
   --color-accent-text: var(--scua-orange-600);
   --color-on-accent: var(--scua-gray-900); /* branco sobre #E96B0A dá só 3,2:1; escuro dá 5,5:1 */
   --color-focus: var(--scua-gray-900);
+  --color-backdrop: rgb(31 26 23 / 0.5);
   --color-danger: var(--scua-red-600);
   --color-danger-hover: var(--scua-red-700);
 

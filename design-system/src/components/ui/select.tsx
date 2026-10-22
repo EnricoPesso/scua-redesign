@@ -57,9 +57,7 @@ function Select({
         <SelectPrimitive.Trigger
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          className={cn(
-            "flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring data-[popup-open]:border-foreground data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 data-[disabled]:hover:border-input aria-[invalid=true]:border-destructive"
-          )}
+          className="flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring data-[popup-open]:border-foreground data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 data-[disabled]:hover:border-input aria-[invalid=true]:border-destructive"
         >
           <SelectPrimitive.Value className="min-w-0 flex-1 text-left">
             {(v: string | null) =>

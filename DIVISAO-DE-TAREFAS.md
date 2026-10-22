@@ -2,14 +2,17 @@
 
 Equipe de 4 pessoas, dividida **por área**. Cada pessoa é dona de uma parte do sistema, do wireframe até o código pronto, e revisa o trabalho de outra pessoa.
 
-> Troque "Pessoa 1–4" pelos nomes e @ do GitHub de cada um.
+Equipe: [@EnricoPesso](https://github.com/EnricoPesso), [@bpaolucci](https://github.com/bpaolucci), [@Chokokito](https://github.com/Chokokito) (Miguel), [@PhLima07](https://github.com/PhLima07) (Pedro).
 
 | Quem | Área | Revisa o trabalho de |
 |---|---|---|
-| **Pessoa 1** | Sistema de design e componentes base | Pessoa 4 |
-| **Pessoa 2** | Navegação, layout e Dashboard | Pessoa 3 |
-| **Pessoa 3** | Fluxos principais: Usuários, Jornada, Extensão de jornada | Pessoa 2 |
-| **Pessoa 4** | Relatórios e Administração | Pessoa 1 |
+| **Pessoa 1** — _a definir_ | Sistema de design e componentes base | Pessoa 4 |
+| **Pessoa 2** — _a definir_ | Navegação, layout e Dashboard | Pessoa 3 |
+| **Pessoa 3** — @EnricoPesso | Fluxos principais: Usuários, Jornada, Extensão de jornada | Pessoa 2 |
+| **Pessoa 4** — _a definir_ | Relatórios e Administração | Pessoa 1 |
+
+> **Pessoas 1, 2 e 4:** @bpaolucci, @Chokokito e @PhLima07 escolhem entre si e colocam o próprio @ na tabela acima e no título da seção (via PR).
+> Dica: a Pessoa 1 trava todo mundo no começo, então fica melhor com quem tem mais olho para design visual e consegue entregar rápido.
 
 Material de base (leia antes de começar):
 - [`analise-sistema/progresso.md`](analise-sistema/progresso.md): todas as telas atuais, rotas e os **20 problemas de UX** encontrados (citados abaixo como #1, #2…).
@@ -59,7 +62,7 @@ Material de base (leia antes de começar):
 
 ---
 
-## Pessoa 3 — Fluxos principais
+## Pessoa 3 — Fluxos principais (@EnricoPesso)
 
 As telas mais usadas no dia a dia. É o coração do produto.
 

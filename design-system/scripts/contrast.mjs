@@ -71,8 +71,8 @@ const pairs = [
   ["ring", "background", 3],
   ["color-danger", "color-surface", 3], // borda de campo inválido
   // botões
-  ["scua-gray-0", "color-danger", 4.5],
-  ["scua-gray-0", "color-danger-hover", 4.5],
+  ["color-on-danger", "color-danger", 4.5],
+  ["color-on-danger", "color-danger-hover", 4.5],
   ["color-on-brand", "scua-orange-400", 4.5], // primário no hover (primitivo)
   ["color-text", "scua-orange-100", 4.5], // secundário no hover
   // texto de erro

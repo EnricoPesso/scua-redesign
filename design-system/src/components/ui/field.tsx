@@ -23,7 +23,7 @@ function Field({ label, hint, error, inputProps, className, ...props }: FieldPro
         <FieldPrimitive.Description className="text-xs text-muted-foreground">{hint}</FieldPrimitive.Description>
       ) : null}
       {error ? (
-        <FieldPrimitive.Error match className="text-xs font-medium text-[var(--scua-red-700)]">{error}</FieldPrimitive.Error>
+        <FieldPrimitive.Error match className="text-xs font-medium text-[var(--color-danger-text)]">{error}</FieldPrimitive.Error>
       ) : null}
     </FieldPrimitive.Root>
   )

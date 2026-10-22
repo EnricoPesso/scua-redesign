@@ -48,6 +48,7 @@
   --color-backdrop: rgb(31 26 23 / 0.5);
   --color-danger: var(--scua-red-600);
   --color-danger-hover: var(--scua-red-700);
+  --color-on-danger: var(--scua-gray-0);
   --color-danger-text: var(--scua-red-700);
 
   /* Status (badge): fundo claro + texto escuro + ponto na cor do texto */

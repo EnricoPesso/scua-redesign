@@ -25,7 +25,7 @@ function Drawer({ open, onOpenChange, title, description, children, footer, clas
           <DrawerPrimitive.Popup
             data-slot="drawer"
             className={cn(
-              "flex h-full w-full max-w-[28rem] translate-x-[var(--drawer-swipe-movement-x,0px)] flex-col border-l border-border bg-popover text-popover-foreground shadow-[var(--shadow-3)] outline-none transition-transform duration-[var(--dur)] ease-[var(--ease)] data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full motion-reduce:transition-none",
+              "flex h-full w-full max-w-[28rem] translate-x-[var(--drawer-swipe-movement-x,0px)] flex-col border-l border-border bg-popover text-popover-foreground shadow-[var(--shadow-3)] outline-none transition-transform duration-[var(--dur)] ease-[var(--ease)] data-[swiping]:transition-none data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full motion-reduce:transition-none",
               className
             )}
           >

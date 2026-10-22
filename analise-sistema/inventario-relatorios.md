@@ -3,7 +3,7 @@
 Responsável: Pessoa 4 (@bpaolucci). Base: [`progresso.md`](progresso.md) + leitura dos 18 relatórios em 2026-10-22 (Claude in Chrome, só leitura, ambiente demo).
 Objetivo: conhecer os 18 relatórios atuais e propor quais **juntar** ou **remover** antes de aplicar o modelo único (filtros → KPIs → tabela → exportar).
 
-> A proposta da seção 3 é uma **hipótese**. Ela depende da pergunta 18 para a Scua (quais relatórios são realmente usados).
+> As decisões da seção 3 seguem a regra "só junta dados correlatos". Remover relatórios depende da pergunta 18 para a Scua (quais são realmente usados).
 
 ---
 
@@ -62,26 +62,31 @@ Esse agrupamento é a entrada para a arquitetura de informação da Pessoa 2 (su
 
 ---
 
-## 3. Proposta: juntar e remover (hipótese)
+## 3. Proposta: juntar ou manter separado
 
-Critério (decidido com @bpaolucci): **só junta quando os dados são correlatos**, ou seja, vêm da mesma fonte e mudam só o filtro ou o agrupamento. Nesse caso a diferença vira um filtro ou um "agrupar por". Se não der para comprovar a relação, os relatórios **ficam separados**.
+Critério (decidido com @bpaolucci): **só junta quando os dados são correlatos**, ou seja, a mesma entidade com os mesmos valores, mudando só o filtro ou o agrupamento. Se não der para comprovar, **mantém separado**.
 
-| Novo relatório | Junta | Como | Confiança | Evidência |
-|---|---|---|---|---|
-| **Liberações e bloqueios** | 1 + 5 + 6 + 7 | Lista de eventos com filtro "tipo de evento" e **"agrupar por: nenhum / área / gestor"** (agrupado = contagem de liberações) | **Alta** | 1 e 5 têm as mesmas colunas; 6 e 7 são só a contagem de liberações por área e por gestor |
-| **Estações** | 9 + 10 | Filtro "status: ativa / inativa" + coluna "Último registro" | **Alta** | Mesmas colunas, exceto SID/Liberada × Último registro |
-| **Situação de controle** | 11 + 12 | Uma linha por colaborador: jornada, se é controlado, último evento de controle, dias desde o último controle | **Média-alta** | O 12 já tem as colunas escondidas "Nome/Data do último evento de controle", que é o conteúdo do 11 |
-| **Último acesso** | 15 + 16 | Uma linha por colaborador: último login, estação, IP e localidade | Média | Ambos mostram o "último" acesso, um pelo login e outro pelo IP. Conferir se o 16 guarda histórico (tem filtro de data) |
-| Ranking por exceções | 4 | **Mantém separado** do 8 | — | Fontes diferentes: `report/rankingexception` × `report/outofjourney/ranking`. O 8 já tem ranking próprio, então "exceção" ≠ "tentativa fora da jornada" |
-| Tentativas fora da jornada | 8 | Mantém. É a referência do modelo único | — | — |
-| Produtividade | 17 | **Mantém separado** do 18 | — | Fontes diferentes: `report/productivity` × `report/journeytracking`. Só a estrutura da tela é parecida |
-| Acompanhamento de Jornada | 18 | Mantém | — | — |
-| Logon e logoff | 3 | Mantém. É um resumo diário: primeiro logon e último logoff | — | Não é igual ao 1 (hipótese anterior descartada) |
-| Tempo de bloqueio | 14 | Mantém, ou vira uma visão "duração" dentro de Liberações e bloqueios | Média | Cada linha liga um bloqueio à sua liberação |
-| Batidas de ponto | 13 | Mantém. Tirar "REP" do título ou explicar a sigla | — | — |
-| Horas extras | 2 | **Candidato a sair do menu de relatórios.** As colunas são as mesmas da tela Extensão de jornada (Pessoa 3), que poderia ganhar o "Exportar" | Média | Combinar com o @EnricoPesso |
+**Como a correlação foi verificada** (2026-10-22, só leitura): para cada relatório, clicamos em "Filtrar" e anotamos o endpoint chamado e os campos devolvidos. Quando havia dados, comparamos os valores do mesmo registro nos dois relatórios.
+Atenção: **cada relatório tem um endpoint próprio**, inclusive os que são claramente o mesmo dado. Então endpoint diferente não prova nada sozinho. O que conta é ter os mesmos campos e os mesmos valores.
 
-**Resultado:** de **18 para 12** relatórios, ou **11** se Horas extras virar exportação da tela Extensão de jornada. As fusões de "Situação de controle" (11 + 12) e "Último acesso" (15 + 16) ainda precisam da mesma checagem de fonte antes de virar decisão.
+| Relatório(s) | Decisão | Evidência |
+|---|---|---|
+| 9 Estações + 10 Estações inativas | **Juntar** — filtro "status: ativa / inativa" | `report/workstation` e `report/innactiveworkstations` devolvem os mesmos campos (nome, domínio, versão do agente). As 3 inativas estão todas na lista geral, com os mesmos valores. ✅ comprovado |
+| 1 Eventos + 5 Liberações e bloqueios | **Juntar (provável)**: filtro "tipo de evento" | As colunas são idênticas (data, evento, login, domínio, estação, motivo). Endpoints `report/logon` e `report/blockedallowed`. ⚠️ Sem dados no demo para comparar valores |
+| 6 por área + 7 por gestores | **Juntar ao 5 (provável)** como "agrupar por: área / gestor" | Os dois são a contagem de liberações (`report/areaallowed`, `report/managerallowed`). ⚠️ Sem dados no demo |
+| 11 Última data de controle × 12 Jornada e Controle | **Separados** | Os campos parecem iguais (data e evento de controle), mas os valores não batem: user02 tem evento em 05/10 no 11 e nenhum no 12 |
+| 15 Último login × 16 Último IP | **Separados** | Colunas diferentes (matrícula, departamento, client × IP, localidade). Sem dados para comparar |
+| 4 Ranking por exceções × 8 Tentativas fora da jornada | **Separados** | O 8 tem ranking próprio (`report/outofjourney/ranking`), diferente de `report/rankingexception`. "Exceção" ≠ "tentativa fora da jornada" |
+| 17 Produtividade × 18 Acompanhamento de Jornada | **Separados** | Só a estrutura da tela é parecida. Sem dados no demo para comparar campos (`report/productivity` × `report/journeytracking`) |
+| 3 Logon logoff | Mantém | Resumo diário (primeiro logon / último logoff), diferente do 1 |
+| 13 Batidas de ponto | Mantém | Tirar "REP" do título ou explicar a sigla |
+| 14 Tempo de bloqueio | Mantém | Cada linha liga um bloqueio à liberação dele. É outra granularidade, diferente do 5 |
+| 2 Horas extras | **Candidato a virar "Exportar" na tela Extensão de jornada** | As colunas são as mesmas da tela de Extensão de jornada (Pessoa 3). Combinar com o @EnricoPesso |
+
+**Resultado:** de **18 para 14** relatórios (1+5+6+7 → 1 e 9+10 → 1), ou **13** se Horas extras sair do menu.
+Só a fusão das Estações está comprovada. As fusões com ⚠️ precisam de dados reais (de um cliente ou de um demo com mais registros) antes de virar decisão final.
+
+Inconsistência encontrada: DEMO-WS05 aparece com a versão em branco em Estações e como "Não instalado" em Estações inativas.
 
 ---
 
@@ -89,7 +94,7 @@ Critério (decidido com @bpaolucci): **só junta quando os dados são correlatos
 
 - [ ] Formato do arquivo exportado (CSV, XLSX ou PDF). Exige clicar em Exportar, que baixa um arquivo.
 - [ ] Colunas de Produtividade (17) e Acompanhamento de Jornada (18) com dados. O ambiente demo não retornou registros no período padrão.
-- [ ] Ver se o 16 (Último IP) guarda histórico ou só o último registro.
+- [ ] Confirmar as fusões marcadas com ⚠️ com dados reais (o demo não tem registros de eventos e liberações).
 
 ## 5. Perguntas que dependem da Scua
 

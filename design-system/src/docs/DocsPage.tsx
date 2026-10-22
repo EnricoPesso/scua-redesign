@@ -12,6 +12,7 @@ import { KpiCardSection } from "./sections/kpi-card"
 import { TabelaSection } from "./sections/tabela"
 import { DrawerSection } from "./sections/drawer"
 import { ModalSection } from "./sections/modal"
+import { FormularioSection } from "./sections/formulario"
 import { ToastSection } from "./sections/toast"
 import { EstadosSection } from "./sections/estados"
 import { SkeletonSection } from "./sections/skeleton"
@@ -25,6 +26,7 @@ const secoes: { id: string; titulo: string; Componente: ComponentType }[] = [
   { id: "campo-de-data", titulo: "Campo de data", Componente: CampoDeDataSection },
   { id: "checkbox", titulo: "Checkbox", Componente: CheckboxSection },
   { id: "toggle", titulo: "Toggle", Componente: ToggleSection },
+  { id: "formulario", titulo: "Formulário", Componente: FormularioSection },
   { id: "badge", titulo: "Badge", Componente: BadgeSection },
   { id: "kpi-card", titulo: "Card de KPI", Componente: KpiCardSection },
   { id: "tabela", titulo: "Tabela", Componente: TabelaSection },

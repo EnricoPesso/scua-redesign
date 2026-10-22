@@ -34,7 +34,7 @@ function ToastList() {
         className="fixed right-4 bottom-4 z-[60] flex w-[calc(100%-2rem)] flex-col gap-2 outline-none sm:w-96"
       >
         {toasts.map((toast) => {
-          const style = toastStyles[(toast.type as ToastType) ?? "info"] ?? toastStyles.info
+          const style = toastStyles[toast.type as ToastType] ?? toastStyles.info
           const Icon = style.icon
           return (
             <ToastPrimitive.Root

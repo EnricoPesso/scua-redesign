@@ -1,12 +1,15 @@
 import { useState, type ReactNode } from "react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { formatNumber } from "@/lib/format-number"
 import { paginate } from "@/lib/paginate"
 
 type Column<T> = {
   key: string
   header: string
   render?: (row: T) => ReactNode
+  numeric?: boolean
 }
 
 type DataTableProps<T> = {
@@ -26,7 +29,7 @@ function DataTable<T extends Record<string, unknown>>({
   caption,
   pageSize = 10,
   loading = false,
-  empty = "Nenhum registro encontrado",
+  empty = "Nenhum registro encontrado. Ajuste os filtros ou tente outro período.",
 }: DataTableProps<T>) {
   const [requestedPage, setRequestedPage] = useState(1)
   const info = paginate({ total: rows.length, page: requestedPage, pageSize })
@@ -40,7 +43,7 @@ function DataTable<T extends Record<string, unknown>>({
           <thead className="bg-[var(--color-surface-muted)]">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} scope="col" className="px-4 py-3 font-semibold whitespace-nowrap text-foreground">
+                <th key={col.key} scope="col" className={cn("px-4 py-3 font-semibold whitespace-nowrap text-foreground", col.numeric && "text-right tabular-nums")}>
                   {col.header}
                 </th>
               ))}
@@ -68,7 +71,7 @@ function DataTable<T extends Record<string, unknown>>({
                 : visible.map((row, i) => (
                     <tr key={info.from + i} className="border-t border-border hover:bg-[var(--color-row-hover)]">
                       {columns.map((col) => (
-                        <td key={col.key} className="px-4 py-3 text-foreground">
+                        <td key={col.key} className={cn("px-4 py-3 text-foreground", col.numeric && "text-right tabular-nums")}>
                           {col.render ? col.render(row) : (row[col.key] as ReactNode)}
                         </td>
                       ))}
@@ -79,7 +82,7 @@ function DataTable<T extends Record<string, unknown>>({
       </div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3">
         <p className="text-sm text-muted-foreground" role="status">
-          {loading ? "Carregando..." : `Mostrando ${info.from} a ${info.to} de ${rows.length}`}
+          {loading ? "Carregando…" : `Mostrando ${formatNumber(info.from)} a ${formatNumber(info.to)} de ${formatNumber(rows.length)}`}
         </p>
         <div className="flex gap-2">
           <Button

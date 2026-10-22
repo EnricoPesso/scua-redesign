@@ -22,7 +22,7 @@ function Select({
   options,
   value,
   onValueChange,
-  placeholder = "Selecione",
+  placeholder = "Selecione…",
   error,
   disabled,
   defaultOpen,
@@ -43,21 +43,25 @@ function Select({
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            "flex h-10 w-full items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring data-[popup-open]:border-foreground data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 data-[disabled]:hover:border-input aria-[invalid=true]:border-destructive"
+            "flex h-10 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-card px-3 text-sm text-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring data-[popup-open]:border-foreground data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 data-[disabled]:hover:border-input aria-[invalid=true]:border-destructive"
           )}
         >
-          <SelectPrimitive.Value>
+          <SelectPrimitive.Value className="min-w-0 flex-1 text-left">
             {(v: string | null) =>
-              v ? (options.find((o) => o.value === v)?.label ?? v) : <span className="text-muted-foreground">{placeholder}</span>
+              v ? (
+                <span className="block min-w-0 truncate">{options.find((o) => o.value === v)?.label ?? v}</span>
+              ) : (
+                <span className="block min-w-0 truncate text-muted-foreground">{placeholder}</span>
+              )
             }
           </SelectPrimitive.Value>
-          <SelectPrimitive.Icon className="text-muted-foreground">
+          <SelectPrimitive.Icon className="shrink-0 text-muted-foreground">
             <ChevronDownIcon className="size-4" aria-hidden />
           </SelectPrimitive.Icon>
         </SelectPrimitive.Trigger>
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50">
-            <SelectPrimitive.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
+            <SelectPrimitive.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto overscroll-contain rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
               <SelectPrimitive.List>
                 {options.map((o) => (
                   <SelectPrimitive.Item
@@ -79,7 +83,7 @@ function Select({
         </SelectPrimitive.Portal>
       </SelectPrimitive.Root>
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
+        <p id={errorId} aria-live="polite" className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
       ) : null}
     </div>
   )

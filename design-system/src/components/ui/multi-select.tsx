@@ -21,7 +21,7 @@ function MultiSelect({
   options,
   values,
   onValuesChange,
-  placeholder = "Buscar",
+  placeholder = "Buscar…",
   error,
   disabled,
   defaultOpen,
@@ -52,12 +52,12 @@ function MultiSelect({
                 {selected.map((v) => (
                   <ComboboxPrimitive.Chip
                     key={v}
-                    className="flex h-8 items-center gap-1 rounded-sm bg-secondary pr-0 pl-2 text-sm text-foreground"
+                    className="flex h-8 max-w-full items-center gap-1 rounded-sm bg-secondary pr-0 pl-2 text-sm text-foreground"
                   >
-                    {labelOf(v)}
+                    <span className="min-w-0 truncate">{labelOf(v)}</span>
                     <ComboboxPrimitive.ChipRemove
                       aria-label={`Remover ${labelOf(v)}`}
-                      className="-my-1 flex size-10 items-center justify-center rounded-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring"
+                      className="-my-1 flex size-10 shrink-0 items-center justify-center rounded-sm outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring"
                     >
                       <XIcon className="size-4" aria-hidden />
                     </ComboboxPrimitive.ChipRemove>
@@ -82,7 +82,7 @@ function MultiSelect({
         </ComboboxPrimitive.Chips>
         <ComboboxPrimitive.Portal>
           <ComboboxPrimitive.Positioner sideOffset={4} className="z-50">
-            <ComboboxPrimitive.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
+            <ComboboxPrimitive.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto overscroll-contain rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
               <ComboboxPrimitive.Empty className="px-2 py-2.5 text-sm text-muted-foreground">
                 Nenhum resultado
               </ComboboxPrimitive.Empty>
@@ -107,7 +107,7 @@ function MultiSelect({
         </ComboboxPrimitive.Portal>
       </ComboboxPrimitive.Root>
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
+        <p id={errorId} aria-live="polite" className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
       ) : null}
     </div>
   )

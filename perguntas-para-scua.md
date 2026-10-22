@@ -85,3 +85,14 @@ Se der, peça também os **materiais** da seção 9, porque eles valem mais que 
 - [ ] Documentação da API ou acesso ao repositório do front-end
 - [ ] Lista de perfis e permissões do sistema
 - [ ] Contato de 2–3 clientes dispostos a uma conversa rápida (15–20 min)
+
+## 10. Relatórios (adicionadas por @bpaolucci em 2026-10-22)
+
+Contexto: [`analise-sistema/inventario-relatorios.md`](analise-sistema/inventario-relatorios.md).
+
+46. ⭐ Os relatórios **Eventos** e **Liberações e bloqueios** mostram as mesmas colunas. Existe diferença entre os dados deles? Podemos juntar os dois em um só, com um filtro de tipo de evento?
+47. **Liberações por área** e **Liberações por gestores** contam as mesmas liberações do relatório Liberações e bloqueios, só que agrupadas? Se sim, viram uma opção "agrupar por" dentro dele.
+48. O que conta como **"exceção"** no Ranking por exceções? É a exceção cadastrada na aba Exceção do usuário? (Os dados não batem com as Tentativas fora da jornada.)
+49. O relatório **Horas extras** tem alguma diferença em relação à tela **Extensão de jornada** (registros antigos, outros status)? Se não tiver, pode virar só um botão "Exportar" naquela tela?
+50. Em **Jornada e Controle**, de onde vem o "último evento de controle"? No demo ele aparece vazio para um usuário que tem evento em 05/10 no relatório Usuários x Última data de controle.
+51. Qual o formato do arquivo exportado (CSV, XLSX, PDF) e qual deveria ser? (Complementa a pergunta 29.)

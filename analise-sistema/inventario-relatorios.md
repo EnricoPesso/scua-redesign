@@ -101,7 +101,6 @@ As fusões com ⚠️ precisam de dados reais (de um cliente ou de um demo com m
 
 ## 5. Perguntas que dependem da Scua
 
-- Pergunta 18: quais relatórios são realmente usados? Pode virar remoção.
-- Pergunta 29: para onde vai o arquivo exportado? Isso define formato e colunas.
-- Nova: o que conta como "exceção" no relatório 4? (Os dados não são os mesmos das tentativas fora da jornada.)
-- Nova: o relatório Horas extras tem alguma diferença em relação à tela Extensão de jornada (ex.: inclui registros antigos ou de outros status)?
+- P18: quais relatórios são realmente usados? Pode virar remoção.
+- P29: para onde vai o arquivo exportado e em qual formato? Isso define formato e colunas.
+- P46 a P51, na seção 10 de [`perguntas-para-scua.md`](../perguntas-para-scua.md): fusões com ⚠️ (P46, P47), "exceção" no relatório 4 (P48), Horas extras (P49), último evento de controle (P50) e versão do agente da DEMO-WS05 (P51).

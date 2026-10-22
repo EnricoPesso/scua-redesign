@@ -80,6 +80,10 @@ Home · Usuários · Jornada de trabalho · Extensão de jornada · Relatórios 
 18. Erros no console em várias telas: `TypeError: Cannot set properties of null (setting 'value')` (repetido), `Cannot read properties of null (reading '_rawValidators')`, `administraTelaLiberacaoDiretoria` indefinido em Liberações por Diretoria.
 19. Lixeira vermelha de exclusão direto na linha da tabela (risco de clique acidental).
 20. Menu longo e plano (13 itens + 18 relatórios + 13 de administração) sem agrupamento por tarefa; rotas inconsistentes (`#/overtimereason`, `#/holiday` ficam fora de `/admin`).
+21. Produtividade não tem título: a tela começa direto em "Filtros" (ver [`inventario-relatorios.md`](inventario-relatorios.md)).
+22. Eventos e Liberações e bloqueios mostram as mesmas colunas; não fica claro qual usar.
+23. Comportamento ao abrir relatório varia: alguns carregam dados, outros ficam vazios sem orientação.
+24. Versão do agente inconsistente: DEMO-WS05 em branco em Estações e "Não instalado" em Estações inativas.
 
 ## Reclame Aqui (verificado em 2026-10-22)
 A Scua **não tem página nem reclamações** no Reclame Aqui. Buscas feitas: "scua", "scua logon", "scua tecnologia", "scua.com.br", "logon control".

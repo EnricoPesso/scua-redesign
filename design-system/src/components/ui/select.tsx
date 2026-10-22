@@ -1,4 +1,4 @@
-import { useId } from "react"
+import { useId, useMemo } from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -39,6 +39,7 @@ function Select({
   className,
 }: SelectProps) {
   const errorId = useId()
+  const labels = useMemo(() => new Map(options.map((o) => [o.value, o.label])), [options])
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <SelectPrimitive.Root
@@ -62,7 +63,7 @@ function Select({
           <SelectPrimitive.Value className="min-w-0 flex-1 text-left">
             {(v: string | null) =>
               v ? (
-                <span className="block min-w-0 truncate">{options.find((o) => o.value === v)?.label ?? v}</span>
+                <span className="block min-w-0 truncate">{labels.get(v) ?? v}</span>
               ) : (
                 <span className="block min-w-0 truncate text-muted-foreground">{placeholder}</span>
               )

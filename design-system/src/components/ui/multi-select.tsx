@@ -1,4 +1,4 @@
-import { useId } from "react"
+import { useId, useMemo } from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox"
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -40,8 +40,9 @@ function MultiSelect({
   const errorId = useId()
   const generatedId = useId()
   const inputId = id ?? generatedId
-  const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v
-  const items = options.map((o) => o.value)
+  const items = useMemo(() => options.map((o) => o.value), [options])
+  const labels = useMemo(() => new Map(options.map((o) => [o.value, o.label])), [options])
+  const labelOf = (v: string) => labels.get(v) ?? v
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <ComboboxPrimitive.Root

@@ -1,32 +1,27 @@
-# React + TypeScript + Vite
+# Design system Scua Logon
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Tokens e componentes React do Scua Logon, mais a página de documentação que mostra cada componente, seus estados e o código de uso. Base: React 19, Tailwind 4, base-ui.
 
-Currently, two official plugins are available:
+## Comandos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Exigem Node 22.18 ou mais novo.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```
+npm run dev       # documentação em modo de desenvolvimento
+npm run build     # typecheck + build de produção
+npm run lint      # oxlint
+npm run contrast  # confere os pares de cor contra WCAG AA
+npm test          # testes das funções puras em src/lib
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Regras de uso dos tokens
+
+1. Botão primário usa fundo laranja com texto escuro (`--color-on-brand`), nunca branco. Texto laranja sobre o fundo da página usa `--color-brand-text`; ícone ou borda laranja só sobre `--color-surface`.
+2. Componente consome só tokens semânticos (`--color-*`), nunca `--scua-*`.
+3. Sem modo escuro: não use `dark:`.
+4. Alvo clicável mínimo de 40px, em altura e largura.
+5. Animação respeita `prefers-reduced-motion`: use `--dur` e `--dur-fast`, que zeram nesse modo.
+
+## Documentação
+
+Rode `npm run dev` e abra a página inicial. Ela traz tokens, componentes, estados e o trecho de código para copiar.

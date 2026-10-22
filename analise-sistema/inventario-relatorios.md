@@ -46,6 +46,7 @@ Todas as rotas começam com `#/reports/`.
 - **#21** — Produtividade (17) **não tem título**: a tela começa direto em "Filtros".
 - **#22** — Eventos (1) e Liberações e bloqueios (5) mostram **as mesmas colunas**. A diferença é que o 5 tem mais filtros. Para o usuário, não fica claro qual dos dois usar.
 - **#23** — O comportamento ao abrir varia: alguns relatórios carregam dados e outros ficam vazios sem nenhuma orientação.
+- **#24** — A mesma estação mostra a versão do agente de formas diferentes: DEMO-WS05 aparece com a versão **em branco** em Estações (9) e como **"Não instalado"** em Estações inativas (10). Ver pergunta 51.
 
 ---
 
@@ -72,7 +73,7 @@ Atenção: **cada relatório tem um endpoint próprio**, inclusive os que são c
 | Relatório(s) | Decisão | Evidência |
 |---|---|---|
 | 9 Estações + 10 Estações inativas | **Juntar** — filtro "status: ativa / inativa" | `report/workstation` e `report/innactiveworkstations` devolvem os mesmos campos (nome, domínio, versão do agente). As 3 inativas estão todas na lista geral, com os mesmos valores. ✅ comprovado |
-| 1 Eventos + 5 Liberações e bloqueios | **Juntar (provável)**: filtro "tipo de evento" | As colunas são idênticas (data, evento, login, domínio, estação, motivo). Endpoints `report/logon` e `report/blockedallowed`. ⚠️ Sem dados no demo para comparar valores |
+| 1 Eventos + 5 Liberações e bloqueios | **Juntar (provável)**: filtro "tipo de evento" | As colunas são idênticas (data, evento, login, domínio, estação, motivo). Endpoints `report/logon` e `report/blockedallowed`. O 3 Logon logoff chama `report/logonsint`: pelo nome, o 3 é o **sintético** (um resumo por dia) e o 1 é o **analítico** (evento a evento) da mesma base de logon. Isso não muda a fusão com o 5, porque o 3 continua sendo outra granularidade, mas o 1 pode ser mais amplo que o 5 (todos os eventos de logon, não só liberações e bloqueios). ⚠️ Sem dados no demo para comparar valores |
 | 6 por área + 7 por gestores | **Juntar ao 5 só se a contagem bater** como "agrupar por: área / gestor". Até lá, separados | Os dois são a contagem de liberações (`report/areaallowed`, `report/managerallowed`), e o 5 é linha a linha. Granularidade diferente sozinha não basta para juntar (ver o 14). A diferença está no tipo de dado. Se o 6 e o 7 forem **só a soma** das linhas do 5 (tipo = liberação) agrupadas por área ou gestor, o dado é o mesmo e dá para provar somando. O 14 não é uma soma: ele **pareia** cada bloqueio com a sua liberação e **calcula** o tempo bloqueado, coisa que o 5 não tem. ⚠️ Sem dados no demo para fazer a soma (pergunta 47) |
 | 11 Última data de controle × 12 Jornada e Controle | **Separados** | Os campos parecem iguais (data e evento de controle), mas os valores não batem: user02 tem evento em 05/10 no 11 e nenhum no 12 |
 | 15 Último login × 16 Último IP | **Separados** | Colunas diferentes (matrícula, departamento, client × IP, localidade). Sem dados para comparar |
@@ -89,8 +90,6 @@ Atenção: **cada relatório tem um endpoint próprio**, inclusive os que são c
 - **13** se, além disso, Horas extras sair do menu (pergunta 49).
 
 As fusões com ⚠️ precisam de dados reais (de um cliente ou de um demo com mais registros) ou da resposta da Scua antes de virar decisão final.
-
-Inconsistência encontrada: DEMO-WS05 aparece com a versão em branco em Estações e como "Não instalado" em Estações inativas.
 
 ---
 

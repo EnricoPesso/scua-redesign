@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { formatNumber } from "@/lib/format-number"
+import { countUpProgress, easeOutCubic } from "@/lib/count-up-progress"
 
 type CountUpProps = {
   to: number
@@ -7,8 +8,6 @@ type CountUpProps = {
   duration?: number
   className?: string
 }
-
-const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)"
 
@@ -49,7 +48,7 @@ function CountUp({ to, decimals = 0, duration = 1200, className }: CountUpProps)
     const start = performance.now()
     let frame = 0
     const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1)
+      const progress = countUpProgress(now, start, duration)
       const value = from + (to - from) * easeOutCubic(progress)
       current.current = value
       setDisplay(value)

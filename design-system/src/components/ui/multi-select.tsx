@@ -2,6 +2,7 @@ import { useId, useMemo } from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox"
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { FieldError } from "./field-error"
 import { listboxItemClass, listboxPopupClass } from "./listbox-styles"
 import type { Option } from "./select"
 
@@ -123,9 +124,7 @@ function MultiSelect({
           </ComboboxPrimitive.Positioner>
         </ComboboxPrimitive.Portal>
       </ComboboxPrimitive.Root>
-      {error ? (
-        <p id={errorId} aria-live="polite" className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
-      ) : null}
+      <FieldError id={errorId}>{error}</FieldError>
     </div>
   )
 }

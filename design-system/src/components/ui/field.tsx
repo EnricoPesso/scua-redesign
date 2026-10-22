@@ -1,5 +1,6 @@
 import { Field as FieldPrimitive } from "@base-ui/react/field"
 import { cn } from "@/lib/utils"
+import { fieldErrorClass } from "./field-error"
 
 type FieldProps = FieldPrimitive.Root.Props & {
   label: string
@@ -23,7 +24,7 @@ function Field({ label, hint, error, inputProps, className, ...props }: FieldPro
         <FieldPrimitive.Description className="text-xs text-muted-foreground">{hint}</FieldPrimitive.Description>
       ) : null}
       {error ? (
-        <FieldPrimitive.Error match className="text-xs font-medium text-[var(--color-danger-text)]">{error}</FieldPrimitive.Error>
+        <FieldPrimitive.Error match className={fieldErrorClass}>{error}</FieldPrimitive.Error>
       ) : null}
     </FieldPrimitive.Root>
   )

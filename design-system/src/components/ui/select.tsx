@@ -2,6 +2,7 @@ import { useId, useMemo } from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { FieldError } from "./field-error"
 import { listboxItemClass, listboxPopupClass } from "./listbox-styles"
 
 type Option = { value: string; label: string }
@@ -97,9 +98,7 @@ function Select({
           </SelectPrimitive.Positioner>
         </SelectPrimitive.Portal>
       </SelectPrimitive.Root>
-      {error ? (
-        <p id={errorId} aria-live="polite" className="text-xs font-medium text-[var(--color-danger-text)]">{error}</p>
-      ) : null}
+      <FieldError id={errorId}>{error}</FieldError>
     </div>
   )
 }

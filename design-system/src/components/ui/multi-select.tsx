@@ -28,6 +28,7 @@ function MultiSelect({
   className,
 }: MultiSelectProps) {
   const errorId = useId()
+  const inputId = useId()
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v
   const items = options.map((o) => o.value)
   return (
@@ -41,7 +42,7 @@ function MultiSelect({
         disabled={disabled}
         defaultOpen={defaultOpen}
       >
-        <ComboboxPrimitive.Label className="text-sm font-semibold text-foreground">{label}</ComboboxPrimitive.Label>
+        <label htmlFor={inputId} className="text-sm font-semibold text-foreground">{label}</label>
         <ComboboxPrimitive.Chips
           className="flex min-h-10 flex-wrap items-center gap-1.5 rounded-md border border-input bg-card px-2 py-1 hover:border-foreground focus-within:ring-3 focus-within:ring-ring data-[disabled]:cursor-not-allowed data-[disabled]:bg-muted data-[disabled]:opacity-60 has-[[aria-invalid=true]]:border-destructive"
         >
@@ -63,6 +64,7 @@ function MultiSelect({
                   </ComboboxPrimitive.Chip>
                 ))}
                 <ComboboxPrimitive.Input
+                  id={inputId}
                   placeholder={selected.length ? "" : placeholder}
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? errorId : undefined}

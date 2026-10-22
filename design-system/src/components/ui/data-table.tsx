@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { paginate } from "@/lib/paginate"
 
 type Column<T> = {
@@ -51,7 +52,7 @@ function DataTable<T extends Record<string, unknown>>({
                   <tr key={i} className="border-t border-border">
                     {columns.map((col) => (
                       <td key={col.key} className="px-4 py-3">
-                        <span aria-hidden className="block h-4 w-3/4 animate-pulse rounded-sm bg-muted motion-reduce:animate-none" />
+                        <Skeleton className="h-4 w-3/4" />
                       </td>
                     ))}
                   </tr>

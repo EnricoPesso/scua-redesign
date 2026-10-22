@@ -1,6 +1,7 @@
 import { useRef } from "react"
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog"
 import { Button } from "@/components/ui/button"
+import { overlayBackdropClass } from "./overlay-styles"
 
 type ConfirmDialogProps = {
   open: boolean
@@ -31,7 +32,7 @@ function ConfirmDialog({
       <AlertDialogPrimitive.Portal>
         <AlertDialogPrimitive.Backdrop
           data-slot="confirm-dialog-backdrop"
-          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] transition-opacity duration-[var(--dur)] ease-[var(--ease)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 motion-reduce:transition-none"
+          className={overlayBackdropClass}
         />
         <AlertDialogPrimitive.Viewport className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <AlertDialogPrimitive.Popup

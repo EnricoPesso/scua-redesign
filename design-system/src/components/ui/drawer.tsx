@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 import { XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { overlayBackdropClass } from "./overlay-styles"
 
 type DrawerProps = {
   open: boolean
@@ -19,7 +20,7 @@ function Drawer({ open, onOpenChange, title, description, children, footer, clas
       <DrawerPrimitive.Portal>
         <DrawerPrimitive.Backdrop
           data-slot="drawer-backdrop"
-          className="fixed inset-0 z-50 bg-[var(--color-backdrop)] transition-opacity duration-[var(--dur)] ease-[var(--ease)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 motion-reduce:transition-none"
+          className={overlayBackdropClass}
         />
         <DrawerPrimitive.Viewport className="fixed inset-0 z-50 flex justify-end">
           <DrawerPrimitive.Popup

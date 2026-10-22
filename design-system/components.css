@@ -3,7 +3,7 @@
 body { margin: 0; background: var(--color-bg); color: var(--color-text); font: var(--text-md)/var(--leading-body) var(--font-body); }
 .sc-num { font-variant-numeric: tabular-nums; }
 
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: var(--radius-sm);
 }
 .sc-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

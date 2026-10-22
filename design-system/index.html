@@ -6,7 +6,8 @@
 <title>Scua Logon · Sistema de design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="components.css">
 <style>
@@ -112,7 +113,7 @@
     <h2 id="h-selecao">Seleção</h2>
     <div class="grid">
       <div class="sc-field"><span class="sc-label" id="ml">Colaboradores</span>
-        <details class="sc-multi"><summary aria-labelledby="ml"><span id="ms">2 selecionados</span><span aria-hidden="true">▾</span></summary>
+        <details class="sc-multi"><summary aria-labelledby="ml ms"><span id="ms">2 selecionados</span><span aria-hidden="true">▾</span></summary>
           <div class="sc-multi__panel" role="group" aria-labelledby="ml">
             <label class="sc-check"><input type="checkbox" checked><span>Ana Souza</span></label>
             <label class="sc-check"><input type="checkbox" checked><span>Bruno Lima</span></label>
@@ -180,7 +181,7 @@
     <div class="grid">
       <div class="sc-state"><span class="sc-state__icon" aria-hidden="true">∅</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Nenhum registro encontrado</h3><p class="sc-state__text">Ajuste o período ou os filtros para ver resultados.</p><button class="sc-btn sc-btn--secondary">Limpar filtros</button></div>
       <div class="sc-state sc-state--error" role="alert"><span class="sc-state__icon" aria-hidden="true">!</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Não conseguimos carregar</h3><p class="sc-state__text">Verifique sua conexão com a rede da empresa e tente de novo.</p><button class="sc-btn sc-btn--primary">Tentar novamente</button></div>
-      <div class="sc-state" aria-busy="true" aria-label="Carregando" style="justify-items:stretch"><span class="sc-skeleton" style="width:60%"></span><span class="sc-skeleton"></span><span class="sc-skeleton"></span><span class="sc-skeleton" style="width:80%"></span></div>
+      <div class="sc-state" role="status" aria-busy="true" aria-label="Carregando" style="justify-items:stretch"><span class="sc-skeleton" style="width:60%"></span><span class="sc-skeleton"></span><span class="sc-skeleton"></span><span class="sc-skeleton" style="width:80%"></span></div>
     </div>
   </section>
 </main>

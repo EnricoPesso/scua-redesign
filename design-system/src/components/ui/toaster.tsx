@@ -48,7 +48,7 @@ function ToastList() {
             >
               <Icon className={cn("size-5 shrink-0", style.iconColor)} aria-hidden />
               <ToastPrimitive.Content className="min-w-0 flex-1">
-                <ToastPrimitive.Title className="text-sm font-semibold" />
+                <ToastPrimitive.Title className="text-sm font-semibold break-words" />
               </ToastPrimitive.Content>
               <ToastPrimitive.Close
                 aria-label="Fechar notificação"

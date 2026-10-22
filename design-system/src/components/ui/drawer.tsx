@@ -43,7 +43,7 @@ function Drawer({ open, onOpenChange, title, description, children, footer, clas
                 <XIcon className="size-5" aria-hidden />
               </DrawerPrimitive.Close>
             </div>
-            <DrawerPrimitive.Content className="min-h-0 flex-1 overflow-y-auto p-5">{children}</DrawerPrimitive.Content>
+            <DrawerPrimitive.Content className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">{children}</DrawerPrimitive.Content>
             {footer ? <div className="flex flex-wrap justify-end gap-2 border-t border-border p-5">{footer}</div> : null}
           </DrawerPrimitive.Popup>
         </DrawerPrimitive.Viewport>

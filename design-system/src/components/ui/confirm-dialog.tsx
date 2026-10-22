@@ -40,7 +40,7 @@ function ConfirmDialog({
             className="flex w-full max-w-md flex-col gap-4 rounded-xl border border-border bg-popover p-6 text-popover-foreground shadow-[var(--shadow-3)] outline-none transition-[opacity,scale] duration-[var(--dur)] ease-[var(--ease)] data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 motion-reduce:transition-none"
           >
             <div className="flex flex-col gap-2">
-              <AlertDialogPrimitive.Title className="text-lg font-bold text-foreground">{title}</AlertDialogPrimitive.Title>
+              <AlertDialogPrimitive.Title className="text-lg font-bold break-words text-foreground">{title}</AlertDialogPrimitive.Title>
               <AlertDialogPrimitive.Description className="text-sm text-muted-foreground">
                 {description}
               </AlertDialogPrimitive.Description>

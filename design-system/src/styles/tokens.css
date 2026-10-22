@@ -48,6 +48,18 @@
   --color-backdrop: rgb(31 26 23 / 0.5);
   --color-danger: var(--scua-red-600);
   --color-danger-hover: var(--scua-red-700);
+  --color-danger-text: var(--scua-red-700);
+
+  /* Status (badge): fundo claro + texto escuro + ponto na cor do texto */
+  --color-success-bg: var(--scua-green-100);
+  --color-success-text: var(--scua-green-700);
+  --color-warning-bg: var(--scua-yellow-100);
+  --color-warning-text: var(--scua-yellow-800);
+  --color-danger-bg: var(--scua-red-100);
+  --color-info-bg: var(--scua-blue-100);
+  --color-info-text: var(--scua-blue-700);
+  --color-neutral-bg: var(--scua-gray-100);
+  --color-neutral-text: var(--scua-gray-800);
 
   /* Tipografia: Montserrat medida no Logon e em scua.com.br em 2026-10-22 */
   --font-display: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;

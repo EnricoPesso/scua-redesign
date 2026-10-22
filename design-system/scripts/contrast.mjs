@@ -90,6 +90,13 @@ const pairs = [
   ["scua-yellow-800", "scua-yellow-100", 4.5],
   ["scua-blue-700", "scua-blue-100", 4.5],
   ["scua-gray-800", "scua-gray-100", 4.5], // badge neutro
+  // status semânticos (badge)
+  ["color-success-text", "color-success-bg", 4.5],
+  ["color-warning-text", "color-warning-bg", 4.5],
+  ["color-danger-text", "color-danger-bg", 4.5],
+  ["color-info-text", "color-info-bg", 4.5],
+  ["color-neutral-text", "color-neutral-bg", 4.5],
+  ["color-danger-text", "color-surface", 4.5], // erro de select/multi-select
   // toast: fundo escuro, texto branco, borda de status
   ["scua-gray-0", "scua-gray-900", 4.5],
   ["scua-green-400", "scua-gray-900", 3],

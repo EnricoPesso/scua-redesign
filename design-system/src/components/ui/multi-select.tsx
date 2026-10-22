@@ -2,6 +2,7 @@ import { useId, useMemo } from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react/combobox"
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { listboxItemClass, listboxPopupClass } from "./listbox-styles"
 import type { Option } from "./select"
 
 type MultiSelectProps = {
@@ -98,7 +99,7 @@ function MultiSelect({
         </ComboboxPrimitive.Chips>
         <ComboboxPrimitive.Portal>
           <ComboboxPrimitive.Positioner sideOffset={4} className="z-50">
-            <ComboboxPrimitive.Popup className="max-h-64 w-[var(--anchor-width)] overflow-y-auto overscroll-contain rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
+            <ComboboxPrimitive.Popup className={cn(listboxPopupClass, "w-[var(--anchor-width)]")}>
               <ComboboxPrimitive.Empty className="px-2 py-2.5 text-sm text-muted-foreground">
                 Nenhum resultado
               </ComboboxPrimitive.Empty>
@@ -107,7 +108,7 @@ function MultiSelect({
                   <ComboboxPrimitive.Item
                     key={v}
                     value={v}
-                    className="flex h-10 cursor-default items-center gap-2 rounded-sm px-2 text-sm outline-none select-none data-[highlighted]:bg-secondary"
+                    className={listboxItemClass}
                   >
                     <span className="flex size-4 shrink-0 items-center justify-center">
                       <ComboboxPrimitive.ItemIndicator>

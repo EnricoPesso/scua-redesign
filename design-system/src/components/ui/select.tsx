@@ -2,6 +2,7 @@ import { useId, useMemo } from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { listboxItemClass, listboxPopupClass } from "./listbox-styles"
 
 type Option = { value: string; label: string }
 
@@ -75,13 +76,13 @@ function Select({
         </SelectPrimitive.Trigger>
         <SelectPrimitive.Portal>
           <SelectPrimitive.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50">
-            <SelectPrimitive.Popup className="max-h-64 min-w-[var(--anchor-width)] overflow-y-auto overscroll-contain rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-[var(--shadow-2)] outline-none">
+            <SelectPrimitive.Popup className={cn(listboxPopupClass, "min-w-[var(--anchor-width)]")}>
               <SelectPrimitive.List>
                 {options.map((o) => (
                   <SelectPrimitive.Item
                     key={o.value}
                     value={o.value}
-                    className="flex h-10 cursor-default items-center gap-2 rounded-sm px-2 text-sm outline-none select-none data-[highlighted]:bg-secondary data-[disabled]:opacity-50"
+                    className={cn(listboxItemClass, "data-[disabled]:opacity-50")}
                   >
                     <span className="flex size-4 shrink-0 items-center justify-center">
                       <SelectPrimitive.ItemIndicator>

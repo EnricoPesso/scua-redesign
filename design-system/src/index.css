@@ -35,8 +35,8 @@
   --card-foreground: var(--color-text);
   --popover: var(--color-surface);
   --popover-foreground: var(--color-text);
-  --primary: var(--color-accent);
-  --primary-foreground: var(--color-on-accent);
+  --primary: var(--color-brand);
+  --primary-foreground: var(--color-on-brand);
   --secondary: var(--scua-orange-100);
   --secondary-foreground: var(--color-text);
   --muted: var(--scua-gray-100);
@@ -44,8 +44,8 @@
   --accent: var(--scua-orange-100);
   --accent-foreground: var(--color-text);
   --destructive: var(--color-danger);
-  --border: var(--color-border);
-  --input: var(--color-border-strong);
+  --border: var(--color-line);
+  --input: var(--color-line-strong);
   --ring: var(--color-focus);
 }
 

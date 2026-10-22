@@ -36,11 +36,11 @@
   --color-surface-muted: var(--scua-orange-50);
   --color-text: var(--scua-gray-900);
   --color-text-muted: var(--scua-gray-600);
-  --color-border: var(--scua-gray-200);
-  --color-border-strong: var(--scua-gray-400);
-  --color-accent: var(--scua-orange-500);
-  --color-accent-text: var(--scua-orange-600);
-  --color-on-accent: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
+  --color-line: var(--scua-gray-200);
+  --color-line-strong: var(--scua-gray-400);
+  --color-brand: var(--scua-orange-500);
+  --color-brand-text: var(--scua-orange-600);
+  --color-on-brand: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
   --color-focus: var(--scua-gray-900);
   --color-backdrop: rgb(31 26 23 / 0.5);
   --color-danger: var(--scua-red-600);

@@ -31,19 +31,19 @@ const pairs = [
   ["color-text", "color-surface", 4.5],
   ["color-text-muted", "color-surface", 4.5],
   ["color-text-muted", "color-bg", 4.5],
-  ["color-on-accent", "color-accent", 4.5], // botão primário
-  ["color-accent-text", "color-surface", 4.5],
-  ["color-accent-text", "color-bg", 4.5],
-  ["color-accent-text", "color-surface-muted", 4.5],
-  ["color-border-strong", "color-surface", 3], // borda de campo
+  ["color-on-brand", "color-brand", 4.5], // botão primário
+  ["color-brand-text", "color-surface", 4.5],
+  ["color-brand-text", "color-bg", 4.5],
+  ["color-brand-text", "color-surface-muted", 4.5],
+  ["color-line-strong", "color-surface", 3], // borda de campo
   ["color-focus", "color-surface", 3],
   ["color-focus", "color-bg", 3],
-  ["color-accent", "color-surface", 3], // ícone/borda laranja
+  ["color-brand", "color-surface", 3], // ícone/borda laranja
   ["color-danger", "color-surface", 3], // borda de campo inválido
   // botões
   ["scua-gray-0", "color-danger", 4.5],
   ["scua-gray-0", "color-danger-hover", 4.5],
-  ["color-on-accent", "scua-orange-400", 4.5], // primário no hover
+  ["color-on-brand", "scua-orange-400", 4.5], // primário no hover
   ["color-text", "scua-orange-100", 4.5], // secundário no hover
   // texto de erro
   ["scua-red-700", "color-surface", 4.5],
@@ -64,7 +64,7 @@ const pairs = [
   ["scua-gray-0", "scua-gray-900", 4.5],
   ["scua-green-400", "scua-gray-900", 3],
   ["scua-red-400", "scua-gray-900", 3],
-  ["color-accent", "scua-gray-900", 3],
+  ["color-brand", "scua-gray-900", 3],
 ];
 
 let fail = 0;

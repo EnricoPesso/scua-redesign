@@ -6,10 +6,10 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground hover:bg-[var(--scua-orange-400)]",
-        secondary: "border-[var(--color-border-strong)] bg-card text-foreground hover:bg-secondary",
+        secondary: "border-[var(--color-line-strong)] bg-card text-foreground hover:bg-secondary",
         destructive: "bg-destructive text-[var(--scua-gray-0)] hover:bg-[var(--color-danger-hover)]",
         ghost: "text-foreground hover:bg-muted",
-        link: "text-[var(--color-accent-text)] underline-offset-4 hover:underline",
+        link: "text-[var(--color-brand-text)] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 text-sm",

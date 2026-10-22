@@ -13,6 +13,8 @@ import { KpiCard } from "@/components/ui/kpi-card"
 import { Drawer } from "@/components/ui/drawer"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Pessoa = { nome: string; cargo: string; jornada: string }
@@ -230,6 +232,24 @@ export default function App() {
           <Button variant="secondary" onClick={() => toast.success("Escala publicada com sucesso")}>Sucesso</Button>
           <Button variant="secondary" onClick={() => toast.error("Não foi possível salvar. Tente de novo.")}>Erro</Button>
           <Button variant="secondary" onClick={() => toast.info("Você tem 3 solicitações pendentes")}>Informação</Button>
+        </div>
+      </section>
+
+      <section aria-labelledby="estados" className="flex flex-col gap-3">
+        <h2 id="estados" className="text-lg font-bold">Estado vazio e de erro</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <EmptyState title="Nenhum colaborador cadastrado" description="Cadastre o primeiro colaborador para montar a escala." />
+          <EmptyState
+            title="Nenhum resultado para o filtro"
+            description="Tente outro período ou limpe os filtros."
+            action={<Button variant="secondary">Limpar filtros</Button>}
+          />
+          <ErrorState title="Não foi possível carregar os dados" description="Verifique a conexão e tente de novo." />
+          <ErrorState
+            title="Não foi possível carregar os dados"
+            description="Se o problema continuar, fale com o suporte."
+            action={<Button>Tentar de novo</Button>}
+          />
         </div>
       </section>
     </main>

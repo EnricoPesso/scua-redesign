@@ -73,7 +73,7 @@ Atenção: **cada relatório tem um endpoint próprio**, inclusive os que são c
 |---|---|---|
 | 9 Estações + 10 Estações inativas | **Juntar** — filtro "status: ativa / inativa" | `report/workstation` e `report/innactiveworkstations` devolvem os mesmos campos (nome, domínio, versão do agente). As 3 inativas estão todas na lista geral, com os mesmos valores. ✅ comprovado |
 | 1 Eventos + 5 Liberações e bloqueios | **Juntar (provável)**: filtro "tipo de evento" | As colunas são idênticas (data, evento, login, domínio, estação, motivo). Endpoints `report/logon` e `report/blockedallowed`. ⚠️ Sem dados no demo para comparar valores |
-| 6 por área + 7 por gestores | **Juntar ao 5 (provável)** como "agrupar por: área / gestor" | Os dois são a contagem de liberações (`report/areaallowed`, `report/managerallowed`). ⚠️ Sem dados no demo |
+| 6 por área + 7 por gestores | **Juntar ao 5 só se a contagem bater** como "agrupar por: área / gestor". Até lá, separados | Os dois são a contagem de liberações (`report/areaallowed`, `report/managerallowed`), e o 5 é linha a linha. Granularidade diferente sozinha não basta para juntar (ver o 14). A diferença está no tipo de dado. Se o 6 e o 7 forem **só a soma** das linhas do 5 (tipo = liberação) agrupadas por área ou gestor, o dado é o mesmo e dá para provar somando. O 14 não é uma soma: ele **pareia** cada bloqueio com a sua liberação e **calcula** o tempo bloqueado, coisa que o 5 não tem. ⚠️ Sem dados no demo para fazer a soma (pergunta 47) |
 | 11 Última data de controle × 12 Jornada e Controle | **Separados** | Os campos parecem iguais (data e evento de controle), mas os valores não batem: user02 tem evento em 05/10 no 11 e nenhum no 12 |
 | 15 Último login × 16 Último IP | **Separados** | Colunas diferentes (matrícula, departamento, client × IP, localidade). Sem dados para comparar |
 | 4 Ranking por exceções × 8 Tentativas fora da jornada | **Separados** | O 8 tem ranking próprio (`report/outofjourney/ranking`), diferente de `report/rankingexception`. "Exceção" ≠ "tentativa fora da jornada" |
@@ -83,8 +83,12 @@ Atenção: **cada relatório tem um endpoint próprio**, inclusive os que são c
 | 14 Tempo de bloqueio | Mantém | Cada linha liga um bloqueio à liberação dele. É outra granularidade, diferente do 5 |
 | 2 Horas extras | **Candidato a virar "Exportar" na tela Extensão de jornada** | As colunas são as mesmas da tela de Extensão de jornada (Pessoa 3). Combinar com o @EnricoPesso |
 
-**Resultado:** de **18 para 14** relatórios (1+5+6+7 → 1 e 9+10 → 1), ou **13** se Horas extras sair do menu.
-Só a fusão das Estações está comprovada. As fusões com ⚠️ precisam de dados reais (de um cliente ou de um demo com mais registros) antes de virar decisão final.
+**Resultado** (pela regra acima, só conta o que está comprovado):
+- **17 comprovado hoje**: só 9+10 → 1.
+- **14 se as ⚠️ se confirmarem**: 1+5 → 1 (pergunta 46) e 6+7 → 5 (pergunta 47).
+- **13** se, além disso, Horas extras sair do menu (pergunta 49).
+
+As fusões com ⚠️ precisam de dados reais (de um cliente ou de um demo com mais registros) ou da resposta da Scua antes de virar decisão final.
 
 Inconsistência encontrada: DEMO-WS05 aparece com a versão em branco em Estações e como "Não instalado" em Estações inativas.
 

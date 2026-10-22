@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "contrast": "node scripts/contrast.mjs",
-    "test": "node --test src/lib/paginate.test.ts",
+    "test": "node --test src/lib/*.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

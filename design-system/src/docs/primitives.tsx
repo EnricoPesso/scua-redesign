@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { CheckIcon, CopyIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -14,7 +14,7 @@ export function DocSection({ id, title, description, children }: DocSectionProps
   return (
     <section id={id} aria-labelledby={`${id}-titulo`} className="flex scroll-mt-6 flex-col gap-5">
       <header className="flex flex-col gap-1 border-b border-border pb-3">
-        <h2 id={`${id}-titulo`} className="text-xl font-bold">{title}</h2>
+        <h2 id={`${id}-titulo`} className="text-xl font-bold text-balance">{title}</h2>
         <p className="text-sm text-muted-foreground">{description}</p>
       </header>
       {children}
@@ -36,18 +36,22 @@ export function StateCell({ label, children, className }: { label: string; child
 }
 
 export function CodeBlock({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false)
+  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle")
   const timer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(timer.current), [])
+
+  const flash = (next: "copied" | "failed") => {
+    setStatus(next)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => setStatus("idle"), 2000)
+  }
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code)
-      setCopied(true)
-      window.clearTimeout(timer.current)
-      timer.current = window.setTimeout(() => setCopied(false), 2000)
+      flash("copied")
     } catch {
-      setCopied(false)
+      flash("failed")
     }
   }
 
@@ -56,24 +60,31 @@ export function CodeBlock({ code }: { code: string }) {
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2">
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Uso</p>
         <Button variant="secondary" size="sm" onClick={copy}>
-          {copied ? <CheckIcon /> : <CopyIcon />}
-          <span aria-live="polite">{copied ? "Copiado" : "Copiar"}</span>
+          {status === "copied" ? <CheckIcon /> : <CopyIcon />}
+          {status === "copied" ? "Copiado" : status === "failed" ? "Não foi possível copiar" : "Copiar"}
         </Button>
+        <span className="sr-only" aria-live="polite">
+          {status === "copied" ? "Copiado" : status === "failed" ? "Não foi possível copiar" : ""}
+        </span>
       </div>
-      <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed" tabIndex={0} aria-label="Código de exemplo">
+      <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed" role="region" tabIndex={0} aria-label="Código de exemplo">
         <code>{code}</code>
       </pre>
     </div>
   )
 }
 
-function lerVariavel(name: string): string {
-  if (typeof document === "undefined") return ""
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+function useCssVars(names: string[]): Record<string, string> {
+  return useMemo(() => {
+    const vars: Record<string, string> = {}
+    if (typeof document === "undefined") return vars
+    const style = getComputedStyle(document.documentElement)
+    for (const name of names) vars[name] = style.getPropertyValue(name).trim()
+    return vars
+  }, [names])
 }
 
-export function Swatch({ name }: { name: string }) {
-  const value = lerVariavel(name)
+export function Swatch({ name, value }: { name: string; value: string }) {
   return (
     <li className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-card">
       <div className="h-14 border-b border-border" style={{ background: `var(${name})` }} aria-hidden="true" />
@@ -86,9 +97,10 @@ export function Swatch({ name }: { name: string }) {
 }
 
 export function SwatchGrid({ names }: { names: string[] }) {
+  const vars = useCssVars(names)
   return (
-    <ul className="grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 xl:grid-cols-4">
-      {names.map((n) => <Swatch key={n} name={n} />)}
+    <ul role="list" className="grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 xl:grid-cols-4">
+      {names.map((n) => <Swatch key={n} name={n} value={vars[n]} />)}
     </ul>
   )
 }

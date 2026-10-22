@@ -86,7 +86,7 @@ export function TokensSection() {
       <div className="flex flex-col gap-3">
         <h3 className="text-lg font-bold">Tipografia</h3>
         <p className="text-sm text-muted-foreground">Montserrat variável em títulos e corpo. Não existem <code className="font-mono">text-md</code> nem <code className="font-mono">text-3xl</code>: o corpo é <code className="font-mono">text-base</code>.</p>
-        <ul className="flex list-none flex-col divide-y divide-border rounded-lg border border-border bg-card p-0">
+        <ul role="list" className="flex list-none flex-col divide-y divide-border rounded-lg border border-border bg-card p-0">
           {escalaTexto.map((t) => (
             <li key={t.nome} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3">
               <span className={t.cls}>Folha de ponto de outubro</span>
@@ -98,7 +98,7 @@ export function TokensSection() {
 
       <div className="flex flex-col gap-3">
         <h3 className="text-lg font-bold">Raio</h3>
-        <ul className="grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6">
+        <ul role="list" className="grid list-none grid-cols-2 gap-3 p-0 sm:grid-cols-3 lg:grid-cols-6">
           {raios.map((r) => (
             <li key={r.nome} className="flex flex-col items-start gap-2">
               <div className={`h-14 w-full border border-[var(--color-line-strong)] bg-card ${r.cls}`} aria-hidden="true" />
@@ -111,7 +111,7 @@ export function TokensSection() {
 
       <div className="flex flex-col gap-3">
         <h3 className="text-lg font-bold">Sombras</h3>
-        <ul className="grid list-none gap-4 p-0 sm:grid-cols-3">
+        <ul role="list" className="grid list-none gap-4 p-0 sm:grid-cols-3">
           {sombras.map((s) => (
             <li key={s.token} className="flex flex-col gap-2">
               <div className="h-16 rounded-lg bg-card" style={{ boxShadow: `var(${s.token})` }} aria-hidden="true" />

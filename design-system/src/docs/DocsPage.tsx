@@ -1,4 +1,4 @@
-import type { ComponentType } from "react"
+import { useEffect, useState, type ComponentType } from "react"
 import { TokensSection } from "./sections/tokens"
 import { BotoesSection } from "./sections/botoes"
 import { CampoSection } from "./sections/campo"
@@ -39,6 +39,29 @@ const linkClasse =
   "inline-flex min-h-10 items-center rounded-md px-3 text-sm font-semibold text-[var(--color-brand-text)] underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring"
 
 export default function DocsPage() {
+  const [ativa, setAtiva] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return
+    const visiveis = new Set<string>()
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visiveis.add(e.target.id)
+          else visiveis.delete(e.target.id)
+        }
+        const primeira = secoes.find((s) => visiveis.has(s.id))
+        if (primeira) setAtiva(primeira.id)
+      },
+      { rootMargin: "0px 0px -70% 0px" }
+    )
+    for (const s of secoes) {
+      const el = document.getElementById(s.id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       <a
@@ -49,7 +72,7 @@ export default function DocsPage() {
       </a>
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10 lg:px-8 lg:py-10">
         <header className="flex flex-col gap-2 lg:col-span-2">
-          <h1 className="text-2xl font-bold">Design system Scua Logon</h1>
+          <h1 className="text-2xl font-bold text-balance">Design system Scua Logon</h1>
           <p className="max-w-2xl text-base text-muted-foreground">
             Tokens e componentes do Logon. Ache o componente, veja os estados e copie o uso.
           </p>
@@ -58,10 +81,10 @@ export default function DocsPage() {
           aria-label="Componentes"
           className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto"
         >
-          <ul className="flex list-none flex-wrap gap-x-1 gap-y-0 p-0 lg:flex-col">
+          <ul role="list" className="flex list-none flex-wrap gap-x-1 gap-y-0 p-0 lg:flex-col">
             {secoes.map((s) => (
               <li key={s.id}>
-                <a href={`#${s.id}`} className={linkClasse}>{s.titulo}</a>
+                <a href={`#${s.id}`} aria-current={ativa === s.id ? "location" : undefined} className={linkClasse}>{s.titulo}</a>
               </li>
             ))}
           </ul>

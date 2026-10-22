@@ -23,7 +23,9 @@ type DataTableProps<T> = {
 
 const SKELETON_ROWS = 5
 
-function DataTable<T extends Record<string, unknown>>({
+const navButtonClass = "aria-disabled:pointer-events-none aria-disabled:opacity-50"
+
+function DataTable<T extends object>({
   columns,
   rows,
   caption,
@@ -32,6 +34,11 @@ function DataTable<T extends Record<string, unknown>>({
   empty = "Nenhum registro encontrado. Ajuste os filtros ou tente outro período.",
 }: DataTableProps<T>) {
   const [requestedPage, setRequestedPage] = useState(1)
+  const [prevRows, setPrevRows] = useState(rows)
+  if (prevRows !== rows) {
+    setPrevRows(rows)
+    setRequestedPage(1)
+  }
   const info = paginate({ total: rows.length, page: requestedPage, pageSize })
   const visible = rows.slice(info.from === 0 ? 0 : info.from - 1, info.to)
 
@@ -72,7 +79,7 @@ function DataTable<T extends Record<string, unknown>>({
                     <tr key={info.from + i} className="border-t border-border hover:bg-[var(--color-row-hover)]">
                       {columns.map((col) => (
                         <td key={col.key} className={cn("px-4 py-3 text-foreground", col.numeric && "text-right tabular-nums")}>
-                          {col.render ? col.render(row) : (row[col.key] as ReactNode)}
+                          {col.render ? col.render(row) : (row[col.key as keyof T] as ReactNode)}
                         </td>
                       ))}
                     </tr>
@@ -87,15 +94,23 @@ function DataTable<T extends Record<string, unknown>>({
         <div className="flex gap-2">
           <Button
             variant="secondary"
-            disabled={loading || !info.hasPrev}
-            onClick={() => setRequestedPage(info.page - 1)}
+            className={navButtonClass}
+            aria-disabled={loading || !info.hasPrev ? true : undefined}
+            onClick={() => {
+              if (loading || !info.hasPrev) return
+              setRequestedPage(info.page - 1)
+            }}
           >
             Anterior
           </Button>
           <Button
             variant="secondary"
-            disabled={loading || !info.hasNext}
-            onClick={() => setRequestedPage(info.page + 1)}
+            className={navButtonClass}
+            aria-disabled={loading || !info.hasNext ? true : undefined}
+            onClick={() => {
+              if (loading || !info.hasNext) return
+              setRequestedPage(info.page + 1)
+            }}
           >
             Próxima
           </Button>

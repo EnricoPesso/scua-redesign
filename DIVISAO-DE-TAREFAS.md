@@ -6,13 +6,12 @@ Equipe: [@EnricoPesso](https://github.com/EnricoPesso), [@bpaolucci](https://git
 
 | Quem | Área | Revisa o trabalho de |
 |---|---|---|
-| **Pessoa 1** — _a definir_ | Sistema de design e componentes base | Pessoa 4 |
-| **Pessoa 2** — _a definir_ | Navegação, layout e Dashboard | Pessoa 3 |
-| **Pessoa 3** — @EnricoPesso | Fluxos principais: Usuários, Jornada, Extensão de jornada | Pessoa 2 |
-| **Pessoa 4** — _a definir_ | Relatórios e Administração | Pessoa 1 |
+| **Pessoa 1** — @PhLima07 (Pedro) | Sistema de design e componentes base | Pessoa 4 |
+| **Pessoa 2** — @Chokokito (Miguel) | Navegação, layout e Dashboard | Pessoa 3 |
+| **Pessoa 3** — @EnricoPesso (Enrico) | Fluxos principais: Usuários, Jornada, Extensão de jornada | Pessoa 2 |
+| **Pessoa 4** — @bpaolucci | Relatórios e Administração | Pessoa 1 |
 
-> **Pessoas 1, 2 e 4:** @bpaolucci, @Chokokito e @PhLima07 escolhem entre si e colocam o próprio @ na tabela acima e no título da seção (via PR).
-> Dica: a Pessoa 1 trava todo mundo no começo, então fica melhor com quem tem mais olho para design visual e consegue entregar rápido.
+Na prática, as revisões ficam assim: Pedro revisa o bpaolucci · Miguel revisa o Enrico · Enrico revisa o Miguel · bpaolucci revisa o Pedro.
 
 Material de base (leia antes de começar):
 - [`analise-sistema/progresso.md`](analise-sistema/progresso.md): todas as telas atuais, rotas e os **20 problemas de UX** encontrados (citados abaixo como #1, #2…).
@@ -31,7 +30,7 @@ Material de base (leia antes de começar):
 
 ---
 
-## Pessoa 1 — Sistema de design e componentes base
+## Pessoa 1 — Sistema de design e componentes base (@PhLima07)
 
 **Por que vem primeiro:** todo mundo depende dos tokens e componentes. Enquanto eles não ficam prontos, as outras pessoas trabalham em wireframes.
 
@@ -46,7 +45,7 @@ Material de base (leia antes de começar):
 
 ---
 
-## Pessoa 2 — Navegação, layout e Dashboard
+## Pessoa 2 — Navegação, layout e Dashboard (@Chokokito)
 
 **Entregas**
 - [ ] **Novo menu**: hoje são 13 itens + 18 relatórios + 13 de administração, tudo solto. Agrupar por tarefa e por perfil (gestor, RH, admin).
@@ -78,7 +77,7 @@ As telas mais usadas no dia a dia. É o coração do produto.
 
 ---
 
-## Pessoa 4 — Relatórios e Administração
+## Pessoa 4 — Relatórios e Administração (@bpaolucci)
 
 **Entregas**
 - [ ] **Um modelo único de relatório**: filtros → KPIs → tabela → exportar. Partir dos relatórios novos (Tentativas fora da jornada, Produtividade, Acompanhamento de Jornada), que já são o melhor padrão do sistema.

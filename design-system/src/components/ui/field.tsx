@@ -1,5 +1,5 @@
 import { Field as FieldPrimitive } from "@base-ui/react/field"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 type FieldProps = FieldPrimitive.Root.Props & {
   label: string

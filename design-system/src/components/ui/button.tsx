@@ -1,7 +1,7 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import type { VariantProps } from "class-variance-authority"
 import { Loader2Icon } from "lucide-react"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 import { buttonVariants } from "./button-variants"
 
 type ButtonProps = ButtonPrimitive.Props &

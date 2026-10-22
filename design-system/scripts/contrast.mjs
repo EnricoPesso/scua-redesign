@@ -2,8 +2,23 @@
 // Resolve var(--x) até chegar no hex, então tokens semânticos (--color-*) também entram nos pares.
 import { readFileSync } from "node:fs";
 
-const css = readFileSync(new URL("../src/styles/tokens.css", import.meta.url), "utf8");
-const raw = Object.fromEntries([...css.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
+// Lê só o primeiro bloco :root de tokens.css (Scua) e de index.css (mapeamento shadcn).
+// Variável repetida com valor diferente no mesmo bloco falha o script.
+// Regra de uso (não é par testado): ícone ou borda laranja só sobre surface; sobre o fundo da página
+// use --color-brand-text. color-brand sobre color-bg dá 2,86:1 e reprova de propósito.
+const raw = {};
+for (const file of ["../src/styles/tokens.css", "../src/index.css"]) {
+  const css = readFileSync(new URL(file, import.meta.url), "utf8");
+  const block = css.match(/:root\s*\{([\s\S]*?)\n\}/);
+  if (!block) throw new Error(`${file}: bloco :root não encontrado`);
+  for (const m of block[1].matchAll(/--([\w-]+):\s*([^;]+);/g)) {
+    const [, name, value] = m;
+    if (name in raw && raw[name] !== value.trim()) {
+      throw new Error(`--${name} definido duas vezes com valores diferentes: ${raw[name]} e ${value.trim()}`);
+    }
+    raw[name] = value.trim();
+  }
+}
 
 const resolve = (name, depth = 0) => {
   const v = raw[name];
@@ -38,12 +53,27 @@ const pairs = [
   ["color-line-strong", "color-surface", 3], // borda de campo
   ["color-focus", "color-surface", 3],
   ["color-focus", "color-bg", 3],
-  ["color-brand", "color-surface", 3], // ícone/borda laranja
+  ["color-brand", "color-surface", 3], // ícone/borda laranja, só sobre surface
+  ["color-line-strong", "color-bg", 3],
+  ["color-text-muted", "scua-gray-100", 4.5],
+  ["color-text-muted", "scua-orange-50", 4.5],
+  ["color-brand-text", "scua-orange-100", 4.5],
+  ["color-danger", "color-bg", 3],
+  ["color-on-brand", "color-brand-hover", 4.5],
+  ["color-text", "color-row-hover", 4.5],
+  // mapeamento shadcn (index.css)
+  ["primary-foreground", "primary", 4.5],
+  ["secondary-foreground", "secondary", 4.5],
+  ["muted-foreground", "muted", 4.5],
+  ["foreground", "background", 4.5],
+  ["muted-foreground", "card", 4.5],
+  ["input", "card", 3],
+  ["ring", "background", 3],
   ["color-danger", "color-surface", 3], // borda de campo inválido
   // botões
   ["scua-gray-0", "color-danger", 4.5],
   ["scua-gray-0", "color-danger-hover", 4.5],
-  ["color-on-brand", "scua-orange-400", 4.5], // primário no hover
+  ["color-on-brand", "scua-orange-400", 4.5], // primário no hover (primitivo)
   ["color-text", "scua-orange-100", 4.5], // secundário no hover
   // texto de erro
   ["scua-red-700", "color-surface", 4.5],

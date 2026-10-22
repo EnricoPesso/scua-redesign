@@ -6,7 +6,7 @@ export function useToast() {
   return useMemo(
     () => ({
       success: (message: string) => add({ title: message, type: "success" }),
-      error: (message: string) => add({ title: message, type: "error", priority: "high" }),
+      error: (message: string) => add({ title: message, type: "error", priority: "high", timeout: 0 }),
       info: (message: string) => add({ title: message, type: "info" }),
     }),
     [add]

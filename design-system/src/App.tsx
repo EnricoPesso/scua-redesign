@@ -11,6 +11,7 @@ import { Toggle } from "@/components/ui/toggle"
 import { Badge } from "@/components/ui/badge"
 import { KpiCard } from "@/components/ui/kpi-card"
 import { Drawer } from "@/components/ui/drawer"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Pessoa = { nome: string; cargo: string; jornada: string }
@@ -39,6 +40,17 @@ export default function App() {
   const [jornada, setJornada] = useState<string | null>(null)
   const [turnos, setTurnos] = useState<string[]>([])
   const [drawerAberto, setDrawerAberto] = useState(false)
+  const [excluirAberto, setExcluirAberto] = useState(false)
+  const [excluindo, setExcluindo] = useState(false)
+  const [salvarAberto, setSalvarAberto] = useState(false)
+
+  const excluir = () => {
+    setExcluindo(true)
+    window.setTimeout(() => {
+      setExcluindo(false)
+      setExcluirAberto(false)
+    }, 1500)
+  }
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 p-8">
       <section aria-labelledby="botoes" className="flex flex-col gap-3">
@@ -182,6 +194,32 @@ export default function App() {
             <Toggle label="Ativo" defaultChecked />
           </div>
         </Drawer>
+      </section>
+
+      <section aria-labelledby="confirm" className="flex flex-col gap-3">
+        <h2 id="confirm" className="text-lg font-bold">Confirmação</h2>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="destructive" onClick={() => setExcluirAberto(true)}>Excluir usuário</Button>
+          <Button variant="secondary" onClick={() => setSalvarAberto(true)}>Publicar escala</Button>
+        </div>
+        <ConfirmDialog
+          open={excluirAberto}
+          onOpenChange={setExcluirAberto}
+          title="Excluir usuário?"
+          description="O usuário perde o acesso ao sistema. Essa ação não pode ser desfeita."
+          confirmLabel="Excluir"
+          destructive
+          loading={excluindo}
+          onConfirm={excluir}
+        />
+        <ConfirmDialog
+          open={salvarAberto}
+          onOpenChange={setSalvarAberto}
+          title="Publicar escala?"
+          description="Os colaboradores recebem a escala de outubro por e-mail."
+          confirmLabel="Publicar"
+          onConfirm={() => setSalvarAberto(false)}
+        />
       </section>
     </main>
   )

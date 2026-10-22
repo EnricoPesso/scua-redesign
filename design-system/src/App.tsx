@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Toggle } from "@/components/ui/toggle"
 import { Badge } from "@/components/ui/badge"
 import { KpiCard } from "@/components/ui/kpi-card"
+import { Drawer } from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Pessoa = { nome: string; cargo: string; jornada: string }
@@ -37,6 +38,7 @@ const jornadas = [
 export default function App() {
   const [jornada, setJornada] = useState<string | null>(null)
   const [turnos, setTurnos] = useState<string[]>([])
+  const [drawerAberto, setDrawerAberto] = useState(false)
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-8 p-8">
       <section aria-labelledby="botoes" className="flex flex-col gap-3">
@@ -155,6 +157,31 @@ export default function App() {
             <Skeleton className="h-3 w-1/3" />
           </div>
         </div>
+      </section>
+
+      <section aria-labelledby="drawer" className="flex flex-col gap-3">
+        <h2 id="drawer" className="text-lg font-bold">Drawer</h2>
+        <div>
+          <Button variant="secondary" onClick={() => setDrawerAberto(true)}>Abrir painel</Button>
+        </div>
+        <Drawer
+          open={drawerAberto}
+          onOpenChange={setDrawerAberto}
+          title="Detalhes do colaborador"
+          description="Edite os dados e salve para aplicar."
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setDrawerAberto(false)}>Cancelar</Button>
+              <Button onClick={() => setDrawerAberto(false)}>Salvar</Button>
+            </>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <Field label="Nome" inputProps={{ defaultValue: "Colaborador 01" }} />
+            <Select label="Jornada" options={jornadas} value={jornada} onValueChange={setJornada} placeholder="Escolha a jornada" />
+            <Toggle label="Ativo" defaultChecked />
+          </div>
+        </Drawer>
       </section>
     </main>
   )

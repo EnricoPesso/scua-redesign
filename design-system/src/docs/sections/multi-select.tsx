@@ -15,8 +15,8 @@ export function MultiSelectSection() {
       <StateGrid>
         <StateCell label="Padrão (vazio)"><MultiSelect label="Jornadas" options={jornadas} values={turnos} onValuesChange={setTurnos} placeholder="Buscar jornadas" /></StateCell>
         <StateCell label="Vários selecionados"><Demo initial={["44h", "12x36", "6x1"]} /></StateCell>
-        <StateCell label="Aberto"><Demo initial={["5x2"]} defaultOpen /></StateCell>
-        <StateCell label="Sem resultado (digite xyz)"><Demo initial={[]} defaultOpen /></StateCell>
+        <StateCell label="Aberto"><Demo initial={["5x2"]} defaultOpen modal={false} /></StateCell>
+        <StateCell label="Sem resultado (digite xyz)"><Demo initial={[]} defaultOpen modal={false} /></StateCell>
         <StateCell label="Erro"><Demo initial={[]} error="Escolha ao menos uma jornada" /></StateCell>
       </StateGrid>
       <CodeBlock

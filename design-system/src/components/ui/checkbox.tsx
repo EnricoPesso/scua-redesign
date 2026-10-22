@@ -9,10 +9,13 @@ type CheckboxProps = {
   onCheckedChange?: (checked: boolean) => void
   indeterminate?: boolean
   disabled?: boolean
+  name?: string
+  id?: string
+  required?: boolean
   className?: string
 }
 
-function Checkbox({ label, checked, defaultChecked, onCheckedChange, indeterminate, disabled, className }: CheckboxProps) {
+function Checkbox({ label, checked, defaultChecked, onCheckedChange, indeterminate, disabled, name, id, required, className }: CheckboxProps) {
   return (
     <label
       className={cn(
@@ -26,6 +29,9 @@ function Checkbox({ label, checked, defaultChecked, onCheckedChange, indetermina
         onCheckedChange={(c) => onCheckedChange?.(c)}
         indeterminate={indeterminate}
         disabled={disabled}
+        name={name}
+        id={id}
+        required={required}
         className="flex size-5 shrink-0 items-center justify-center rounded-sm border border-input bg-card text-primary-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring data-[checked]:border-primary data-[checked]:bg-primary data-[indeterminate]:border-primary data-[indeterminate]:bg-primary"
       >
         <CheckboxPrimitive.Indicator className="flex">

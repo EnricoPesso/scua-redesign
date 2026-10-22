@@ -9,11 +9,16 @@ type SelectProps = {
   label: string
   options: Option[]
   value?: string | null
-  onValueChange?: (value: string) => void
+  defaultValue?: string | null
+  onValueChange?: (value: string | null) => void
+  name?: string
+  id?: string
+  required?: boolean
   placeholder?: string
   error?: string
   disabled?: boolean
   defaultOpen?: boolean
+  modal?: boolean
   className?: string
 }
 
@@ -21,11 +26,16 @@ function Select({
   label,
   options,
   value,
+  defaultValue,
   onValueChange,
+  name,
+  id,
+  required,
   placeholder = "Selecione…",
   error,
   disabled,
   defaultOpen,
+  modal,
   className,
 }: SelectProps) {
   const errorId = useId()
@@ -34,9 +44,14 @@ function Select({
       <SelectPrimitive.Root
         items={options}
         value={value}
-        onValueChange={(v) => onValueChange?.(v as string)}
+        defaultValue={defaultValue}
+        onValueChange={(v) => onValueChange?.(v)}
+        name={name}
+        id={id}
+        required={required}
         disabled={disabled}
         defaultOpen={defaultOpen}
+        modal={modal}
       >
         <SelectPrimitive.Label className="text-sm font-semibold text-foreground">{label}</SelectPrimitive.Label>
         <SelectPrimitive.Trigger

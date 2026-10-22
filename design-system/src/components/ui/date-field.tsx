@@ -7,13 +7,15 @@ type DateFieldProps = {
   error?: string
   hint?: string
   disabled?: boolean
+  name?: string
+  required?: boolean
   value?: string
   defaultValue?: string
   onChange?: (value: string) => void
   className?: string
 }
 
-function DateField({ label, min, max, error, hint, disabled, value, defaultValue, onChange, className }: DateFieldProps) {
+function DateField({ label, min, max, error, hint, disabled, name, required, value, defaultValue, onChange, className }: DateFieldProps) {
   return (
     <Field
       label={label}
@@ -23,6 +25,8 @@ function DateField({ label, min, max, error, hint, disabled, value, defaultValue
       className={className}
       inputProps={{
         type: "date",
+        name,
+        required,
         min,
         max,
         value,

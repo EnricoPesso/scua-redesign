@@ -8,11 +8,16 @@ type MultiSelectProps = {
   label: string
   options: Option[]
   values?: string[]
+  defaultValues?: string[]
   onValuesChange?: (values: string[]) => void
   placeholder?: string
   error?: string
   disabled?: boolean
   defaultOpen?: boolean
+  modal?: boolean
+  name?: string
+  id?: string
+  required?: boolean
   className?: string
 }
 
@@ -20,15 +25,21 @@ function MultiSelect({
   label,
   options,
   values,
+  defaultValues,
   onValuesChange,
   placeholder = "Buscar…",
   error,
   disabled,
   defaultOpen,
+  modal,
+  name,
+  id,
+  required,
   className,
 }: MultiSelectProps) {
   const errorId = useId()
-  const inputId = useId()
+  const generatedId = useId()
+  const inputId = id ?? generatedId
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v
   const items = options.map((o) => o.value)
   return (
@@ -38,9 +49,13 @@ function MultiSelect({
         items={items}
         itemToStringLabel={labelOf}
         value={values}
+        defaultValue={defaultValues}
         onValueChange={(v) => onValuesChange?.(v)}
+        name={name}
+        required={required}
         disabled={disabled}
         defaultOpen={defaultOpen}
+        modal={modal}
       >
         <label htmlFor={inputId} className="text-sm font-semibold text-foreground">{label}</label>
         <ComboboxPrimitive.Chips

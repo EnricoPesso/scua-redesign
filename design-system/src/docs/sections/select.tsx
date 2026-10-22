@@ -15,7 +15,7 @@ export function SelectSection() {
       <StateGrid>
         <StateCell label="Padrão (vazio)"><Select label="Jornada" options={jornadas} value={jornada} onValueChange={setJornada} placeholder="Escolha a jornada" /></StateCell>
         <StateCell label="Com valor"><Demo initial="12x36" /></StateCell>
-        <StateCell label="Aberto"><Demo initial="6x1" defaultOpen /></StateCell>
+        <StateCell label="Aberto"><Demo initial="6x1" defaultOpen modal={false} /></StateCell>
         <StateCell label="Desabilitado"><Select label="Jornada" options={jornadas} value="44h" disabled /></StateCell>
         <StateCell label="Erro"><Demo initial={null} error="Escolha uma jornada" /></StateCell>
       </StateGrid>

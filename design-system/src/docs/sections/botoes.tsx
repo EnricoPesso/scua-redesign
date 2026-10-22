@@ -9,9 +9,9 @@ export function BotoesSection() {
         <StateCell label="Primário (padrão)"><div><Button>Salvar</Button></div></StateCell>
         <StateCell label="Secundário"><div><Button variant="secondary">Cancelar</Button></div></StateCell>
         <StateCell label="Destrutivo"><div><Button variant="destructive">Excluir</Button></div></StateCell>
-        <StateCell label="Fantasma"><div><Button variant="ghost">Mais</Button></div></StateCell>
+        <StateCell label="Fantasma"><div><Button variant="ghost">Mais ações</Button></div></StateCell>
         <StateCell label="Link"><div><Button variant="link">Ver detalhes</Button></div></StateCell>
-        <StateCell label="Carregando"><div><Button loading>Enviando</Button></div></StateCell>
+        <StateCell label="Carregando"><div><Button loading>Enviando…</Button></div></StateCell>
         <StateCell label="Desabilitado"><div><Button disabled>Desabilitado</Button></div></StateCell>
         <StateCell label="Só ícone (exige aria-label)"><div><Button size="icon" aria-label="Adicionar"><PlusIcon /></Button></div></StateCell>
         <StateCell label="Tamanhos: sm, padrão, lg">

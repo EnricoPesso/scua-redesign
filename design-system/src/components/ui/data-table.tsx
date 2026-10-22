@@ -65,7 +65,7 @@ function DataTable<T extends Record<string, unknown>>({
                     </tr>
                   )
                 : visible.map((row, i) => (
-                    <tr key={info.from + i} className="border-t border-border hover:bg-[var(--scua-gray-50)]">
+                    <tr key={info.from + i} className="border-t border-border hover:bg-[var(--color-row-hover)]">
                       {columns.map((col) => (
                         <td key={col.key} className="px-4 py-3 text-foreground">
                           {col.render ? col.render(row) : (row[col.key] as ReactNode)}

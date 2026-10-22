@@ -1,4 +1,5 @@
-/* Scua Logon: tokens em 3 camadas. Componentes consomem só os semânticos (--color-*). */
+/* Scua Logon: tokens em 3 camadas. Componentes consomem só os semânticos (--color-*).
+   Regra de uso: ícone ou borda laranja só sobre surface; sobre o fundo da página use --color-brand-text. */
 :root {
   /* Camada 1: primitivos */
   --scua-orange-50: #fef3ea;
@@ -40,42 +41,20 @@
   --color-line-strong: var(--scua-gray-400);
   --color-brand: var(--scua-orange-500);
   --color-brand-text: var(--scua-orange-600);
+  --color-brand-hover: var(--scua-orange-400);
+  --color-row-hover: var(--scua-gray-50);
   --color-on-brand: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
   --color-focus: var(--scua-gray-900);
   --color-backdrop: rgb(31 26 23 / 0.5);
   --color-danger: var(--scua-red-600);
   --color-danger-hover: var(--scua-red-700);
 
-  /* Camada 3: componente (só onde o semântico não basta) */
-  --button-height: 2.5rem;
-  --hit: 2.5rem;
-
   /* Tipografia: Montserrat medida no Logon e em scua.com.br em 2026-10-22 */
-  --font-display: "Montserrat Variable", Roboto, "Segoe UI", sans-serif;
-  --font-body: "Montserrat Variable", Roboto, "Segoe UI", sans-serif;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-md: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.625rem;
-  --text-2xl: 2.25rem;
-  --leading-tight: 1.2;
+  --font-display: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
   --leading-body: 1.5;
 
-  /* Espaço (base 4px) */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-
-  /* Raio e sombra */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-  --radius-pill: 999px;
+  /* Sombra (raio e escala de texto ficam no @theme, em index.css; espaço é o --spacing do Tailwind) */
   --shadow-1: 0 1px 2px rgb(31 26 23 / 0.08);
   --shadow-2: 0 4px 14px rgb(31 26 23 / 0.1);
   --shadow-3: 0 16px 40px rgb(31 26 23 / 0.18);

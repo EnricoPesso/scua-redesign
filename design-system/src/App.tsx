@@ -9,6 +9,8 @@ import { DateField } from "@/components/ui/date-field"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Toggle } from "@/components/ui/toggle"
 import { Badge } from "@/components/ui/badge"
+import { KpiCard } from "@/components/ui/kpi-card"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type Pessoa = { nome: string; cargo: string; jornada: string }
 
@@ -123,6 +125,35 @@ export default function App() {
           <Badge status="danger">Recusado</Badge>
           <Badge status="info">Em análise</Badge>
           <Badge status="neutral">Rascunho</Badge>
+        </div>
+      </section>
+
+      <section aria-labelledby="kpis" className="flex flex-col gap-3">
+        <h2 id="kpis" className="text-lg font-bold">Card de KPI</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard label="Horas extras" value={1234.5} decimals={1} unit="h" period="Setembro de 2026" />
+          <KpiCard label="Marcações" value={0} period="Setembro de 2026" loading />
+          <KpiCard label="Faltas" value={0} period="Setembro de 2026" empty />
+        </div>
+      </section>
+
+      <section aria-labelledby="skeletons" className="flex flex-col gap-3">
+        <h2 id="skeletons" className="text-lg font-bold">Skeleton</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="flex flex-col gap-2" aria-busy="true">
+            <p className="text-sm text-muted-foreground">Linha</p>
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="flex flex-col gap-2" aria-busy="true">
+            <p className="text-sm text-muted-foreground">Bloco</p>
+            <Skeleton className="h-24 w-full rounded-lg" />
+          </div>
+          <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5" aria-busy="true">
+            <p className="text-sm text-muted-foreground">Card</p>
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-10 w-2/3" />
+            <Skeleton className="h-3 w-1/3" />
+          </div>
         </div>
       </section>
     </main>

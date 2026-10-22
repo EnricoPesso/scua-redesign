@@ -97,11 +97,12 @@ const pairs = [
   ["color-info-text", "color-info-bg", 4.5],
   ["color-neutral-text", "color-neutral-bg", 4.5],
   ["color-danger-text", "color-surface", 4.5], // erro de select/multi-select
-  // toast: fundo escuro, texto branco, borda de status
-  ["scua-gray-0", "scua-gray-900", 4.5],
-  ["scua-green-400", "scua-gray-900", 3],
-  ["scua-red-400", "scua-gray-900", 3],
-  ["color-brand", "scua-gray-900", 3],
+  // toast: fundo escuro, texto claro, borda de status
+  ["color-toast-text", "color-toast-bg", 4.5],
+  ["color-toast-success", "color-toast-bg", 3],
+  ["color-toast-danger", "color-toast-bg", 3],
+  ["color-toast-info", "color-toast-bg", 3],
+  ["color-toast-brand", "color-toast-bg", 3],
 ];
 
 let fail = 0;

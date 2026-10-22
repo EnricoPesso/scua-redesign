@@ -29,6 +29,7 @@
   --scua-yellow-100: #fcefc4;
   --scua-yellow-800: #6b4e00;
   --scua-blue-100: #dbeafb;
+  --scua-blue-300: #7fb2ee;
   --scua-blue-700: #1a569e;
 
   /* Camada 2: semânticos */
@@ -61,6 +62,14 @@
   --color-info-text: var(--scua-blue-700);
   --color-neutral-bg: var(--scua-gray-100);
   --color-neutral-text: var(--scua-gray-800);
+
+  /* Toast: fundo escuro, texto claro, borda lateral de status (ícone + texto, nunca só cor) */
+  --color-toast-bg: var(--scua-gray-900);
+  --color-toast-text: var(--scua-gray-0);
+  --color-toast-success: var(--scua-green-400);
+  --color-toast-danger: var(--scua-red-400);
+  --color-toast-info: var(--scua-blue-300);
+  --color-toast-brand: var(--scua-orange-500);
 
   /* Tipografia: Montserrat medida no Logon e em scua.com.br em 2026-10-22 */
   --font-display: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;

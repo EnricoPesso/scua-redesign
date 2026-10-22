@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { KpiCard } from "@/components/ui/kpi-card"
 import { Drawer } from "@/components/ui/drawer"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useToast } from "@/components/ui/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type Pessoa = { nome: string; cargo: string; jornada: string }
@@ -37,6 +38,7 @@ const jornadas = [
 ]
 
 export default function App() {
+  const toast = useToast()
   const [jornada, setJornada] = useState<string | null>(null)
   const [turnos, setTurnos] = useState<string[]>([])
   const [drawerAberto, setDrawerAberto] = useState(false)
@@ -220,6 +222,15 @@ export default function App() {
           confirmLabel="Publicar"
           onConfirm={() => setSalvarAberto(false)}
         />
+      </section>
+
+      <section aria-labelledby="toasts" className="flex flex-col gap-3">
+        <h2 id="toasts" className="text-lg font-bold">Toast</h2>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="secondary" onClick={() => toast.success("Escala publicada com sucesso")}>Sucesso</Button>
+          <Button variant="secondary" onClick={() => toast.error("Não foi possível salvar. Tente de novo.")}>Erro</Button>
+          <Button variant="secondary" onClick={() => toast.info("Você tem 3 solicitações pendentes")}>Informação</Button>
+        </div>
       </section>
     </main>
   )

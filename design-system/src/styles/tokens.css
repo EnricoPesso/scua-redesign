@@ -1,0 +1,94 @@
+/* Scua Logon: tokens em 3 camadas. Componentes consomem só os semânticos (--color-*). */
+:root {
+  /* Camada 1: primitivos */
+  --scua-orange-50: #fef3ea;
+  --scua-orange-100: #fbe9da;
+  --scua-orange-200: #f8cfae;
+  --scua-orange-400: #f08a3a;
+  --scua-orange-500: #e96b0a;
+  --scua-orange-600: #a34607;
+  --scua-orange-700: #8f3d06;
+
+  --scua-gray-0: #ffffff;
+  --scua-gray-50: #f4f2ef;
+  --scua-gray-100: #ebe7e2;
+  --scua-gray-200: #ddd7d0;
+  --scua-gray-400: #8d857c;
+  --scua-gray-600: #5d564f;
+  --scua-gray-800: #2e2924;
+  --scua-gray-900: #1f1a17;
+
+  --scua-green-100: #dff3e4;
+  --scua-green-400: #58c274;
+  --scua-green-700: #17692f;
+  --scua-red-100: #fbe0dd;
+  --scua-red-400: #ff7b6e;
+  --scua-red-600: #c0291b;
+  --scua-red-700: #9c1f13;
+  --scua-yellow-100: #fcefc4;
+  --scua-yellow-800: #6b4e00;
+  --scua-blue-100: #dbeafb;
+  --scua-blue-700: #1a569e;
+
+  /* Camada 2: semânticos */
+  --color-bg: var(--scua-gray-50);
+  --color-surface: var(--scua-gray-0);
+  --color-surface-muted: var(--scua-orange-50);
+  --color-text: var(--scua-gray-900);
+  --color-text-muted: var(--scua-gray-600);
+  --color-border: var(--scua-gray-200);
+  --color-border-strong: var(--scua-gray-400);
+  --color-accent: var(--scua-orange-500);
+  --color-accent-text: var(--scua-orange-600);
+  --color-on-accent: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
+  --color-focus: var(--scua-gray-900);
+  --color-backdrop: rgb(31 26 23 / 0.5);
+  --color-danger: var(--scua-red-600);
+  --color-danger-hover: var(--scua-red-700);
+
+  /* Camada 3: componente (só onde o semântico não basta) */
+  --button-height: 2.5rem;
+  --hit: 2.5rem;
+
+  /* Tipografia: Montserrat medida no Logon e em scua.com.br em 2026-10-22 */
+  --font-display: "Montserrat Variable", Roboto, "Segoe UI", sans-serif;
+  --font-body: "Montserrat Variable", Roboto, "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.25rem;
+  --leading-tight: 1.2;
+  --leading-body: 1.5;
+
+  /* Espaço (base 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Raio e sombra */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgb(31 26 23 / 0.08);
+  --shadow-2: 0 4px 14px rgb(31 26 23 / 0.1);
+  --shadow-3: 0 16px 40px rgb(31 26 23 / 0.18);
+
+  /* Movimento */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+  }
+}

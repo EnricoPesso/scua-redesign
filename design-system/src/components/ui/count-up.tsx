@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { formatNumber } from "@/lib/format-number"
 
 type CountUpProps = {
@@ -10,12 +10,22 @@ type CountUpProps = {
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 
-const prefersReducedMotion = () =>
-  typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+const REDUCED_QUERY = "(prefers-reduced-motion: reduce)"
+
+const subscribeReduced = (onChange: () => void) => {
+  if (typeof window.matchMedia !== "function") return () => {}
+  const mql = window.matchMedia(REDUCED_QUERY)
+  mql.addEventListener("change", onChange)
+  return () => mql.removeEventListener("change", onChange)
+}
+
+const reducedSnapshot = () => typeof window.matchMedia === "function" && window.matchMedia(REDUCED_QUERY).matches
+
+const reducedServerSnapshot = () => false
 
 function CountUp({ to, decimals = 0, duration = 1200, className }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null)
-  const reduced = prefersReducedMotion()
+  const reduced = useSyncExternalStore(subscribeReduced, reducedSnapshot, reducedServerSnapshot)
   const [display, setDisplay] = useState(0)
   const current = useRef(0)
   const [seen, setSeen] = useState(() => typeof IntersectionObserver === "undefined")

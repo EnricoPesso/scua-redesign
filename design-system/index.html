@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scua Logon · Sistema de design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="components.css">
+<style>
+  .doc { max-width: 72rem; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); }
+  .doc h1, .doc h2, .doc h3 { font-family: var(--font-display); line-height: var(--leading-tight); margin: 0; }
+  .doc h1 { font-size: var(--text-2xl); }
+  .doc h1 span, .doc h2 span { color: var(--color-accent-text); }
+  .doc h2 { font-size: var(--text-xl); margin-bottom: var(--space-4); padding-top: var(--space-6); border-top: 1px solid var(--color-border); }
+  .doc h3 { font-size: var(--text-md); margin: var(--space-5) 0 var(--space-2); color: var(--color-text-muted); font-family: var(--font-body); text-transform: uppercase; letter-spacing: 0.06em; font-size: var(--text-xs); }
+  .doc > header { padding-bottom: var(--space-5); }
+  .doc > header p { max-width: 60ch; color: var(--color-text-muted); }
+  .doc nav { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+  .doc nav a { padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--scua-orange-100); color: var(--scua-orange-700); font-size: var(--text-sm); font-weight: 600; text-decoration: none; }
+  .doc nav a:hover { background: var(--scua-orange-200); }
+  .row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: flex-end; }
+  .grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  .swatches { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); }
+  .swatch { border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; background: var(--color-surface); font-size: var(--text-xs); }
+  .swatch i { display: block; height: 3.5rem; }
+  .swatch b, .swatch code { display: block; padding: 2px var(--space-2); }
+  .scale { display: grid; gap: var(--space-2); }
+  .scale > div { display: flex; gap: var(--space-3); align-items: baseline; }
+  .space-bar { display: inline-block; height: 0.75rem; background: var(--color-accent); border-radius: 2px; }
+  .radius-demo { width: 4.5rem; height: 4.5rem; background: var(--scua-orange-100); border: 2px solid var(--scua-orange-500); display: grid; place-items: center; font-size: var(--text-xs); }
+  .shadow-demo { width: 6rem; height: 4.5rem; background: var(--color-surface); display: grid; place-items: center; font-size: var(--text-xs); border-radius: var(--radius-md); }
+  .states-label { font-size: var(--text-xs); color: var(--color-text-muted); margin: 0 0 var(--space-1); }
+  .force-hover.sc-btn--primary { background: var(--scua-orange-400); }
+  .force-hover.sc-btn--secondary { background: var(--scua-orange-100); border-color: var(--scua-orange-600); }
+  .force-hover.sc-btn--danger { background: var(--color-danger-hover); }
+  .force-hover.sc-btn--icon { background: var(--scua-gray-100); }
+  .force-focus { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+  .force-hover.sc-input { border-color: var(--scua-gray-600); }
+  .force-focus.sc-input { border-color: var(--color-focus); }
+</style>
+</head>
+<body>
+<a class="sc-sr-only" href="#tokens">Pular para o conteúdo</a>
+<main class="doc">
+  <header>
+    <h1>Scua Logon · <span>Sistema de design</span></h1>
+    <p>Tokens e componentes base do redesign. CSS puro, sem framework: serve a Angular, React ou HTML. Todo componente aparece em padrão, hover, foco, desabilitado, carregando, vazio e erro quando o estado se aplica.</p>
+    <nav aria-label="Seções">
+      <a href="#tokens">Tokens</a><a href="#botoes">Botões</a><a href="#campos">Campos</a><a href="#selecao">Seleção</a>
+      <a href="#feedback">Badge e KPI</a><a href="#tabela">Tabela</a><a href="#sobreposicao">Drawer, modal, toast</a><a href="#estados">Vazio, erro, skeleton</a>
+    </nav>
+  </header>
+
+  <section id="tokens" aria-labelledby="h-tokens">
+    <h2 id="h-tokens">Tokens</h2>
+    <h3>Marca e neutros</h3>
+    <div class="swatches" id="swatches"></div>
+    <h3>Tipografia</h3>
+    <div class="scale">
+      <div><code>--text-2xl</code><span style="font:700 var(--text-2xl)/1.2 var(--font-display)">Jornada de trabalho</span></div>
+      <div><code>--text-xl</code><span style="font:700 var(--text-xl)/1.2 var(--font-display)">Extensão de jornada</span></div>
+      <div><code>--text-lg</code><span style="font:700 var(--text-lg)/1.2 var(--font-display)">Usuários</span></div>
+      <div><code>--text-md</code><span>Corpo de texto em Instrument Sans, 16px.</span></div>
+      <div><code>--text-sm</code><span style="font-size:var(--text-sm)">Texto de tabela e rótulos, 14px.</span></div>
+      <div><code>--text-xs</code><span style="font-size:var(--text-xs)">Ajuda e legenda, 12px.</span></div>
+    </div>
+    <h3>Espaçamento (base 4px)</h3>
+    <div class="scale" id="spaces"></div>
+    <h3>Raio e sombra</h3>
+    <div class="row">
+      <div class="radius-demo" style="border-radius:var(--radius-sm)">sm 4</div>
+      <div class="radius-demo" style="border-radius:var(--radius-md)">md 8</div>
+      <div class="radius-demo" style="border-radius:var(--radius-lg)">lg 14</div>
+      <div class="radius-demo" style="border-radius:var(--radius-pill)">pill</div>
+      <div class="shadow-demo" style="box-shadow:var(--shadow-1)">sombra 1</div>
+      <div class="shadow-demo" style="box-shadow:var(--shadow-2)">sombra 2</div>
+      <div class="shadow-demo" style="box-shadow:var(--shadow-3)">sombra 3</div>
+    </div>
+  </section>
+
+  <section id="botoes" aria-labelledby="h-botoes">
+    <h2 id="h-botoes">Botões</h2>
+    <p>Primário usa texto escuro sobre o laranja da marca: branco sobre <code>#E96B0A</code> dá só 3,2:1 e reprova no AA. Rótulo padrão: verbo + objeto, sem "+" (problema #16).</p>
+    <div class="grid">
+      <div><p class="states-label">Padrão</p><div class="row"><button class="sc-btn sc-btn--primary">Adicionar jornada</button><button class="sc-btn sc-btn--secondary">Exportar</button><button class="sc-btn sc-btn--danger">Excluir</button><button class="sc-btn sc-btn--icon" aria-label="Editar">✎</button></div></div>
+      <div><p class="states-label">Hover</p><div class="row"><button class="sc-btn sc-btn--primary force-hover">Adicionar jornada</button><button class="sc-btn sc-btn--secondary force-hover">Exportar</button><button class="sc-btn sc-btn--danger force-hover">Excluir</button><button class="sc-btn sc-btn--icon force-hover" aria-label="Editar">✎</button></div></div>
+      <div><p class="states-label">Foco (teclado)</p><div class="row"><button class="sc-btn sc-btn--primary force-focus">Adicionar jornada</button><button class="sc-btn sc-btn--secondary force-focus">Exportar</button></div></div>
+      <div><p class="states-label">Desabilitado</p><div class="row"><button class="sc-btn sc-btn--primary" disabled>Adicionar jornada</button><button class="sc-btn sc-btn--secondary" disabled>Exportar</button><button class="sc-btn sc-btn--danger" disabled>Excluir</button></div></div>
+      <div><p class="states-label">Carregando</p><div class="row"><button class="sc-btn sc-btn--primary" aria-busy="true">Enviando</button><button class="sc-btn sc-btn--secondary" aria-busy="true">Exportando</button><button class="sc-btn sc-btn--danger" aria-busy="true">Excluindo</button></div></div>
+    </div>
+  </section>
+
+  <section id="campos" aria-labelledby="h-campos">
+    <h2 id="h-campos">Campos</h2>
+    <div class="grid">
+      <div class="sc-field"><label class="sc-label" for="f1">Login</label><input class="sc-input" id="f1" placeholder="nome.sobrenome"><span class="sc-hint">Padrão</span></div>
+      <div class="sc-field"><label class="sc-label" for="f2">Login (hover)</label><input class="sc-input force-hover" id="f2" value="ana.souza"><span class="sc-hint">Hover</span></div>
+      <div class="sc-field"><label class="sc-label" for="f3">Login (foco)</label><input class="sc-input force-focus" id="f3" value="ana.souza"><span class="sc-hint">Foco</span></div>
+      <div class="sc-field"><label class="sc-label" for="f4">Login (desabilitado)</label><input class="sc-input" id="f4" value="admin" disabled><span class="sc-hint">Desabilitado</span></div>
+      <div class="sc-field"><label class="sc-label" for="f5">Matrícula</label><input class="sc-input" id="f5" value="12a" aria-invalid="true" aria-describedby="f5e"><span class="sc-error-text" id="f5e">Use só números.</span></div>
+      <div class="sc-field"><label class="sc-label" for="f6">Data de início</label><input class="sc-input" id="f6" type="date" value="2026-10-22"><span class="sc-hint">Data</span></div>
+      <div class="sc-field"><label class="sc-label" for="f7">Status</label><select class="sc-select" id="f7"><option>Em aprovação</option><option>Aprovada</option><option>Reprovada</option></select><span class="sc-hint">Select</span></div>
+      <div class="sc-field"><label class="sc-label" for="f8">Status (desabilitado)</label><select class="sc-select" id="f8" disabled><option>Aprovada</option></select></div>
+      <div class="sc-field"><label class="sc-label" for="f9">Gestor</label><select class="sc-select" id="f9" aria-invalid="true" aria-describedby="f9e"><option>Selecione</option></select><span class="sc-error-text" id="f9e">Escolha um gestor.</span></div>
+    </div>
+  </section>
+
+  <section id="selecao" aria-labelledby="h-selecao">
+    <h2 id="h-selecao">Seleção</h2>
+    <div class="grid">
+      <div class="sc-field"><span class="sc-label" id="ml">Colaboradores</span>
+        <details class="sc-multi"><summary aria-labelledby="ml"><span id="ms">2 selecionados</span><span aria-hidden="true">▾</span></summary>
+          <div class="sc-multi__panel" role="group" aria-labelledby="ml">
+            <label class="sc-check"><input type="checkbox" checked><span>Ana Souza</span></label>
+            <label class="sc-check"><input type="checkbox" checked><span>Bruno Lima</span></label>
+            <label class="sc-check"><input type="checkbox"><span>Carla Dias</span></label>
+          </div></details></div>
+      <div>
+        <label class="sc-check"><input type="checkbox"><span>Libera regra</span></label>
+        <label class="sc-check"><input type="checkbox" checked><span>Ativo</span></label>
+        <label class="sc-check"><input type="checkbox" disabled><span>Informativa (desabilitado)</span></label>
+      </div>
+      <div>
+        <label class="sc-toggle"><input type="checkbox" role="switch"><span>Notificar por WhatsApp</span></label>
+        <label class="sc-toggle"><input type="checkbox" role="switch" checked><span>Sincronização automática</span></label>
+        <label class="sc-toggle"><input type="checkbox" role="switch" disabled><span>Deploy (desabilitado)</span></label>
+      </div>
+    </div>
+  </section>
+
+  <section id="feedback" aria-labelledby="h-feedback">
+    <h2 id="h-feedback">Badge de status e card de KPI</h2>
+    <div class="row" style="margin-bottom:var(--space-5)">
+      <span class="sc-badge sc-badge--success">Aprovada</span>
+      <span class="sc-badge sc-badge--warning">Em aprovação</span>
+      <span class="sc-badge sc-badge--danger">Reprovada</span>
+      <span class="sc-badge sc-badge--info">Liberada</span>
+      <span class="sc-badge sc-badge--neutral">Inativa</span>
+    </div>
+    <div class="grid">
+      <article class="sc-kpi"><h3 class="sc-kpi__label" style="all:unset;display:block;font-size:var(--text-sm);color:var(--color-text-muted)">Colaboradores presentes</h3><p class="sc-kpi__value">128</p><p class="sc-kpi__period">Hoje, 22/10/2026</p></article>
+      <article class="sc-kpi"><h3 class="sc-kpi__label" style="all:unset;display:block;font-size:var(--text-sm);color:var(--color-text-muted)">Horas extras aprovadas</h3><p class="sc-kpi__value">2h</p><p class="sc-kpi__period">Em outubro de 2026</p></article>
+    </div>
+  </section>
+
+  <section id="tabela" aria-labelledby="h-tabela">
+    <h2 id="h-tabela">Tabela com paginação</h2>
+    <p>Paginação em português ("1 a 5 de 12") e excluir pede confirmação (problemas #7 e #19). Ação de excluir fica no fim da linha, em botão de ícone, nunca solta em vermelho.</p>
+    <div class="sc-table-wrap">
+      <div class="sc-table-scroll">
+        <table class="sc-table" id="demo-table">
+          <caption>Extensão de jornada</caption>
+          <thead><tr><th scope="col">Beneficiário</th><th scope="col">Solicitante</th><th scope="col">Início</th><th scope="col">Status</th><th scope="col"><span class="sc-sr-only">Ações</span></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="sc-pager">
+        <label class="sc-pager__size">Itens por página <select class="sc-select" id="page-size"><option>5</option><option>10</option></select></label>
+        <span class="sc-num" id="page-info" aria-live="polite"></span>
+        <div class="sc-pager__nav"><button class="sc-btn sc-btn--secondary" id="prev">Anterior</button><button class="sc-btn sc-btn--secondary" id="next">Próxima</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobreposicao" aria-labelledby="h-sobre">
+    <h2 id="h-sobre">Drawer, modal e toast</h2>
+    <div class="row">
+      <button class="sc-btn sc-btn--secondary" data-open="drawer">Abrir painel lateral</button>
+      <button class="sc-btn sc-btn--danger" data-open="confirm">Excluir jornada</button>
+      <button class="sc-btn sc-btn--secondary" data-toast="success">Toast de sucesso</button>
+      <button class="sc-btn sc-btn--secondary" data-toast="error">Toast de erro</button>
+    </div>
+  </section>
+
+  <section id="estados" aria-labelledby="h-estados">
+    <h2 id="h-estados">Vazio, erro e carregando</h2>
+    <div class="grid">
+      <div class="sc-state"><span class="sc-state__icon" aria-hidden="true">∅</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Nenhum registro encontrado</h3><p class="sc-state__text">Ajuste o período ou os filtros para ver resultados.</p><button class="sc-btn sc-btn--secondary">Limpar filtros</button></div>
+      <div class="sc-state sc-state--error" role="alert"><span class="sc-state__icon" aria-hidden="true">!</span><h3 class="sc-state__title" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Não conseguimos carregar</h3><p class="sc-state__text">Verifique sua conexão com a rede da empresa e tente de novo.</p><button class="sc-btn sc-btn--primary">Tentar novamente</button></div>
+      <div class="sc-state" aria-busy="true" aria-label="Carregando" style="justify-items:stretch"><span class="sc-skeleton" style="width:60%"></span><span class="sc-skeleton"></span><span class="sc-skeleton"></span><span class="sc-skeleton" style="width:80%"></span></div>
+    </div>
+  </section>
+</main>
+
+<dialog class="sc-drawer" id="drawer" aria-labelledby="drawer-t">
+  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="drawer-t" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Ana Souza</h2><button class="sc-btn sc-btn--icon" aria-label="Fechar painel" data-close>✕</button></div>
+  <div class="sc-dialog__body">
+    <div class="sc-field"><label class="sc-label" for="d1">E-mail</label><input class="sc-input" id="d1" value="ana.souza@empresa.com.br"></div>
+    <label class="sc-toggle"><input type="checkbox" role="switch" checked><span>Aprovador de RH</span></label>
+  </div>
+  <div class="sc-dialog__foot"><button class="sc-btn sc-btn--secondary" data-close>Cancelar</button><button class="sc-btn sc-btn--primary" data-toast="success" data-close>Salvar</button></div>
+</dialog>
+
+<dialog class="sc-modal" id="confirm" aria-labelledby="confirm-t">
+  <div class="sc-dialog__head"><h2 class="sc-dialog__title" id="confirm-t" style="all:unset;font:700 var(--text-lg)/1.2 var(--font-display)">Excluir jornada?</h2></div>
+  <div class="sc-dialog__body"><p style="margin:0">A jornada "Comercial 8h" some do sistema e quem a usa fica sem jornada. Não dá para desfazer.</p></div>
+  <div class="sc-dialog__foot"><button class="sc-btn sc-btn--secondary" data-close autofocus>Cancelar</button><button class="sc-btn sc-btn--danger" data-toast="success" data-close>Excluir</button></div>
+</dialog>
+
+<div class="sc-toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // Amostras de tokens lidas do CSS, sem duplicar valores
+  const css = getComputedStyle(document.documentElement);
+  const groups = ["orange-50","orange-100","orange-200","orange-400","orange-500","orange-600","orange-700","gray-50","gray-100","gray-200","gray-400","gray-600","gray-800","gray-900","green-700","red-600","yellow-800","blue-700"];
+  $("#swatches").innerHTML = groups.map(n => {
+    const v = css.getPropertyValue(`--scua-${n}`).trim();
+    return `<div class="swatch"><i style="background:${v}"></i><b>${n}</b><code>${v}</code></div>`;
+  }).join("");
+  $("#spaces").innerHTML = [1,2,3,4,5,6,7].map(n => {
+    const v = css.getPropertyValue(`--space-${n}`).trim();
+    return `<div><code>--space-${n}</code><span class="space-bar" style="width:${v}"></span><span class="sc-num">${v}</span></div>`;
+  }).join("");
+
+  // Tabela com paginação
+  const nomes = ["Ana Souza","Bruno Lima","Carla Dias","Diego Alves","Elisa Prado","Fábio Neri","Gabi Torres","Hugo Matos","Irene Cruz","João Reis","Karen Melo","Leo Barros"];
+  const status = [["success","Aprovada"],["warning","Em aprovação"],["danger","Reprovada"]];
+  const rows = nomes.map((n, i) => ({ n, s: nomes[(i + 3) % 12], d: `${String(i + 1).padStart(2, "0")}/10/2026`, st: status[i % 3] }));
+  let page = 0;
+  function render() {
+    const size = +$("#page-size").value, total = rows.length, from = page * size;
+    $("#demo-table tbody").innerHTML = rows.slice(from, from + size).map(r =>
+      `<tr><td>${r.n}</td><td>${r.s}</td><td class="sc-num">${r.d}</td><td><span class="sc-badge sc-badge--${r.st[0]}">${r.st[1]}</span></td>
+       <td class="sc-actions"><button class="sc-btn sc-btn--icon" aria-label="Excluir extensão de ${r.n}" data-open="confirm"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></td></tr>`).join("");
+    $("#page-info").textContent = `${from + 1} a ${Math.min(from + size, total)} de ${total}`;
+    $("#prev").disabled = page === 0;
+    $("#next").disabled = from + size >= total;
+  }
+  $("#prev").onclick = () => { page--; render(); };
+  $("#next").onclick = () => { page++; render(); };
+  $("#page-size").onchange = () => { page = 0; render(); };
+  render();
+
+  // Multi-select: resumo
+  $$(".sc-multi input").forEach(i => i.addEventListener("change", () => {
+    const n = $$(".sc-multi input:checked").length;
+    $("#ms").textContent = n ? `${n} selecionado${n > 1 ? "s" : ""}` : "Nenhum selecionado";
+  }));
+
+  // Dialogs e toasts (delegação, vale para linhas recriadas)
+  function toast(kind) {
+    const el = document.createElement("div");
+    el.className = `sc-toast sc-toast--${kind}`;
+    el.innerHTML = `<span>${kind === "error" ? "Não foi possível salvar. Tente de novo." : "Alterações salvas."}</span><button aria-label="Fechar aviso">×</button>`;
+    el.querySelector("button").onclick = () => el.remove();
+    $("#toasts").append(el);
+    setTimeout(() => el.remove(), 6000);
+  }
+  document.addEventListener("click", e => {
+    const open = e.target.closest("[data-open]"); if (open) $("#" + open.dataset.open).showModal();
+    const t = e.target.closest("[data-toast]"); if (t) toast(t.dataset.toast);
+    const c = e.target.closest("[data-close]"); if (c) c.closest("dialog").close();
+  });
+</script>
+</body>
+</html>

@@ -28,7 +28,10 @@ function KpiCard({ label, value, period, unit, decimals = 0, loading = false, em
         {label}
       </p>
       {loading ? (
-        <Skeleton className="h-10 w-2/3" />
+        <>
+          <span className="sr-only">Carregando</span>
+          <Skeleton className="h-10 w-2/3" />
+        </>
       ) : empty ? (
         <p className="text-base font-semibold text-foreground">Sem dados no período</p>
       ) : (

@@ -14,7 +14,7 @@ Equipe: [@EnricoPesso](https://github.com/EnricoPesso), [@bpaolucci](https://git
 Na prática, as revisões ficam assim: Pedro revisa o bpaolucci · Miguel revisa o Enrico · Enrico revisa o Miguel · bpaolucci revisa o Pedro.
 
 Material de base (leia antes de começar):
-- [`analise-sistema/progresso.md`](analise-sistema/progresso.md): todas as telas atuais, rotas e os **20 problemas de UX** encontrados (citados abaixo como #1, #2…).
+- [`analise-sistema/progresso.md`](analise-sistema/progresso.md): todas as telas atuais, rotas e os **24 problemas de UX** encontrados (citados abaixo como #1, #2…).
 - [`perguntas-para-scua.md`](perguntas-para-scua.md): perguntas enviadas à Scua. As respostas podem mudar prioridades.
 - [`CLAUDE.md`](CLAUDE.md): skills por etapa e **critérios de pronto** (seção 3), que valem para todo mundo.
 

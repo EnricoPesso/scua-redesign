@@ -1,6 +1,16 @@
-import type { FiltroDef, ValoresFiltro } from "../modelos/relatorio/tipos.ts"
+// Regras puras do modelo de relatório (sem React nem alias @/), para rodarem com node --test.
 
-// Regras puras do modelo de relatório (sem React), para poderem ser testadas com node --test.
+type Opcao = { value: string; label: string }
+
+export type FiltroDef =
+  | { tipo: "multi"; chave: string; rotulo: string; opcoes: Opcao[] }
+  | { tipo: "select"; chave: string; rotulo: string; opcoes: Opcao[] }
+  | { tipo: "texto"; chave: string; rotulo: string; placeholder?: string }
+  // Sempre grava em "inicio" e "fim"; dias = tamanho do período padrão, terminando hoje.
+  | { tipo: "periodo"; dias: number }
+
+// multi → string[]; select/texto/período → string ("" = sem filtro).
+export type ValoresFiltro = Record<string, string | string[]>
 
 export function hojeIso(agora = new Date()): string {
   const p = (n: number) => String(n).padStart(2, "0")

@@ -1,7 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import type { FiltroDef } from "../modelos/relatorio/tipos.ts"
-import { contarFiltrosAtivos, erroPeriodo, formatarDataBr, nomeArquivo, somarDias, valoresPadrao } from "./relatorio.ts"
+import { contarFiltrosAtivos, erroPeriodo, formatarDataBr, nomeArquivo, somarDias, valoresPadrao, type FiltroDef } from "./relatorio.ts"
 
 const filtros: FiltroDef[] = [
   { tipo: "multi", chave: "colaboradores", rotulo: "Colaboradores", opcoes: [] },

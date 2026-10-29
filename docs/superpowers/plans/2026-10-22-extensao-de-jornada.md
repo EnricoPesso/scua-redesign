@@ -1915,3 +1915,939 @@ Expected: todos PASS.
 git add src/app src/features/extensoes/domain/abas* src/features/extensoes/hooks
 git commit -m "Abas por perfil, QueryClient e hooks de dados"
 ```
+
+---
+
+## PARTE 2 — Telas
+
+> Classes `sc-*` vêm do sistema de design (`design-system/components.css`). Em testes o CSS não é carregado; os testes usam papéis e textos acessíveis.
+
+### Task 9: Casca da página, abas, avisos e rotas
+
+**Files:**
+- Create: `app/src/features/extensoes/extensoes.module.css`, `components/Avisos.tsx`, `components/EstadoLista.tsx`, `components/AbasExtensoes.tsx`, `components/ExtensoesPage.tsx`, `features/extensoes/routes.tsx`, `api/mocks/browser.ts`, `app/src/app/Provedores.tsx`, `app/src/app/AppRoutes.tsx`, `app/src/test/render.tsx`
+- Modify: `app/src/App.tsx`, `app/src/main.tsx`
+- Delete: `app/src/App.test.tsx`
+- Test: `components/ExtensoesPage.test.tsx`, `components/Avisos.test.tsx`
+
+**Interfaces:**
+- Consumes: `usePermissoes`, `useTotais` (Task 8), `abasPermitidas`, `ehAba`, `ROTULO_ABA` (Task 8), `mensagemParaUsuario` (Task 6), `criarQueryClient` (Task 8), mock (Task 7).
+- Produces: `AvisosProvider`, `useAvisar(): (texto: string) => void`; `EstadoLista` (props `{tipo:'carregando'} | {tipo:'vazio'; titulo; texto?; acao?; icone?} | {tipo:'erro'; mensagem; onTentarDeNovo}`); `ExtensoesPage` (sem props nesta task); `RotasExtensoes`; `AppRoutes`; `Provedores({ client, children })`; `renderApp(rota: string): { user, client, ...RenderResult }`; no navegador: `npm run dev:mock` com `?como=ana|carlos|renata…` e `window.__scuaMock`.
+
+- [ ] **Step 1: CSS da feature** — criar `extensoes.module.css`:
+
+```css
+.pagina { max-width: 75rem; margin: 0 auto; padding: var(--space-5) var(--space-4) var(--space-7); display: grid; gap: var(--space-4); }
+.cabecalho { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.cabecalho h1 { margin: 0; font: 700 var(--text-xl)/var(--leading-tight) var(--font-display); }
+
+/* Abas: o sistema de design ainda não tem este componente (pedir ao @PhLima07). */
+.abas { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+.aba { display: inline-flex; align-items: center; min-height: var(--hit); padding: 0 var(--space-4); color: var(--color-text-muted); font-weight: 600; text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+.aba:hover { color: var(--color-text); }
+.aba:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
+.abaAtiva { color: var(--color-text); border-bottom-color: var(--color-accent); }
+```
+
+- [ ] **Step 2: Testes que falham** — criar `components/Avisos.test.tsx`:
+
+```tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { expect, it } from 'vitest';
+import { AvisosProvider, useAvisar } from './Avisos';
+
+function Botao() {
+  const avisar = useAvisar();
+  return <button onClick={() => avisar('Pedido enviado.')}>Avisar</button>;
+}
+
+it('mostra o aviso e deixa fechar', async () => {
+  const user = userEvent.setup();
+  render(<AvisosProvider><Botao /></AvisosProvider>);
+  await user.click(screen.getByRole('button', { name: 'Avisar' }));
+  expect(screen.getByText('Pedido enviado.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Fechar aviso' }));
+  expect(screen.queryByText('Pedido enviado.')).not.toBeInTheDocument();
+});
+```
+
+Criar `app/src/test/render.tsx`:
+
+```tsx
+import { render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
+import { AppRoutes } from '../app/AppRoutes';
+import { Provedores } from '../app/Provedores';
+import { criarQueryClient } from '../app/queryClient';
+
+export function renderApp(rota: string) {
+  const client = criarQueryClient({ semRetry: true });
+  const user = userEvent.setup();
+  const resultado = render(
+    <Provedores client={client}>
+      <MemoryRouter initialEntries={[rota]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppRoutes />
+      </MemoryRouter>
+    </Provedores>,
+  );
+  return { user, client, ...resultado };
+}
+```
+
+Criar `components/ExtensoesPage.test.tsx`:
+
+```tsx
+import { screen } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderApp } from '../../../test/render';
+import { server } from '../../../test/server';
+import { entrarComo } from '../api/mocks/db';
+
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+describe('Página de extensões', () => {
+  it('gestor cai em "Para aprovar" com a contagem de pendentes', async () => {
+    renderApp('/extensoes');
+    const aba = await screen.findByRole('link', { name: 'Para aprovar (5)' });
+    expect(aba).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('heading', { name: 'Extensões de jornada' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '+ Nova extensão' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Todos' })).not.toBeInTheDocument();
+  });
+
+  it('colaborador cai em "Meus pedidos" e não vê "Para aprovar"', async () => {
+    entrarComo('ana');
+    renderApp('/extensoes');
+    expect(await screen.findByRole('link', { name: 'Meus pedidos' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('link', { name: /Para aprovar/ })).not.toBeInTheDocument();
+  });
+
+  it('RH cai em "Todos" e não tem "Nova extensão"', async () => {
+    entrarComo('renata');
+    renderApp('/extensoes');
+    expect(await screen.findByRole('link', { name: 'Todos' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.queryByRole('link', { name: '+ Nova extensão' })).not.toBeInTheDocument();
+  });
+
+  it('aba não permitida volta para a aba inicial', async () => {
+    entrarComo('ana');
+    renderApp('/extensoes/todos');
+    expect(await screen.findByRole('link', { name: 'Meus pedidos' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('quem não tem nenhuma aba vê um aviso', async () => {
+    server.use(http.get('*/api/me/permissoes', () => HttpResponse.json({
+      usuario: { id: 'u-x', nome: 'X' }, podePedir: false, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false,
+    })));
+    renderApp('/extensoes');
+    expect(await screen.findByText('Você não tem acesso às extensões de jornada.')).toBeInTheDocument();
+  });
+
+  it('falha ao carregar permissões mostra mensagem amigável e tenta de novo', async () => {
+    server.use(http.get('*/api/me/permissoes', () => HttpResponse.json({ codigo: 'X' }, { status: 500 }), { once: true }));
+    const { user } = renderApp('/extensoes');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não conseguimos carregar os pedidos');
+    await user.click(screen.getByRole('button', { name: 'Tentar de novo' }));
+    expect(await screen.findByRole('link', { name: /Para aprovar/ })).toBeInTheDocument();
+  });
+});
+```
+
+- [ ] **Step 3: Ver falhar**
+
+Run: `npx vitest run src/features/extensoes/components`
+Expected: FAIL — imports não resolvem.
+
+- [ ] **Step 4: Implementar**
+
+`components/Avisos.tsx`:
+
+```tsx
+import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+
+type Avisar = (texto: string) => void;
+const AvisosContexto = createContext<Avisar>(() => {});
+
+export function AvisosProvider({ children }: { children: ReactNode }) {
+  const [avisos, setAvisos] = useState<{ id: number; texto: string }[]>([]);
+  const proximoId = useRef(0);
+  const remover = useCallback((id: number) => setAvisos((lista) => lista.filter((a) => a.id !== id)), []);
+  const avisar = useCallback<Avisar>((texto) => {
+    const id = ++proximoId.current;
+    setAvisos((lista) => [...lista, { id, texto }]);
+    window.setTimeout(() => remover(id), 5000);
+  }, [remover]);
+
+  return (
+    <AvisosContexto.Provider value={avisar}>
+      {children}
+      <div className="sc-toasts" role="status" aria-live="polite">
+        {avisos.map((a) => (
+          <div key={a.id} className="sc-toast sc-toast--success">
+            <span>{a.texto}</span>
+            <button type="button" aria-label="Fechar aviso" onClick={() => remover(a.id)}>×</button>
+          </div>
+        ))}
+      </div>
+    </AvisosContexto.Provider>
+  );
+}
+
+export const useAvisar = () => useContext(AvisosContexto);
+```
+
+`components/EstadoLista.tsx`:
+
+```tsx
+import type { ReactNode } from 'react';
+
+type Props =
+  | { tipo: 'carregando' }
+  | { tipo: 'vazio'; titulo: string; texto?: string; acao?: ReactNode; icone?: string }
+  | { tipo: 'erro'; mensagem: string; onTentarDeNovo: () => void };
+
+export function EstadoLista(props: Props) {
+  if (props.tipo === 'carregando') {
+    return (
+      <div className="sc-state" role="status" aria-busy="true" aria-label="Carregando" style={{ justifyItems: 'stretch' }}>
+        <span className="sc-skeleton" style={{ width: '60%' }} />
+        <span className="sc-skeleton" />
+        <span className="sc-skeleton" />
+        <span className="sc-skeleton" style={{ width: '80%' }} />
+      </div>
+    );
+  }
+  if (props.tipo === 'erro') {
+    return (
+      <div className="sc-state sc-state--error" role="alert">
+        <span className="sc-state__icon" aria-hidden="true">!</span>
+        <p className="sc-state__text">{props.mensagem}</p>
+        <button type="button" className="sc-btn sc-btn--primary" onClick={props.onTentarDeNovo}>Tentar de novo</button>
+      </div>
+    );
+  }
+  return (
+    <div className="sc-state">
+      <span className="sc-state__icon" aria-hidden="true">{props.icone ?? '∅'}</span>
+      <h3 className="sc-state__title">{props.titulo}</h3>
+      {props.texto && <p className="sc-state__text">{props.texto}</p>}
+      {props.acao}
+    </div>
+  );
+}
+```
+
+`components/AbasExtensoes.tsx`:
+
+```tsx
+import { NavLink } from 'react-router-dom';
+import { ROTULO_ABA } from '../domain/abas';
+import type { Aba } from '../domain/types';
+import { useTotais } from '../hooks/queries';
+import s from '../extensoes.module.css';
+
+export function AbasExtensoes({ abas }: { abas: Aba[] }) {
+  const pendentes = useTotais({ aba: 'aprovar', de: '', ate: '' }, abas.includes('aprovar'));
+  return (
+    <nav aria-label="Abas de extensões" className={s.abas}>
+      {abas.map((aba) => (
+        <NavLink key={aba} to={`/extensoes/${aba}`} className={({ isActive }) => (isActive ? `${s.aba} ${s.abaAtiva}` : s.aba)}>
+          {ROTULO_ABA[aba]}{aba === 'aprovar' && pendentes.data ? ` (${pendentes.data.pendentes})` : ''}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+```
+
+`components/ExtensoesPage.tsx`:
+
+```tsx
+import { Link, Navigate, useParams } from 'react-router-dom';
+import { abasPermitidas, ehAba } from '../domain/abas';
+import { mensagemParaUsuario } from '../domain/erros';
+import { usePermissoes } from '../hooks/queries';
+import { AbasExtensoes } from './AbasExtensoes';
+import { EstadoLista } from './EstadoLista';
+import s from '../extensoes.module.css';
+
+export function ExtensoesPage() {
+  const { aba } = useParams();
+  const permissoes = usePermissoes();
+
+  if (permissoes.isPending) return <main className={s.pagina}><EstadoLista tipo="carregando" /></main>;
+  if (permissoes.isError) {
+    return (
+      <main className={s.pagina}>
+        <EstadoLista tipo="erro" mensagem={mensagemParaUsuario(permissoes.error, 'carregar')} onTentarDeNovo={() => void permissoes.refetch()} />
+      </main>
+    );
+  }
+  const abas = abasPermitidas(permissoes.data);
+  if (abas.length === 0) return <main className={s.pagina}><p role="status">Você não tem acesso às extensões de jornada.</p></main>;
+  if (!ehAba(aba) || !abas.includes(aba)) return <Navigate to={`/extensoes/${abas[0]}`} replace />;
+
+  return (
+    <main className={s.pagina}>
+      <header className={s.cabecalho}>
+        <h1>Extensões de jornada</h1>
+        {permissoes.data.podePedir && <Link to="/extensoes/meus/novo" className="sc-btn sc-btn--primary">+ Nova extensão</Link>}
+      </header>
+      <AbasExtensoes abas={abas} />
+    </main>
+  );
+}
+```
+
+`features/extensoes/routes.tsx`:
+
+```tsx
+import { Route, Routes } from 'react-router-dom';
+import { ExtensoesPage } from './components/ExtensoesPage';
+
+export function RotasExtensoes() {
+  return (
+    <Routes>
+      <Route index element={<ExtensoesPage />} />
+      <Route path=":aba" element={<ExtensoesPage />} />
+    </Routes>
+  );
+}
+```
+
+`app/src/app/Provedores.tsx`:
+
+```tsx
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
+import { AvisosProvider } from '../features/extensoes/components/Avisos';
+
+export function Provedores({ client, children }: { client: QueryClient; children: ReactNode }) {
+  return (
+    <QueryClientProvider client={client}>
+      <AvisosProvider>{children}</AvisosProvider>
+    </QueryClientProvider>
+  );
+}
+```
+
+`app/src/app/AppRoutes.tsx`:
+
+```tsx
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { RotasExtensoes } from '../features/extensoes/routes';
+
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/extensoes/*" element={<RotasExtensoes />} />
+      <Route path="*" element={<Navigate to="/extensoes" replace />} />
+    </Routes>
+  );
+}
+```
+
+`app/src/App.tsx` (substituir):
+
+```tsx
+import { BrowserRouter } from 'react-router-dom';
+import { AppRoutes } from './app/AppRoutes';
+import { Provedores } from './app/Provedores';
+import { criarQueryClient } from './app/queryClient';
+
+const client = criarQueryClient();
+
+export default function App() {
+  return (
+    <Provedores client={client}>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppRoutes />
+      </BrowserRouter>
+    </Provedores>
+  );
+}
+```
+
+`api/mocks/browser.ts`:
+
+```ts
+import { setupWorker } from 'msw/browser';
+import { decidirExterno, entrarComo, PESSOAS, resetarDb, simularFalha, type ChavePessoa } from './db';
+import { handlers } from './handlers';
+
+export const worker = setupWorker(...handlers);
+
+// ?como=ana troca o usuário simulado (útil no navegador e no Playwright).
+const como = new URLSearchParams(window.location.search).get('como');
+if (como && como in PESSOAS) entrarComo(como as ChavePessoa);
+
+Object.assign(window, { __scuaMock: { entrarComo, decidirExterno, simularFalha, resetarDb } });
+```
+
+`app/src/main.tsx` (substituir):
+
+```tsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '../../design-system/tokens.css';
+import '../../design-system/base.css';
+import '../../design-system/components.css';
+import './index.css';
+import App from './App';
+
+async function iniciar() {
+  if (import.meta.env.VITE_API_MOCK === 'true') {
+    const { worker } = await import('./features/extensoes/api/mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass' });
+  }
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}
+
+void iniciar();
+```
+
+Apagar `app/src/App.test.tsx` (o teste de fumaça da Task 1 deixa de valer; a página tem testes próprios).
+
+- [ ] **Step 5: Ver passar**
+
+Run: `npm test && npm run typecheck && npm run lint`
+Expected: todos PASS (avisos de `react-refresh/only-export-components` em `Avisos.tsx` são aceitáveis).
+
+- [ ] **Step 6: Conferir no navegador**
+
+Run: `npm run dev:mock`. Abrir `http://localhost:5173/extensoes` → abas "Para aprovar (5)" e "Meus pedidos". Abrir `http://localhost:5173/extensoes?como=renata` → só "Todos".
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A src
+git commit -m "Casca da página de extensões com abas por perfil"
+```
+
+---
+
+### Task 10: Lista — filtros, contadores, tabela, paginação e estados
+
+**Files:**
+- Create: `components/useFiltros.ts`, `components/ListaPedidos.tsx`, `components/FiltrosBarra.tsx`, `components/Contadores.tsx`, `components/TabelaPedidos.tsx`, `components/SeloStatus.tsx`, `components/Paginacao.tsx`
+- Modify: `components/ExtensoesPage.tsx`, `extensoes.module.css`
+- Test: `components/ListaPedidos.test.tsx`
+
+**Interfaces:**
+- Consumes: `useListaPedidos`, `useTotais` (Task 8), `extensoesApi.exportarUrl` (Task 7), formatação (Task 5), horas (Task 2), `EstadoLista` (Task 9).
+- Produces: `periodoPadrao(aba, hoje)`, `semPaginacao(f: Filtros): FiltrosSemPagina`, `useFiltros(aba): { filtros: Filtros; atualizar(m: Partial<Record<ChaveFiltro, string>>): void; limpar(): void; ativos: number }`; `TAMANHOS_PAGINA = [10, 25, 50]`; `SeloStatus({ status })`; `TabelaPedidos({ aba, pedidos })` (cada linha tem link `/extensoes/<aba>/<id><search>`); `ListaPedidos({ aba })`.
+
+- [ ] **Step 1: Teste que falha** — criar `components/ListaPedidos.test.tsx`:
+
+```tsx
+import { screen, waitFor, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { renderApp } from '../../../test/render';
+import { server } from '../../../test/server';
+import { extensoesApi } from '../api/extensoesApi';
+import { entrarComo } from '../api/mocks/db';
+
+const NOMES = /Ana Souza|João Lima|Bia Rocha|Rui Alves|Xavier Pinto/;
+const kpi = (nome: string) => screen.findByRole('article', { name: nome });
+const linhaDe = (nome: string) => screen.getAllByRole('link', { name: nome })[0].closest('tr')!;
+
+beforeEach(() => {
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+describe('Lista de pedidos', () => {
+  it('fila mostra pendente de setembro primeiro (mais antigo primeiro)', async () => {
+    renderApp('/extensoes/aprovar');
+    await screen.findByRole('link', { name: 'Rui Alves' });
+    const nomes = screen.getAllByRole('link', { name: NOMES }).map((l) => l.textContent);
+    expect(nomes).toEqual(['Bia Rocha', 'João Lima', 'Ana Souza', 'Bia Rocha', 'Rui Alves']);
+    expect(linhaDe('Bia Rocha')).toHaveTextContent('29/09 · 18:00–20:00');
+  });
+
+  it('linha mostra horas, motivo e status; contadores mostram o período', async () => {
+    renderApp('/extensoes/aprovar');
+    await screen.findByRole('link', { name: 'Ana Souza' });
+    const ana = linhaDe('Ana Souza');
+    expect(ana).toHaveTextContent('13–15/10 · 18:00–20:00');
+    expect(within(ana).getByText('6h')).toBeInTheDocument();
+    expect(within(ana).getByText('Janela de deploy')).toBeInTheDocument();
+    expect(within(ana).getByText('Pendente')).toBeInTheDocument();
+    const emAprovacao = await kpi('Em aprovação');
+    expect(emAprovacao).toHaveTextContent('5');
+    expect(emAprovacao).toHaveTextContent('no total');
+  });
+
+  it('"Meus pedidos" mostra pedido do mês que vem e o rótulo do período', async () => {
+    await extensoesApi.criar({ beneficiarioId: 'u-ana', dataInicial: '2026-11-05', dataFinal: '2026-11-05', horario: { inicio: '18:00', fim: '19:00' }, justificativaCodigo: '5', detalhes: '' });
+    entrarComo('ana');
+    renderApp('/extensoes/meus');
+    expect(await screen.findByText('05/11 · 18:00–19:00')).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Ana Souza' })).toHaveLength(4);
+    const horas = await kpi('Horas aprovadas');
+    expect(horas).toHaveTextContent('6h');
+    expect(horas).toHaveTextContent('a partir de 01/10');
+  });
+
+  it('RH filtra por status e o link de exportar leva o filtro', async () => {
+    entrarComo('renata');
+    const { user } = renderApp('/extensoes/todos');
+    await screen.findByRole('link', { name: 'Xavier Pinto' });
+    await user.selectOptions(screen.getByLabelText('Status'), 'reprovado');
+    await waitFor(() => expect(screen.getAllByRole('link', { name: NOMES })).toHaveLength(1));
+    expect(screen.getByRole('link', { name: 'João Lima' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Exportar' })).toHaveAttribute('href', '/api/extensoes/exportar?aba=todos&de=2026-10-01&ate=2026-10-31&status=reprovado');
+  });
+
+  it('aba vazia mostra a mensagem própria', async () => {
+    renderApp('/extensoes/meus');
+    expect(await screen.findByText('Você ainda não pediu nenhuma extensão.')).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: '+ Nova extensão' })).toHaveLength(2);
+  });
+
+  it('filtro sem resultado oferece limpar filtros', async () => {
+    entrarComo('renata');
+    const { user } = renderApp('/extensoes/todos');
+    await screen.findByRole('link', { name: 'Xavier Pinto' });
+    await user.type(screen.getByLabelText('Pessoa'), 'zzz');
+    const vazio = await screen.findByText('Nenhum pedido no mês com esses filtros.');
+    await user.click(within(vazio.closest('.sc-state') as HTMLElement).getByRole('button', { name: 'Limpar filtros' }));
+    expect(await screen.findByRole('link', { name: 'Xavier Pinto' })).toBeInTheDocument();
+  });
+
+  it('erro ao carregar mostra mensagem amigável e tenta de novo', async () => {
+    server.use(http.get('*/api/extensoes', () => HttpResponse.json({ codigo: 'X' }, { status: 500 }), { once: true }));
+    const { user } = renderApp('/extensoes/aprovar');
+    const alerta = await screen.findByRole('alert');
+    expect(alerta).toHaveTextContent('Não conseguimos carregar os pedidos');
+    expect(alerta).not.toHaveTextContent('500');
+    await user.click(within(alerta).getByRole('button', { name: 'Tentar de novo' }));
+    expect(await screen.findByRole('link', { name: 'Rui Alves' })).toBeInTheDocument();
+  });
+
+  it('ignora paginação e status inválidos na URL', async () => {
+    renderApp('/extensoes/aprovar?pagina=abc&tamanho=9999&status=xyz');
+    await screen.findByRole('link', { name: 'Rui Alves' });
+    expect(screen.getByLabelText('Itens por página')).toHaveValue('25');
+    expect(screen.getByText('1–5 de 5')).toBeInTheDocument();
+  });
+
+  it('volta para a página 1 quando a página pedida não existe', async () => {
+    renderApp('/extensoes/aprovar?pagina=9');
+    expect(await screen.findByRole('link', { name: 'Rui Alves' })).toBeInTheDocument();
+    expect(screen.getByText('1–5 de 5')).toBeInTheDocument();
+  });
+});
+```
+
+- [ ] **Step 2: Ver falhar**
+
+Run: `npx vitest run src/features/extensoes/components/ListaPedidos.test.tsx`
+Expected: FAIL — a página ainda não mostra tabela.
+
+- [ ] **Step 3: Implementar**
+
+`components/Paginacao.tsx`:
+
+```tsx
+export const TAMANHOS_PAGINA = [10, 25, 50];
+
+interface Props { total: number; pagina: number; tamanho: number; aoMudar: (pagina: number, tamanho: number) => void }
+
+export function Paginacao({ total, pagina, tamanho, aoMudar }: Props) {
+  const inicio = total === 0 ? 0 : (pagina - 1) * tamanho + 1;
+  const fim = Math.min(total, pagina * tamanho);
+  return (
+    <nav aria-label="Paginação" className="sc-pager">
+      <label className="sc-pager__size">
+        Itens por página
+        <select className="sc-select" value={tamanho} onChange={(e) => aoMudar(1, Number(e.target.value))}>
+          {TAMANHOS_PAGINA.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </label>
+      <span className="sc-num">{inicio}–{fim} de {total}</span>
+      <div className="sc-pager__nav">
+        <button type="button" className="sc-btn sc-btn--secondary" disabled={pagina <= 1} onClick={() => aoMudar(pagina - 1, tamanho)}>Anterior</button>
+        <button type="button" className="sc-btn sc-btn--secondary" disabled={fim >= total} onClick={() => aoMudar(pagina + 1, tamanho)}>Próxima</button>
+      </div>
+    </nav>
+  );
+}
+```
+
+`components/useFiltros.ts`:
+
+```ts
+import { useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { hojeLocal, periodoDoMes } from '../domain/formatacao';
+import type { Aba, Filtros, FiltrosSemPagina, Status } from '../domain/types';
+import { TAMANHOS_PAGINA } from './Paginacao';
+
+const STATUS: Status[] = ['pendente', 'aprovado', 'reprovado', 'cancelado'];
+const CHAVES_FILTRO = ['de', 'ate', 'status', 'pessoa', 'gestor', 'grupo'] as const;
+export type ChaveFiltro = (typeof CHAVES_FILTRO)[number] | 'pagina' | 'tamanho';
+
+/** Ver "Decisões tomadas no plano" 1–3. */
+export function periodoPadrao(aba: Aba, hoje: string): { de: string; ate: string } {
+  const mes = periodoDoMes(hoje);
+  if (aba === 'aprovar') return { de: '', ate: '' };
+  if (aba === 'meus') return { de: mes.de, ate: '' };
+  return mes;
+}
+
+export function semPaginacao(f: Filtros): FiltrosSemPagina {
+  const { pagina, tamanho, ...resto } = f;
+  void pagina;
+  void tamanho;
+  return resto;
+}
+
+/** Filtros vivem na URL. Valores inválidos viram o padrão. */
+export function useFiltros(aba: Aba) {
+  const [params, setParams] = useSearchParams();
+  const padrao = periodoPadrao(aba, hojeLocal());
+  const pagina = Number(params.get('pagina'));
+  const tamanho = Number(params.get('tamanho'));
+  const status = params.get('status') as Status | null;
+
+  const filtros: Filtros = {
+    aba,
+    de: params.get('de') ?? padrao.de,
+    ate: params.get('ate') ?? padrao.ate,
+    status: status && STATUS.includes(status) ? status : undefined,
+    pessoa: params.get('pessoa') || undefined,
+    gestor: params.get('gestor') || undefined,
+    grupo: params.get('grupo') || undefined,
+    pagina: Number.isInteger(pagina) && pagina >= 1 ? pagina : 1,
+    tamanho: TAMANHOS_PAGINA.includes(tamanho) ? tamanho : 25,
+  };
+  const ativos = CHAVES_FILTRO.filter((c) => params.has(c)).length;
+
+  const atualizar = useCallback((mudancas: Partial<Record<ChaveFiltro, string>>) => {
+    setParams((atual) => {
+      const novo = new URLSearchParams(atual);
+      for (const [chave, valor] of Object.entries(mudancas)) {
+        if (valor === undefined) continue;
+        // "De"/"Até" vazios são escolha do usuário (sem limite), então ficam na URL.
+        if (valor === '' && chave !== 'de' && chave !== 'ate') novo.delete(chave);
+        else novo.set(chave, valor);
+      }
+      if (!('pagina' in mudancas)) novo.delete('pagina');
+      return novo;
+    }, { replace: true });
+  }, [setParams]);
+
+  const limpar = useCallback(() => setParams(new URLSearchParams(), { replace: true }), [setParams]);
+
+  return { filtros, atualizar, limpar, ativos };
+}
+```
+
+`components/SeloStatus.tsx`:
+
+```tsx
+import type { Status } from '../domain/types';
+
+const SELO: Record<Status, { rotulo: string; classe: string }> = {
+  pendente: { rotulo: 'Pendente', classe: 'sc-badge--warning' },
+  aprovado: { rotulo: 'Aprovado', classe: 'sc-badge--success' },
+  reprovado: { rotulo: 'Reprovado', classe: 'sc-badge--danger' },
+  cancelado: { rotulo: 'Cancelado', classe: 'sc-badge--neutral' },
+};
+
+export function SeloStatus({ status }: { status: Status }) {
+  return <span className={`sc-badge ${SELO[status].classe}`}>{SELO[status].rotulo}</span>;
+}
+```
+
+`components/Contadores.tsx`:
+
+```tsx
+import type { UseQueryResult } from '@tanstack/react-query';
+import { useId } from 'react';
+import { formatarDuracao } from '../domain/horas';
+import type { Totais } from '../domain/types';
+import s from '../extensoes.module.css';
+
+function Kpi({ rotulo, valor, periodo }: { rotulo: string; valor: string; periodo: string }) {
+  const id = useId();
+  return (
+    <article className="sc-kpi" aria-labelledby={id}>
+      <h3 className="sc-kpi__label" id={id}>{rotulo}</h3>
+      <p className="sc-kpi__value">{valor}</p>
+      <p className={`sc-kpi__period ${s.periodo}`}>{periodo}</p>
+    </article>
+  );
+}
+
+export function Contadores({ totais, rotulo }: { totais: UseQueryResult<Totais>; rotulo: string }) {
+  if (totais.isPending) {
+    return (
+      <div className={s.contadores} aria-hidden="true">
+        {[0, 1, 2].map((i) => <div key={i} className="sc-kpi"><span className="sc-skeleton" /></div>)}
+      </div>
+    );
+  }
+  if (totais.isError) return null;
+  const t = totais.data;
+  return (
+    <div className={s.contadores}>
+      <Kpi rotulo="Em aprovação" valor={String(t.pendentes)} periodo={rotulo} />
+      <Kpi rotulo="Horas aprovadas" valor={formatarDuracao(t.minutosAprovados)} periodo={rotulo} />
+      <Kpi rotulo="Reprovados" valor={String(t.reprovados)} periodo={rotulo} />
+    </div>
+  );
+}
+```
+
+`components/TabelaPedidos.tsx`:
+
+```tsx
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { formatarPeriodo } from '../domain/formatacao';
+import { formatarDuracao, totalMinutos } from '../domain/horas';
+import type { Aba, Pedido } from '../domain/types';
+import { SeloStatus } from './SeloStatus';
+import s from '../extensoes.module.css';
+
+export function TabelaPedidos({ aba, pedidos }: { aba: Aba; pedidos: Pedido[] }) {
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const linkDe = (id: string) => `/extensoes/${aba}/${id}${search}`;
+
+  return (
+    <div className="sc-table-wrap">
+      <div className="sc-table-scroll">
+        <table className={`sc-table ${s.tabela}`}>
+          <caption className="sc-sr-only">Pedidos de extensão</caption>
+          <thead>
+            <tr>
+              <th scope="col">Beneficiário</th>
+              {aba === 'todos' && <><th scope="col">Solicitante</th><th scope="col">Gestor</th></>}
+              <th scope="col">Período</th>
+              <th scope="col">Horas</th>
+              <th scope="col">Justificativa</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pedidos.map((p) => (
+              <tr key={p.id} className={s.linha}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest('a, input, button, label')) return;
+                  navigate(linkDe(p.id));
+                }}>
+                <td data-rotulo="Beneficiário"><Link to={linkDe(p.id)}>{p.beneficiario.nome}</Link></td>
+                {aba === 'todos' && (
+                  <>
+                    <td data-rotulo="Solicitante">{p.solicitante.nome}</td>
+                    <td data-rotulo="Gestor">{p.gestor?.nome ?? '—'}</td>
+                  </>
+                )}
+                <td data-rotulo="Período">{formatarPeriodo(p.dataInicial, p.dataFinal, p.horario)}</td>
+                <td data-rotulo="Horas" className="sc-num">{formatarDuracao(totalMinutos(p.dataInicial, p.dataFinal, p.horario))}</td>
+                <td data-rotulo="Justificativa">{p.justificativa.descricao}</td>
+                <td data-rotulo="Status"><SeloStatus status={p.status} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+```
+
+`components/FiltrosBarra.tsx`:
+
+```tsx
+import { useEffect, useId, useState } from 'react';
+import { extensoesApi } from '../api/extensoesApi';
+import type { Aba, Filtros } from '../domain/types';
+import { semPaginacao, type ChaveFiltro } from './useFiltros';
+import s from '../extensoes.module.css';
+
+function CampoTextoAtrasado({ rotulo, valor, aoMudar }: { rotulo: string; valor: string; aoMudar: (v: string) => void }) {
+  const [texto, setTexto] = useState(valor);
+  const id = useId();
+  useEffect(() => setTexto(valor), [valor]);
+  useEffect(() => {
+    if (texto === valor) return;
+    const t = window.setTimeout(() => aoMudar(texto), 300);
+    return () => window.clearTimeout(t);
+  }, [texto, valor, aoMudar]);
+  return (
+    <div className={`sc-field ${s.filtro}`}>
+      <label className="sc-label" htmlFor={id}>{rotulo}</label>
+      <input id={id} className="sc-input" type="search" value={texto} onChange={(e) => setTexto(e.target.value)} />
+    </div>
+  );
+}
+
+interface Props {
+  aba: Aba;
+  filtros: Filtros;
+  ativos: number;
+  atualizar: (m: Partial<Record<ChaveFiltro, string>>) => void;
+  limpar: () => void;
+}
+
+export function FiltrosBarra({ aba, filtros, ativos, atualizar, limpar }: Props) {
+  const [aberto, setAberto] = useState(false);
+  const idPainel = useId();
+  const idDe = useId();
+  const idAte = useId();
+  const idStatus = useId();
+
+  return (
+    <div className={s.filtros}>
+      <button type="button" className={`sc-btn sc-btn--secondary ${s.botaoFiltros}`} aria-expanded={aberto} aria-controls={idPainel} onClick={() => setAberto((a) => !a)}>
+        Filtros{ativos > 0 ? ` (${ativos})` : ''}
+      </button>
+      <div id={idPainel} className={s.painelFiltros} data-aberto={aberto}>
+        <div className={`sc-field ${s.filtro}`}>
+          <label className="sc-label" htmlFor={idDe}>De</label>
+          <input id={idDe} className="sc-input" type="date" value={filtros.de} onChange={(e) => atualizar({ de: e.target.value })} />
+        </div>
+        <div className={`sc-field ${s.filtro}`}>
+          <label className="sc-label" htmlFor={idAte}>Até</label>
+          <input id={idAte} className="sc-input" type="date" value={filtros.ate} onChange={(e) => atualizar({ ate: e.target.value })} />
+        </div>
+        {aba !== 'aprovar' && (
+          <div className={`sc-field ${s.filtro}`}>
+            <label className="sc-label" htmlFor={idStatus}>Status</label>
+            <select id={idStatus} className="sc-select" value={filtros.status ?? ''} onChange={(e) => atualizar({ status: e.target.value })}>
+              <option value="">Todos</option>
+              <option value="pendente">Pendente</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="reprovado">Reprovado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        )}
+        <CampoTextoAtrasado rotulo="Pessoa" valor={filtros.pessoa ?? ''} aoMudar={(v) => atualizar({ pessoa: v })} />
+        {aba === 'todos' && (
+          <>
+            <CampoTextoAtrasado rotulo="Gestor" valor={filtros.gestor ?? ''} aoMudar={(v) => atualizar({ gestor: v })} />
+            <CampoTextoAtrasado rotulo="Grupo" valor={filtros.grupo ?? ''} aoMudar={(v) => atualizar({ grupo: v })} />
+            <a className="sc-btn sc-btn--secondary" href={extensoesApi.exportarUrl(semPaginacao(filtros))} download>Exportar</a>
+          </>
+        )}
+        {ativos > 0 && <button type="button" className="sc-btn sc-btn--secondary" onClick={limpar}>Limpar filtros</button>}
+      </div>
+    </div>
+  );
+}
+```
+
+`components/ListaPedidos.tsx`:
+
+```tsx
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { mensagemParaUsuario } from '../domain/erros';
+import { hojeLocal, rotuloPeriodo } from '../domain/formatacao';
+import type { Aba } from '../domain/types';
+import { useListaPedidos, useTotais } from '../hooks/queries';
+import { Contadores } from './Contadores';
+import { EstadoLista } from './EstadoLista';
+import { FiltrosBarra } from './FiltrosBarra';
+import { Paginacao } from './Paginacao';
+import { TabelaPedidos } from './TabelaPedidos';
+import { semPaginacao, useFiltros } from './useFiltros';
+import s from '../extensoes.module.css';
+
+export function ListaPedidos({ aba }: { aba: Aba }) {
+  const { filtros, atualizar, limpar, ativos } = useFiltros(aba);
+  const lista = useListaPedidos(filtros);
+  const totais = useTotais(semPaginacao(filtros));
+  const rotulo = rotuloPeriodo(filtros.de, filtros.ate, hojeLocal());
+  const dados = lista.data;
+
+  // Página além do fim (URL antiga ou itens que sumiram): volta para a primeira.
+  useEffect(() => {
+    if (dados && dados.itens.length === 0 && dados.total > 0 && filtros.pagina > 1) atualizar({ pagina: '1' });
+  }, [dados, filtros.pagina, atualizar]);
+
+  let conteudo;
+  if (lista.isPending) {
+    conteudo = <EstadoLista tipo="carregando" />;
+  } else if (lista.isError) {
+    conteudo = <EstadoLista tipo="erro" mensagem={mensagemParaUsuario(lista.error, 'carregar')} onTentarDeNovo={() => void lista.refetch()} />;
+  } else if (lista.data.itens.length === 0 && ativos > 0) {
+    conteudo = (
+      <EstadoLista tipo="vazio" titulo={`Nenhum pedido ${rotulo} com esses filtros.`}
+        acao={<button type="button" className="sc-btn sc-btn--secondary" onClick={limpar}>Limpar filtros</button>} />
+    );
+  } else if (lista.data.itens.length === 0) {
+    conteudo =
+      aba === 'aprovar' ? <EstadoLista tipo="vazio" icone="✓" titulo="Tudo em dia!" texto="Nenhum pedido esperando sua aprovação." />
+      : aba === 'meus' ? <EstadoLista tipo="vazio" titulo="Você ainda não pediu nenhuma extensão." acao={<Link to="/extensoes/meus/novo" className="sc-btn sc-btn--primary">+ Nova extensão</Link>} />
+      : <EstadoLista tipo="vazio" titulo={`Nenhum pedido ${rotulo}.`} />;
+  } else {
+    conteudo = (
+      <>
+        <TabelaPedidos aba={aba} pedidos={lista.data.itens} />
+        <Paginacao total={lista.data.total} pagina={filtros.pagina} tamanho={filtros.tamanho}
+          aoMudar={(pagina, tamanho) => atualizar({ pagina: String(pagina), tamanho: String(tamanho) })} />
+      </>
+    );
+  }
+
+  return (
+    <section aria-label="Pedidos" className={s.lista}>
+      <FiltrosBarra aba={aba} filtros={filtros} ativos={ativos} atualizar={atualizar} limpar={limpar} />
+      <Contadores totais={totais} rotulo={rotulo} />
+      {conteudo}
+    </section>
+  );
+}
+```
+
+Em `components/ExtensoesPage.tsx`, importar e renderizar a lista logo depois das abas:
+
+```tsx
+import { ListaPedidos } from './ListaPedidos';
+```
+
+```tsx
+      <AbasExtensoes abas={abas} />
+      <ListaPedidos key={aba} aba={aba} />
+```
+
+Acrescentar ao fim de `extensoes.module.css`:
+
+```css
+.lista { display: grid; gap: var(--space-4); }
+.filtros { display: grid; gap: var(--space-3); }
+.botaoFiltros { justify-self: start; }
+.painelFiltros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.filtro { width: 11rem; }
+.contadores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.periodo::first-letter { text-transform: uppercase; }
+.tabela .linha { cursor: pointer; }
+.tabela .linha a { color: var(--color-text); font-weight: 600; }
+@media (min-width: 768px) { .botaoFiltros { display: none; } }
+```
+
+- [ ] **Step 4: Ver passar**
+
+Run: `npm test && npm run typecheck`
+Expected: todos PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A src
+git commit -m "Lista de extensões com filtros na URL, contadores e paginação"
+```

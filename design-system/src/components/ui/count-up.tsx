@@ -1,0 +1,72 @@
+import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { formatNumber } from "@/lib/format-number"
+import { countUpProgress, easeOutCubic } from "@/lib/count-up-progress"
+
+type CountUpProps = {
+  to: number
+  decimals?: number
+  duration?: number
+  className?: string
+}
+
+const REDUCED_QUERY = "(prefers-reduced-motion: reduce)"
+
+const subscribeReduced = (onChange: () => void) => {
+  if (typeof window.matchMedia !== "function") return () => {}
+  const mql = window.matchMedia(REDUCED_QUERY)
+  mql.addEventListener("change", onChange)
+  return () => mql.removeEventListener("change", onChange)
+}
+
+const reducedSnapshot = () => typeof window.matchMedia === "function" && window.matchMedia(REDUCED_QUERY).matches
+
+const reducedServerSnapshot = () => false
+
+function CountUp({ to, decimals = 0, duration = 1200, className }: CountUpProps) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const reduced = useSyncExternalStore(subscribeReduced, reducedSnapshot, reducedServerSnapshot)
+  const [display, setDisplay] = useState(0)
+  const current = useRef(0)
+  const [seen, setSeen] = useState(() => typeof IntersectionObserver === "undefined")
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node || typeof IntersectionObserver === "undefined") return
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        setSeen(true)
+        observer.disconnect()
+      }
+    })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!seen || reduced) return
+    const from = current.current
+    const start = performance.now()
+    let frame = 0
+    const tick = (now: number) => {
+      const progress = countUpProgress(now, start, duration)
+      const value = from + (to - from) * easeOutCubic(progress)
+      current.current = value
+      setDisplay(value)
+      if (progress < 1) frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [seen, reduced, to, duration])
+
+  return (
+    <span className={className}>
+      <span ref={ref} aria-hidden="true" className="tabular-nums">
+        {formatNumber(reduced ? to : display, decimals)}
+      </span>
+      <span className="sr-only">{formatNumber(to, decimals)}</span>
+    </span>
+  )
+}
+
+export { CountUp }
+export type { CountUpProps }

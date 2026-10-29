@@ -81,8 +81,9 @@ Uma tela ou componente **só está pronto** quando passar em **todos** os itens 
 - [ ] LCP < 2,5 s · CLS < 0,1 · INP < 200 ms.
 
 ### 3.5 Código
-- [ ] Build, lint e typecheck passam sem erros (os comandos entram aqui quando a stack for definida).
-- [ ] Testes automatizados passam (quando existirem).
+- [ ] Build, lint e typecheck passam sem erros. Na pasta `design-system/`: `npm run build`, `npm run lint` e `npx tsc -b`. Node 22.18 ou mais novo.
+- [ ] Contraste dos tokens: `npm run contrast` (todos os pares aprovados).
+- [ ] Testes automatizados passam: `npm test`.
 - [ ] `code-review` rodado, sem nenhum achado crítico em aberto.
 
 ### 3.6 Como reportar

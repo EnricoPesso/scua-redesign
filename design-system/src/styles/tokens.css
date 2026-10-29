@@ -1,0 +1,95 @@
+/* Scua Logon: tokens em 3 camadas. Componentes consomem só os semânticos (--color-*).
+   Regra de uso: ícone ou borda laranja só sobre surface; sobre o fundo da página use --color-brand-text. */
+:root {
+  /* Camada 1: primitivos */
+  --scua-orange-50: #fef3ea;
+  --scua-orange-100: #fbe9da;
+  --scua-orange-200: #f8cfae;
+  --scua-orange-400: #f08a3a;
+  --scua-orange-500: #e96b0a;
+  --scua-orange-600: #a34607;
+  --scua-orange-700: #8f3d06;
+
+  --scua-gray-0: #ffffff;
+  --scua-gray-50: #f4f2ef;
+  --scua-gray-100: #ebe7e2;
+  --scua-gray-200: #ddd7d0;
+  --scua-gray-400: #8d857c;
+  --scua-gray-600: #5d564f;
+  --scua-gray-800: #2e2924;
+  --scua-gray-900: #1f1a17;
+
+  --scua-green-100: #dff3e4;
+  --scua-green-400: #58c274;
+  --scua-green-700: #17692f;
+  --scua-red-100: #fbe0dd;
+  --scua-red-400: #ff7b6e;
+  --scua-red-600: #c0291b;
+  --scua-red-700: #9c1f13;
+  --scua-yellow-100: #fcefc4;
+  --scua-yellow-800: #6b4e00;
+  --scua-blue-100: #dbeafb;
+  --scua-blue-300: #7fb2ee;
+  --scua-blue-700: #1a569e;
+
+  /* Camada 2: semânticos */
+  --color-bg: var(--scua-gray-50);
+  --color-surface: var(--scua-gray-0);
+  --color-surface-muted: var(--scua-orange-50);
+  --color-text: var(--scua-gray-900);
+  --color-text-muted: var(--scua-gray-600);
+  --color-line: var(--scua-gray-200);
+  --color-line-strong: var(--scua-gray-400);
+  --color-brand: var(--scua-orange-500);
+  --color-brand-text: var(--scua-orange-600);
+  --color-brand-hover: var(--scua-orange-400);
+  --color-row-hover: var(--scua-gray-50);
+  --color-on-brand: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
+  --color-focus: var(--scua-gray-900);
+  --color-backdrop: rgb(31 26 23 / 0.5);
+  --color-danger: var(--scua-red-600);
+  --color-danger-hover: var(--scua-red-700);
+  --color-on-danger: var(--scua-gray-0);
+  --color-danger-text: var(--scua-red-700);
+
+  /* Status (badge): fundo claro + texto escuro + ponto na cor do texto */
+  --color-success-bg: var(--scua-green-100);
+  --color-success-text: var(--scua-green-700);
+  --color-warning-bg: var(--scua-yellow-100);
+  --color-warning-text: var(--scua-yellow-800);
+  --color-danger-bg: var(--scua-red-100);
+  --color-info-bg: var(--scua-blue-100);
+  --color-info-text: var(--scua-blue-700);
+  --color-neutral-bg: var(--scua-gray-100);
+  --color-neutral-text: var(--scua-gray-800);
+
+  /* Toast: fundo escuro, texto claro, borda lateral de status (ícone + texto, nunca só cor) */
+  --color-toast-bg: var(--scua-gray-900);
+  --color-toast-text: var(--scua-gray-0);
+  --color-toast-success: var(--scua-green-400);
+  --color-toast-danger: var(--scua-red-400);
+  --color-toast-info: var(--scua-blue-300);
+  --color-toast-brand: var(--scua-orange-500);
+
+  /* Tipografia: Montserrat medida no Logon e em scua.com.br em 2026-10-22 */
+  --font-display: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Montserrat Variable", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --leading-body: 1.5;
+
+  /* Sombra (raio e escala de texto ficam no @theme, em index.css; espaço é o --spacing do Tailwind) */
+  --shadow-1: 0 1px 2px rgb(31 26 23 / 0.08);
+  --shadow-2: 0 4px 14px rgb(31 26 23 / 0.1);
+  --shadow-3: 0 16px 40px rgb(31 26 23 / 0.18);
+
+  /* Movimento */
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+  }
+}

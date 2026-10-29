@@ -29,6 +29,24 @@ test("valor com ; aspas ou quebra de linha vai entre aspas, com aspas dobradas",
   assert.equal(c, '"linha\nnova";1')
 })
 
+test("texto que o Excel leria como fórmula ganha apóstrofo", () => {
+  const linhas = gerarCsv(colunas, [
+    { nome: '=HYPERLINK("http://x","clique")', qtd: 1 },
+    { nome: "+55 11 9999", qtd: 1 },
+    { nome: "@SUM(A1)", qtd: 1 },
+    { nome: "-cmd", qtd: 1 },
+  ]).slice(1).split("\r\n")
+  assert.equal(linhas[1], `"'=HYPERLINK(""http://x"",""clique"")";1`)
+  assert.equal(linhas[2], "'+55 11 9999;1")
+  assert.equal(linhas[3], "'@SUM(A1);1")
+  assert.equal(linhas[4], "'-cmd;1")
+})
+
+test("número negativo não é tratado como fórmula", () => {
+  assert.equal(gerarCsv(colunas, [{ nome: "-3", qtd: -2 }]).split("\r\n")[1], "-3;-2")
+  assert.equal(gerarCsv(colunas, [{ nome: "-1,5", qtd: 0 }]).split("\r\n")[1], "-1,5;0")
+})
+
 test("acentos passam sem alteração", () => {
   assert.equal(gerarCsv(colunas, [{ nome: "João Estação", qtd: 0 }]).split("\r\n")[1], "João Estação;0")
 })

@@ -6,7 +6,14 @@ type ColunaCsv<T> = { header: string; texto: (row: T) => string }
 const SEPARADOR = ";"
 const BOM = "﻿"
 
-function escapar(valor: string): string {
+// Texto livre (justificativas, motivos) pode começar com "=", "+", "-" ou "@" e o Excel
+// executaria como fórmula. O apóstrofo força texto. Número puro (ex.: -3) passa direto.
+function neutralizarFormula(valor: string): string {
+  return /^[=+\-@\t\r]/.test(valor) && !/^-?\d+([.,]\d+)?$/.test(valor) ? `'${valor}` : valor
+}
+
+function escapar(bruto: string): string {
+  const valor = neutralizarFormula(bruto)
   return /[";\r\n]/.test(valor) ? `"${valor.replaceAll('"', '""')}"` : valor
 }
 

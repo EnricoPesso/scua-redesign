@@ -2,6 +2,7 @@ import { DateField } from "@/components/ui/date-field"
 import { Field } from "@/components/ui/field"
 import { MultiSelect } from "@/components/ui/multi-select"
 import { Select } from "@/components/ui/select"
+import { lerLista as lista, lerTexto as texto } from "@/lib/relatorio"
 import type { FiltroDef, ValoresFiltro } from "./tipos"
 
 type FiltrosProps = {
@@ -10,9 +11,6 @@ type FiltrosProps = {
   onChange: (v: ValoresFiltro) => void
   erroPeriodo?: string
 }
-
-const texto = (v: ValoresFiltro, chave: string) => (typeof v[chave] === "string" ? (v[chave] as string) : "")
-const lista = (v: ValoresFiltro, chave: string) => (Array.isArray(v[chave]) ? (v[chave] as string[]) : [])
 
 export function Filtros({ filtros, valores, onChange, erroPeriodo }: FiltrosProps) {
   const set = (chave: string, valor: string | string[]) => onChange({ ...valores, [chave]: valor })

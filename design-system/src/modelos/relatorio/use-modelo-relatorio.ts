@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
-import { contarFiltrosAtivos, erroPeriodo, valoresPadrao } from "@/lib/relatorio"
+import { useEffect, useRef, useState } from "react"
+import { erroPeriodo, valoresPadrao } from "@/lib/relatorio"
 import type { ConfigRelatorio, ValoresFiltro } from "./tipos"
 
 type Status = "carregando" | "erro" | "pronto"
@@ -7,17 +7,35 @@ type Status = "carregando" | "erro" | "pronto"
 // Filtros em edição (rascunho) x aplicados: a busca só roda ao clicar em Filtrar.
 // Cada busca cancela a anterior, então uma resposta lenta nunca sobrescreve uma mais nova.
 export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string) {
-  const padrao = useMemo(() => valoresPadrao(config.filtros, hoje), [config.filtros, hoje])
+  const [padrao, setPadrao] = useState(() => valoresPadrao(config.filtros, hoje))
   const [rascunho, setRascunho] = useState<ValoresFiltro>(padrao)
   const [aplicados, setAplicados] = useState<ValoresFiltro>(padrao)
-  const [tentativa, setTentativa] = useState(0)
+  // Cada Filtrar/Limpar/Tentar de novo incrementa: a busca roda mesmo com filtros iguais.
+  const [busca, setBusca] = useState(0)
   const [status, setStatus] = useState<Status>("carregando")
   const [rows, setRows] = useState<T[]>([])
 
-  const { buscar } = config
+  // Trocou de relatório (outros filtros) sem remontar: volta aos padrões do novo.
+  const [filtrosAnteriores, setFiltrosAnteriores] = useState(config.filtros)
+  if (filtrosAnteriores !== config.filtros) {
+    const novo = valoresPadrao(config.filtros, hoje)
+    setFiltrosAnteriores(config.filtros)
+    setPadrao(novo)
+    setRascunho(novo)
+    setAplicados(novo)
+    setStatus("carregando")
+    setBusca((n) => n + 1)
+  }
+
+  // A busca mais recente fica numa ref: um config recriado a cada render não dispara nova busca.
+  const buscarRef = useRef(config.buscar)
+  useEffect(() => {
+    buscarRef.current = config.buscar
+  })
+
   useEffect(() => {
     const controle = new AbortController()
-    buscar(aplicados, controle.signal).then(
+    buscarRef.current(aplicados, controle.signal).then(
       (dados) => {
         if (controle.signal.aborted) return
         setRows(dados)
@@ -28,12 +46,13 @@ export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string) 
       },
     )
     return () => controle.abort()
-  }, [buscar, aplicados, tentativa])
+  }, [aplicados, busca])
 
   function aplicar(v: ValoresFiltro) {
     setRascunho(v)
     setAplicados(v)
     setStatus("carregando")
+    setBusca((n) => n + 1)
   }
 
   return {
@@ -43,13 +62,11 @@ export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string) 
     status,
     rows,
     erroPeriodo: erroPeriodo(config.filtros, rascunho),
-    filtrosAtivos: contarFiltrosAtivos(config.filtros, aplicados),
+    // Qualquer diferença do padrão, inclusive só o período, permite "Limpar filtros".
+    alterado: JSON.stringify(aplicados) !== JSON.stringify(padrao),
     filtrar: () => aplicar(rascunho),
     limpar: () => aplicar(padrao),
-    tentarDeNovo: () => {
-      setStatus("carregando")
-      setTentativa((n) => n + 1)
-    },
+    tentarDeNovo: () => aplicar(aplicados),
   }
 }
 

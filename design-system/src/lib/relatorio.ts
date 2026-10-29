@@ -12,6 +12,16 @@ export type FiltroDef =
 // multi → string[]; select/texto/período → string ("" = sem filtro).
 export type ValoresFiltro = Record<string, string | string[]>
 
+export const lerTexto = (v: ValoresFiltro, chave: string): string => (typeof v[chave] === "string" ? (v[chave] as string) : "")
+export const lerLista = (v: ValoresFiltro, chave: string): string[] => (Array.isArray(v[chave]) ? (v[chave] as string[]) : [])
+
+// Período completo ou undefined (relatório sem período, ou uma das datas em branco).
+export function periodoDe(v: ValoresFiltro): { inicio: string; fim: string } | undefined {
+  const inicio = lerTexto(v, "inicio")
+  const fim = lerTexto(v, "fim")
+  return inicio && fim ? { inicio, fim } : undefined
+}
+
 export function hojeIso(agora = new Date()): string {
   const p = (n: number) => String(n).padStart(2, "0")
   return `${agora.getFullYear()}-${p(agora.getMonth() + 1)}-${p(agora.getDate())}`
@@ -38,19 +48,10 @@ export function valoresPadrao(filtros: FiltroDef[], hoje: string): ValoresFiltro
 
 export function erroPeriodo(filtros: FiltroDef[], v: ValoresFiltro): string | undefined {
   if (!filtros.some((f) => f.tipo === "periodo")) return undefined
-  const { inicio, fim } = v
-  if (!inicio || !fim) return "Informe as duas datas."
-  if (inicio > fim) return "A data final precisa ser igual ou posterior à inicial."
+  const p = periodoDe(v)
+  if (!p) return "Informe as duas datas."
+  if (p.inicio > p.fim) return "A data final precisa ser igual ou posterior à inicial."
   return undefined
-}
-
-// Conta só os filtros que o usuário escolheu (o período sempre existe e não conta).
-export function contarFiltrosAtivos(filtros: FiltroDef[], v: ValoresFiltro): number {
-  return filtros.reduce((n, f) => {
-    if (f.tipo === "periodo") return n
-    const valor = v[f.chave]
-    return n + (Array.isArray(valor) ? valor.length : valor ? 1 : 0)
-  }, 0)
 }
 
 export function formatarDataBr(iso: string): string {
@@ -59,6 +60,6 @@ export function formatarDataBr(iso: string): string {
 }
 
 export function nomeArquivo(base: string, v: ValoresFiltro): string {
-  const { inicio, fim } = v
-  return typeof inicio === "string" && typeof fim === "string" && inicio && fim ? `${base}_${inicio}_a_${fim}.csv` : `${base}.csv`
+  const p = periodoDe(v)
+  return p ? `${base}_${p.inicio}_a_${p.fim}.csv` : `${base}.csv`
 }

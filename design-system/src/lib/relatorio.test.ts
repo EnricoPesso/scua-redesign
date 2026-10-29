@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { contarFiltrosAtivos, erroPeriodo, formatarDataBr, nomeArquivo, somarDias, valoresPadrao, type FiltroDef } from "./relatorio.ts"
+import { erroPeriodo, formatarDataBr, lerLista, lerTexto, nomeArquivo, periodoDe, somarDias, valoresPadrao, type FiltroDef } from "./relatorio.ts"
 
 const filtros: FiltroDef[] = [
   { tipo: "multi", chave: "colaboradores", rotulo: "Colaboradores", opcoes: [] },
@@ -26,9 +26,17 @@ test("período invertido ou incompleto dá erro; relatório sem período nunca d
   assert.equal(erroPeriodo([{ tipo: "texto", chave: "nome", rotulo: "Nome" }], {}), undefined)
 })
 
-test("contarFiltrosAtivos ignora o período e conta cada item do multi", () => {
-  assert.equal(contarFiltrosAtivos(filtros, valoresPadrao(filtros, "2026-10-29")), 0)
-  assert.equal(contarFiltrosAtivos(filtros, { colaboradores: ["a", "b"], tipo: "x", estacao: "", inicio: "2026-01-01", fim: "2026-01-02" }), 3)
+test("periodoDe só devolve o período com as duas datas", () => {
+  assert.deepEqual(periodoDe({ inicio: "2026-10-23", fim: "2026-10-29" }), { inicio: "2026-10-23", fim: "2026-10-29" })
+  assert.equal(periodoDe({ inicio: "2026-10-23", fim: "" }), undefined)
+  assert.equal(periodoDe({}), undefined)
+})
+
+test("lerTexto e lerLista tratam tipo errado e chave ausente", () => {
+  assert.equal(lerTexto({ a: ["x"] }, "a"), "")
+  assert.deepEqual(lerLista({ a: "x" }, "a"), [])
+  assert.deepEqual(lerLista({ a: ["x"] }, "a"), ["x"])
+  assert.equal(lerTexto({}, "b"), "")
 })
 
 test("nome do arquivo leva o período quando existe", () => {

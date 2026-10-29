@@ -7,7 +7,7 @@ import { KpiCard } from "@/components/ui/kpi-card"
 import { useToast } from "@/components/ui/use-toast"
 import { gerarCsv } from "@/lib/csv"
 import { formatNumber } from "@/lib/format-number"
-import { formatarDataBr, hojeIso, nomeArquivo } from "@/lib/relatorio"
+import { formatarDataBr, hojeIso, nomeArquivo, periodoDe } from "@/lib/relatorio"
 import { Filtros } from "./filtros"
 import type { ColunaRelatorio, ConfigRelatorio, ValoresFiltro } from "./tipos"
 import { useModeloRelatorio } from "./use-modelo-relatorio"
@@ -30,7 +30,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
     <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <Trilha grupo={config.grupo} />
+          <Trilha grupo={config.grupo} href={config.linkRelatorios} />
           <h1 className="font-heading text-xl font-bold text-foreground">{config.titulo}</h1>
         </div>
         <BotaoExportar colunas={config.colunas} rows={r.rows} arquivo={nomeArquivo(config.arquivo, r.aplicados)} disabled={r.status !== "pronto" || r.rows.length === 0} />
@@ -85,7 +85,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
           rows={r.rows}
           caption={periodo ? `${config.titulo}, ${periodo}` : config.titulo}
           loading={carregando}
-          empty={<Vazio mensagem={config.vazio ?? "Nenhum registro encontrado para os filtros escolhidos."} podeLimpar={r.filtrosAtivos > 0} limpar={r.limpar} />}
+          empty={<Vazio mensagem={config.vazio ?? "Nenhum registro encontrado para os filtros escolhidos."} podeLimpar={r.alterado} limpar={r.limpar} />}
         />
       )}
     </main>
@@ -93,18 +93,23 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
 }
 
 function textoPeriodo(v: ValoresFiltro) {
-  const { inicio, fim } = v
-  return typeof inicio === "string" && typeof fim === "string" && inicio && fim ? `${formatarDataBr(inicio)} a ${formatarDataBr(fim)}` : "Situação atual"
+  const p = periodoDe(v)
+  return p ? `${formatarDataBr(p.inicio)} a ${formatarDataBr(p.fim)}` : "Situação atual"
 }
 
-function Trilha({ grupo }: { grupo: string }) {
+// Sem href (a lista de relatórios ainda não existe), "Relatórios" é texto, não um link morto.
+function Trilha({ grupo, href }: { grupo: string; href?: string }) {
   return (
     <nav aria-label="Trilha" className="text-sm text-muted-foreground">
       <ol className="flex flex-wrap items-center gap-1.5">
         <li>
-          <a href="#" className="rounded-sm text-[var(--color-brand-text)] underline-offset-4 hover:underline focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none">
-            Relatórios
-          </a>
+          {href ? (
+            <a href={href} className="rounded-sm text-[var(--color-brand-text)] underline-offset-4 hover:underline focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none">
+              Relatórios
+            </a>
+          ) : (
+            "Relatórios"
+          )}
         </li>
         <li aria-hidden="true">/</li>
         <li aria-current="page">{grupo}</li>
@@ -134,11 +139,15 @@ function BotaoExportar<T>({ colunas, rows, arquivo, disabled }: { colunas: Colun
       rows,
     )
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
+    // Safari e Firefox só baixam com o link no DOM e a URL ainda válida durante o clique.
     const a = document.createElement("a")
     a.href = url
     a.download = arquivo
+    a.hidden = true
+    document.body.append(a)
     a.click()
-    URL.revokeObjectURL(url)
+    a.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
     toast.success(`${formatNumber(rows.length)} ${rows.length === 1 ? "registro exportado" : "registros exportados"} em ${arquivo}`)
   }
   return (

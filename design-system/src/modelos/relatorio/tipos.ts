@@ -19,6 +19,8 @@ export type ColunaRelatorio<T> = Column<T> & { texto?: (row: T) => string }
 export type ConfigRelatorio<T> = {
   titulo: string
   grupo: string
+  // Destino do "Relatórios" na trilha; sem ele, vira texto (a lista ainda não existe).
+  linkRelatorios?: string
   arquivo: string
   filtros: FiltroDef[]
   kpis: KpiDef<T>[]

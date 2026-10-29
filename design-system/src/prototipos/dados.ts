@@ -70,19 +70,8 @@ function toLocalIso(d: Date) {
 
 export const tentativas = gerar()
 
-export function diasAtras(n: number) {
-  const d = new Date(`${HOJE}T12:00:00`)
-  d.setDate(d.getDate() - n)
-  return toLocalIso(d).slice(0, 10)
-}
-
 export function formatarHorario(iso: string) {
   const [data, hora] = iso.split("T")
   const [a, m, d] = data.split("-")
   return `${d}/${m}/${a} ${hora}`
-}
-
-export function formatarData(iso: string) {
-  const [a, m, d] = iso.split("-")
-  return `${d}/${m}/${a}`
 }

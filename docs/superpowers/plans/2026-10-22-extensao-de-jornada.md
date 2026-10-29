@@ -10,6 +10,42 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-22-extensao-de-jornada-design.md`
 
+## ⚠ Adendo (29/10) — sistema de design em React
+
+O plano foi escrito em cima do PR #1 (CSS puro, classes `.sc-*`), que foi **fechado**. Entrou na `main` o PR #3: `design-system/` com componentes **React 19 + Tailwind 4 + base-ui**. Onde o texto abaixo divergir deste adendo, **vale o adendo**.
+
+**Stack (igual à do `design-system/`):** React 19, Vite 8, TypeScript 6, Tailwind 4 (`@tailwindcss/vite`), oxlint. Mais: React Router 7 (pacote `react-router`), TanStack Query 5, MSW 2, Vitest compatível com Vite 8, Testing Library, Playwright. A lógica de `domain/`, `api/` e `hooks/` (Tasks 2–8) não muda.
+
+**Integração com o design system (Task 1):**
+- Sem `git merge origin/p1/tokens`. Antes de tudo: `cd design-system && npm ci` (os componentes do DS resolvem as dependências deles em `design-system/node_modules`).
+- `app/vite.config.ts`: alias `@` → `../design-system/src` (os componentes do DS importam `@/lib/utils`); `resolve.dedupe: ['react', 'react-dom']`; `server.fs.allow: ['..']`; plugins `react()` e `tailwindcss()`.
+- `app/tsconfig.app.json`: `paths` com `"@/*": ["../design-system/src/*"]` e `react`, `react/*`, `react-dom`, `react-dom/*` fixados em `./node_modules/@types/...`, para existir um único tipo de React.
+- O código do `app/` importa o DS como `@/components/ui/button` e o próprio código por caminho relativo.
+- `app/src/index.css`: `@import "../../design-system/src/index.css";` + `@source "../../design-system/src/components";`. A fonte vem do `@fontsource-variable/montserrat` do DS (sem Google Fonts). `<html lang="pt-BR">`.
+
+**Visual:** nada de `.sc-*` nem `extensoes.module.css`. Use utilitários do Tailwind com tokens semânticos (`var(--color-*)`), como fazem os componentes do DS. Regras do README do DS: botão primário laranja com texto escuro, sem `dark:`, alvo de 40px (a feature sobe para **44px no celular**).
+
+| Precisa de | Usa |
+|---|---|
+| Botões | `Button` (`@/components/ui/button`) |
+| Status | `Badge` com `status` success/warning/danger/neutral + texto |
+| Contadores | `KpiCard` (com `period`, `loading`) |
+| Campos | `Field` (texto e hora, via `inputProps`), `DateField`, `Select`, `Checkbox` |
+| Formulário e detalhe | `Drawer` |
+| Confirmações | `ConfirmDialog` |
+| Avisos | `ToastProvider` + `useToast` (substitui `Avisos.tsx`) |
+| Vazio, erro e carregando | `EmptyState`, `ErrorState`, `Skeleton` |
+| Paginação | `paginate()` de `@/lib/paginate` |
+
+**Não existe no DS, então a feature cria localmente** (cada um com o comentário `// pedir ao @PhLima07`): abas, tabela com seleção e paginação no servidor (o `DataTable` pagina no cliente e não seleciona), barra de limite, linha do tempo, barra de lote e grupo de rádio.
+
+**Tasks que faltavam (11–15), em resumo:**
+- **Task 11, Formulário:** novo, editar e "pedir de novo" no `Drawer` (`/extensoes/meus/novo`, `/extensoes/meus/:id/editar`); resumo ao vivo com horas, barra de limite e aprovador; validação no blur e no envio, com foco no primeiro campo inválido; envio único em duplo clique; erro mantém os dados.
+- **Task 12, Detalhe e decisão:** `/extensoes/:aba/:id`; conteúdo da seção 7.1, histórico (seção 8), aprovar em 1 clique, reprovar com motivo, próximo da fila, conflito, sem permissão, não encontrado, editar e cancelar (com confirmação). No celular: tela cheia, rodapé preso, 44px. Esc fecha e devolve o foco à linha.
+- **Task 13, Lote e exportar:** seleção da página, barra de lote presa, confirmação com nomes e total, reprovação em lote com motivo, resultado parcial com nome e motivo de cada falha; Exportar CSV na aba Todos.
+- **Task 14, Ponta a ponta:** Playwright contra `npm run dev:mock` cobrindo os critérios 1–13 da spec, screenshots em 1440×900, 768×1024 e 390×844, e zero erros no console.
+- **Task 15, Fechamento:** README do `app/`, comandos do `app/` na seção 3.5 do `CLAUDE.md` e checklist ✅/❌ para o PR.
+
 ## Global Constraints
 
 - Textos em português do Brasil, com acentos. **Nenhuma mensagem técnica** (`[object ProgressEvent]`, código HTTP, stack trace) chega ao usuário; detalhes técnicos só no `console.error`.

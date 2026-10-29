@@ -31,7 +31,7 @@ export function AbasExtensoes({ abas, ativa }: { abas: Aba[]; ativa: Aba }) {
 
   return (
     <div role="tablist" aria-label="Abas de extensões" onKeyDown={aoTeclar}
-      className="flex gap-1 overflow-x-auto border-b border-[var(--color-line)]">
+      className="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-[var(--color-line)]">
       {abas.map((aba) => {
         const selecionada = aba === ativa;
         return (

@@ -6,8 +6,9 @@ import { mensagemParaUsuario } from '../domain/erros';
 import { usePermissoes } from '../hooks/queries';
 import { AbasExtensoes, ID_PAINEL_ABA, idAba } from './AbasExtensoes';
 import { EstadoLista } from './EstadoLista';
+import { ListaPedidos } from './ListaPedidos';
 
-const PAGINA = 'mx-auto grid w-full max-w-[75rem] gap-4 px-4 pt-5 pb-10 md:px-6';
+const PAGINA = 'mx-auto grid w-full grid-cols-[minmax(0,1fr)] max-w-[75rem] gap-4 px-4 pt-5 pb-10 md:px-6';
 
 export function ExtensoesPage() {
   const { aba } = useParams();
@@ -36,8 +37,8 @@ export function ExtensoesPage() {
         )}
       </header>
       <AbasExtensoes abas={abas} ativa={aba} />
-      <div role="tabpanel" id={ID_PAINEL_ABA} aria-labelledby={idAba(aba)} className="grid gap-4">
-        {/* A lista entra aqui (Task 10). */}
+      <div role="tabpanel" id={ID_PAINEL_ABA} aria-labelledby={idAba(aba)} className="grid min-w-0 gap-4">
+        <ListaPedidos key={aba} aba={aba} />
       </div>
       {/* Ponto de encaixe dos painéis: formulário (Task 11) e detalhe (Task 12). */}
       <Outlet />

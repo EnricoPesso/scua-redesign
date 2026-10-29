@@ -49,7 +49,7 @@ Se der, peça também os **materiais** da seção 9, porque eles valem mais que 
 26. O que acontece quando o colaborador é bloqueado fora do horário e precisa trabalhar? Quanto tempo leva para ser liberado?
 27. Como é a **implantação** de um cliente novo (cadastrar domínio, jornadas, usuários, cargas)? Quanto tempo leva e quem faz?
 28. A **Carga de Dados** (planilhas) é muito usada? Dá muito erro? O que o usuário vê quando a carga falha?
-29. Exportar relatório: para onde vai esse arquivo depois? (Folha de pagamento, auditoria, diretoria?) Qual formato é usado?
+29. Exportar relatório: para onde vai esse arquivo depois? (Folha de pagamento, auditoria, diretoria?) Qual formato é usado hoje (CSV, XLSX, PDF) e qual deveria ser?
 
 ## 6. Identidade visual e marca
 
@@ -85,3 +85,14 @@ Se der, peça também os **materiais** da seção 9, porque eles valem mais que 
 - [ ] Documentação da API ou acesso ao repositório do front-end
 - [ ] Lista de perfis e permissões do sistema
 - [ ] Contato de 2–3 clientes dispostos a uma conversa rápida (15–20 min)
+
+## 10. Relatórios (adicionadas por @bpaolucci em 2026-10-22)
+
+Contexto: [`analise-sistema/inventario-relatorios.md`](analise-sistema/inventario-relatorios.md).
+
+46. ⭐ Os relatórios **Eventos** e **Liberações e bloqueios** mostram as mesmas colunas. Existe diferença entre os dados deles? Podemos juntar os dois em um só, com um filtro de tipo de evento? (O Eventos parece ser a versão detalhada do **Logon logoff**. Ele mostra todos os eventos de logon ou só liberações e bloqueios?)
+47. **Liberações por área** e **Liberações por gestores** contam as mesmas liberações do relatório Liberações e bloqueios, só que agrupadas? Se sim, viram uma opção "agrupar por" dentro dele.
+48. O que conta como **"exceção"** no Ranking por exceções? É a exceção cadastrada na aba Exceção do usuário? (Os dados não batem com as Tentativas fora da jornada.)
+49. O relatório **Horas extras** tem alguma diferença em relação à tela **Extensão de jornada** (registros antigos, outros status)? Se não tiver, pode virar só um botão "Exportar" naquela tela?
+50. Em **Jornada e Controle**, de onde vem o "último evento de controle"? No demo ele aparece vazio para um usuário que tem evento em 05/10 no relatório Usuários x Última data de controle.
+51. A estação DEMO-WS05 aparece com a versão do agente **em branco** em Estações e como **"Não instalado"** em Estações inativas. Qual dos dois está certo? Versão em branco significa que o agente não está instalado?

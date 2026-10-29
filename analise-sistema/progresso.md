@@ -63,9 +63,10 @@ Home · Usuários · Jornada de trabalho · Extensão de jornada · Relatórios 
 | Data | O quê | Onde |
 |---|---|---|
 | 2026-10-22 | Divisão da equipe por área (P1 design system, P2 navegação/dashboard, P3 fluxos principais, P4 relatórios/administração) e revisões cruzadas | [`DIVISAO-DE-TAREFAS.md`](../DIVISAO-DE-TAREFAS.md) |
-| 2026-10-22 | Inventário dos 18 relatórios + proposta de junção. Regra: só junta dados correlatos. **17 comprovado** (Estações + Estações inativas ✅); **14** se as fusões ⚠️ se confirmarem (Eventos + Liberações e bloqueios; por área + por gestores → Liberações e bloqueios); **13** se Horas extras virar "Exportar" em Extensão de jornada | [`inventario-relatorios.md`](inventario-relatorios.md) — PR #2 (aberto) |
+| 2026-10-22 | Inventário dos 18 relatórios + proposta de junção. Regra: só junta dados correlatos. **17 comprovado** (Estações + Estações inativas ✅); **14** se as fusões ⚠️ se confirmarem (Eventos + Liberações e bloqueios; por área + por gestores → Liberações e bloqueios); **13** se Horas extras virar "Exportar" em Extensão de jornada | [`inventario-relatorios.md`](inventario-relatorios.md) — PR #2 (mergeado) |
 | 2026-10-22 | Perguntas 46–51 sobre relatórios adicionadas para a Scua (fusões, "exceção", Horas extras, último evento de controle, versão da DEMO-WS05) | [`perguntas-para-scua.md`](../perguntas-para-scua.md) |
-| 2026-10-23 | PR #3 do Pedro (sistema de design em React, `p1/react-base`) revisado e aprovado; merge pendente | PR #3 |
+| 2026-10-23 | PR #3 do Pedro (sistema de design em React, `p1/react-base`) revisado, aprovado e mergeado; ajustes em `data-table.tsx` e `field.tsx` ainda em aberto | PR #3 |
+| 2026-10-29 | Início do modelo único de relatório (filtros → KPIs → tabela → exportar) | branch `p4/modelo-relatorio` |
 
 **Pendências da P4 (relatórios):** formato do arquivo exportado; colunas de Produtividade e Acompanhamento de Jornada com dados; confirmar as fusões ⚠️ com dados reais; combinar Horas extras com o @EnricoPesso (P3). Depende das perguntas 18, 29 e 46–51.
 

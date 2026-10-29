@@ -8,12 +8,20 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: { '@': path.resolve(import.meta.dirname, '../design-system/src') },
+    alias: [
+      { find: '@', replacement: path.resolve(import.meta.dirname, '../design-system/src') },
+    ],
     dedupe: ['react', 'react-dom'],
   },
   server: { fs: { allow: ['..'] } },
   test: {
     environment: 'jsdom',
+    // Pacotes CommonJS de design-system/node_modules fariam `require('react')` pegar o React de lá
+    // (dois Reacts, "dispatcher null"): usamos a versão ESM do lucide e um shim do hook nativo.
+    alias: [
+      { find: /^use-sync-external-store\/shim(\/with-selector)?$/, replacement: path.resolve(import.meta.dirname, 'src/test/shims/use-sync-external-store.ts') },
+      { find: /^lucide-react$/, replacement: path.resolve(import.meta.dirname, '../design-system/node_modules/lucide-react/dist/esm/lucide-react.mjs') },
+    ],
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
     // A primeira importação do base-ui (inline, sem cache) pode passar de 5 s.

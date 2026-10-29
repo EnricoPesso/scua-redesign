@@ -21,6 +21,44 @@ if (!HTMLDialogElement.prototype.close) {
   };
 }
 
+// Polyfills que o base-ui (Select, Toast, Checkbox…) espera do navegador e o jsdom não tem.
+if (!window.ResizeObserver) {
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+if (!window.matchMedia) {
+  window.matchMedia = (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    dispatchEvent: () => false,
+  });
+}
+if (!window.PointerEvent) {
+  // @ts-expect-error — versão mínima, só para os eventos de ponteiro do user-event.
+  window.PointerEvent = class PointerEvent extends MouseEvent {
+    pointerId: number;
+    pointerType: string;
+    constructor(tipo: string, init: PointerEventInit = {}) {
+      super(tipo, init);
+      this.pointerId = init.pointerId ?? 1;
+      this.pointerType = init.pointerType ?? 'mouse';
+    }
+  };
+}
+Element.prototype.scrollIntoView ??= function () {};
+Element.prototype.getAnimations ??= () => [];
+Element.prototype.hasPointerCapture ??= () => false;
+Element.prototype.setPointerCapture ??= () => {};
+Element.prototype.releasePointerCapture ??= () => {};
+
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();

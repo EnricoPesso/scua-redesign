@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+import { resetarDb } from '../features/extensoes/api/mocks/db';
 import { server } from './server';
 
 // Data fixa: segunda, 12/10/2026 às 10:00 (hora local). Só o Date é falso; timers continuam reais.
@@ -24,5 +25,6 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();
   server.resetHandlers();
+  resetarDb();
 });
 afterAll(() => server.close());

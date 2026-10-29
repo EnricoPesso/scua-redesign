@@ -16,6 +16,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // A primeira importação do base-ui (inline, sem cache) pode passar de 5 s.
+    testTimeout: 15_000,
     // Pacotes que só existem em design-system/node_modules precisam passar pelo Vite
     // (senão o Node carrega o React deles e o app fica com dois Reacts).
     server: { deps: { inline: [/design-system[/\\]node_modules/] } },

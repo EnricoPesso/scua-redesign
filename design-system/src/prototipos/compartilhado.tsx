@@ -1,4 +1,4 @@
-import { DownloadIcon, XIcon } from "lucide-react"
+import { DownloadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { DateField } from "@/components/ui/date-field"
@@ -115,37 +115,5 @@ export function Tabela({ r }: { r: Relatorio }) {
         </span>
       }
     />
-  )
-}
-
-// Chips dos filtros aplicados; cada um remove o filtro e reaplica na hora.
-export function ChipsAtivos({ r }: { r: Relatorio }) {
-  const a = r.aplicados
-  const chips = [
-    ...a.colaboradores.map((c) => ({ id: `c-${c}`, texto: c, remover: () => r.filtrar({ ...a, colaboradores: a.colaboradores.filter((x) => x !== c) }) })),
-    ...a.gestores.map((g) => ({ id: `g-${g}`, texto: `Gestor: ${g}`, remover: () => r.filtrar({ ...a, gestores: a.gestores.filter((x) => x !== g) }) })),
-  ]
-  if (chips.length === 0) return null
-  return (
-    <ul className="flex flex-wrap items-center gap-2" aria-label="Filtros aplicados">
-      {chips.map((c) => (
-        <li key={c.id}>
-          <button
-            type="button"
-            onClick={c.remover}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-sm text-foreground hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            {c.texto}
-            <XIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-            <span className="sr-only">(remover filtro)</span>
-          </button>
-        </li>
-      ))}
-      <li>
-        <Button variant="link" onClick={r.limpar}>
-          Limpar tudo
-        </Button>
-      </li>
-    </ul>
   )
 }

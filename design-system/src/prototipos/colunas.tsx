@@ -20,7 +20,3 @@ export const colunas: Column<Tentativa>[] = [
 export function periodoTexto(r: Relatorio) {
   return `${formatarData(r.aplicados.inicio)} a ${formatarData(r.aplicados.fim)}`
 }
-
-export function periodoEntre(r: Relatorio) {
-  return `entre ${formatarData(r.aplicados.inicio)} e ${formatarData(r.aplicados.fim)}`
-}

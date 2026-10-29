@@ -67,7 +67,7 @@ Home · Usuários · Jornada de trabalho · Extensão de jornada · Relatórios 
 | 2026-10-22 | Perguntas 46–51 sobre relatórios adicionadas para a Scua (fusões, "exceção", Horas extras, último evento de controle, versão da DEMO-WS05) | [`perguntas-para-scua.md`](../perguntas-para-scua.md) |
 | 2026-10-23 | PR #3 do Pedro (sistema de design em React, `p1/react-base`) revisado, aprovado e mergeado; ajustes em `data-table.tsx` e `field.tsx` ainda em aberto | PR #3 |
 | 2026-10-29 | Início do modelo único de relatório (filtros → KPIs → tabela → exportar) | branch `p4/modelo-relatorio` |
-| 2026-10-29 | 3 protótipos do modelo de relatório (A barra no topo, B filtros na lateral, C resposta primeiro). **Escolhido: A**. Lighthouse Acessibilidade 100 (mobile) | `design-system/prototipos.html?v=a` |
+| 2026-10-29 | 3 protótipos do modelo de relatório (A barra no topo, B filtros na lateral, C resposta primeiro). **Escolhido: A**. Lighthouse Acessibilidade 100 (mobile) | `design-system/prototipos.html` (A virou o componente `ModeloRelatorio`) |
 
 **Pendências da P4 (relatórios):** formato do arquivo exportado; colunas de Produtividade e Acompanhamento de Jornada com dados; confirmar as fusões ⚠️ com dados reais; combinar Horas extras com o @EnricoPesso (P3). Depende das perguntas 18, 29 e 46–51.
 

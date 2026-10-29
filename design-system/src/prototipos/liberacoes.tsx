@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge"
+import { lerLista as lista, lerTexto as texto } from "@/lib/relatorio"
 import type { ConfigRelatorio } from "@/modelos/relatorio"
 import { colaboradores, formatarHorario, tentativas } from "./dados"
-import { lista, noPeriodo, simular, texto } from "./simular"
+import { noPeriodo, simular } from "./simular"
 
 // Relatório 5 do inventário: filtros de outro tipo (texto e seleção única), para provar o modelo.
 
@@ -22,9 +23,10 @@ const login = (nome: string) => nome.toLowerCase().normalize("NFD").replace(/[̀
 // Deriva das tentativas fictícias: cada tentativa vira um bloqueio e parte delas, uma liberação.
 const liberacoes: Liberacao[] = tentativas.flatMap((t, i) => {
   const base = { login: login(t.colaborador), dominio: "SCUA", estacao: t.estacao }
-  const bloqueio: Liberacao = { id: i * 2, horario: t.horario, evento: "Bloqueio", motivo: motivos[i % 2 === 0 ? 0 : 4], ...base }
+  const bloqueio: Liberacao = { id: i * 2, horario: t.horario, evento: "Bloqueio", motivo: i % 2 === 0 ? motivos[0] : motivos[4], ...base }
   if (i % 3 !== 0) return [bloqueio]
-  return [bloqueio, { id: i * 2 + 1, horario: t.horario, evento: "Liberação", motivo: motivos[1 + (i % 3)], ...base }]
+  // i é múltiplo de 3 aqui; (i / 3) % 3 distribui as liberações entre os motivos 1, 2 e 3.
+  return [bloqueio, { id: i * 2 + 1, horario: t.horario, evento: "Liberação", motivo: motivos[1 + ((i / 3) % 3)], ...base }]
 })
 
 const opcoesLogin = colaboradores.map((c) => ({ value: login(c.value), label: `${c.label} (${login(c.value)})` }))

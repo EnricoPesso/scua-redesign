@@ -1,3 +1,4 @@
+import { periodoDe } from "@/lib/relatorio"
 import type { ValoresFiltro } from "@/modelos/relatorio"
 
 // Simula a API: atraso de rede e ?estado=carregando|vazio|erro para revisar cada estado.
@@ -25,10 +26,9 @@ export function simular<T>(filtrar: (rows: T[], f: ValoresFiltro) => T[], rows: 
     })
 }
 
-// Ajudantes para os filtros dos exemplos.
-export const lista = (f: ValoresFiltro, chave: string) => (Array.isArray(f[chave]) ? (f[chave] as string[]) : [])
-export const texto = (f: ValoresFiltro, chave: string) => (typeof f[chave] === "string" ? (f[chave] as string) : "")
+// Período aplicado: o filtro de período é obrigatório nos exemplos.
 export const noPeriodo = (iso: string, f: ValoresFiltro) => {
+  const p = periodoDe(f)
   const dia = iso.slice(0, 10)
-  return dia >= texto(f, "inicio") && dia <= texto(f, "fim")
+  return !p || (dia >= p.inicio && dia <= p.fim)
 }

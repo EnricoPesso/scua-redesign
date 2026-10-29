@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge"
+import { lerLista as lista } from "@/lib/relatorio"
 import type { ConfigRelatorio } from "@/modelos/relatorio"
 import { colaboradores, formatarHorario, gestores, tentativas, type Tentativa } from "./dados"
-import { lista, noPeriodo, simular } from "./simular"
+import { noPeriodo, simular } from "./simular"
 
 // Relatório 8 do inventário, configurado no modelo único.
 export const configTentativas: ConfigRelatorio<Tentativa> = {

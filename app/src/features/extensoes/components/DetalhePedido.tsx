@@ -155,16 +155,18 @@ function ConteudoPedido({ pedido, perm, aba, aoFechar }: { pedido: Pedido; perm:
 
   const periodo = formatarPeriodo(pedido.dataInicial, pedido.dataFinal, pedido.horario);
   let rodape: ReactNode = null;
-  if (mostrarDecisao) {
+  if (podeDecidir && (pendente || textoDoConflito)) {
+    // Com conflito os botões ficam desativados (critério 7); o aviso no topo explica o motivo.
+    const bloqueado = !mostrarDecisao;
     rodape = (
       <>
-        <Field
+        {!bloqueado && <Field
           className="w-full"
           label="Comentário (opcional)"
           inputProps={{ value: comentario, maxLength: 500, onValueChange: (v: string) => setComentario(v), render: <textarea rows={2} />, className: 'h-auto py-2' }}
-        />
-        <Button variant="secondary" className={BOTAO_RODAPE} disabled={decidir.isPending} onClick={() => setPasso('reprovar')}>Reprovar</Button>
-        <Button className={cn(BOTAO_RODAPE, 'md:min-w-32')} loading={decidir.isPending} onClick={aprovar}>Aprovar</Button>
+        />}
+        <Button variant="secondary" className={BOTAO_RODAPE} disabled={bloqueado || decidir.isPending} onClick={() => setPasso('reprovar')}>Reprovar</Button>
+        <Button className={cn(BOTAO_RODAPE, 'md:min-w-32')} disabled={bloqueado} loading={decidir.isPending} onClick={aprovar}>Aprovar</Button>
       </>
     );
   } else if (podeAlterar) {

@@ -146,12 +146,13 @@ describe('Detalhe do pedido: reprovar', () => {
 });
 
 describe('Detalhe do pedido: conflito e acesso', () => {
-  it('pedido decidido em outro canal mostra quem decidiu e sem botões de decisão', async () => {
+  it('critério 7: pedido decidido em outro canal mostra quem decidiu e os botões desativados', async () => {
     decidirExterno('p-1', 'aprovado', 'whatsapp');
     await abrir('/extensoes/aprovar/p-1');
     const p = within(await detalhe('Ana Souza'));
     expect(p.getByText(/^Este pedido já foi aprovado por Carlos Mendes via WhatsApp às \d\d:\d\d\.$/)).toBeInTheDocument();
-    expect(p.queryByRole('button', { name: 'Aprovar' })).not.toBeInTheDocument();
+    expect(p.getByRole('button', { name: 'Aprovar' })).toBeDisabled();
+    expect(p.getByRole('button', { name: 'Reprovar' })).toBeDisabled();
   });
 
   it('conflito ao decidir (409) mostra o mesmo aviso', async () => {
@@ -160,6 +161,7 @@ describe('Detalhe do pedido: conflito e acesso', () => {
     decidirExterno('p-1', 'reprovado', 'teams');
     await user.click(p.getByRole('button', { name: 'Aprovar' }));
     expect(await p.findByText(/^Este pedido já foi reprovado por Carlos Mendes via Teams às \d\d:\d\d\.$/)).toBeInTheDocument();
+    expect(p.getByRole('button', { name: 'Aprovar' })).toBeDisabled();
   });
 
   it('sem permissão: mensagem e link de volta', async () => {

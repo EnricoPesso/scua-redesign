@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
@@ -8,20 +8,42 @@ import { hojeLocal, rotuloPeriodo } from '../domain/formatacao';
 import type { Aba } from '../domain/types';
 import { useListaPedidos, useTotais } from '../hooks/queries';
 import { Contadores } from './Contadores';
+import { BarraLote } from './BarraLote';
 import { EstadoLista } from './EstadoLista';
 import { FiltrosBarra } from './FiltrosBarra';
 import { Paginacao } from './Paginacao';
 import { TabelaPedidos, type SelecaoTabela } from './TabelaPedidos';
 import { semPaginacao, useFiltros } from './useFiltros';
 
-/** `selecao` é opcional: a Task 13 liga a coluna de seleção só na aba "Para aprovar". */
-export function ListaPedidos({ aba, selecao }: { aba: Aba; selecao?: SelecaoTabela }) {
+/** Na aba "Para aprovar" a tabela ganha seleção e a barra de lote. A seleção vale só para a página e os filtros atuais. */
+export function ListaPedidos({ aba }: { aba: Aba }) {
   const { filtros, atualizar, limpar, ativos } = useFiltros(aba);
+  const chaveFiltros = JSON.stringify(filtros);
+  const [selecao, setSelecao] = useState<{ chave: string; ids: ReadonlySet<string> }>({ chave: chaveFiltros, ids: new Set() });
+  // Mudou de página ou de filtro: a seleção anterior não vale mais (sem efeito, para não piscar).
+  const selecionados = selecao.chave === chaveFiltros ? selecao.ids : new Set<string>();
   const { search } = useLocation();
   const lista = useListaPedidos(filtros);
   const totais = useTotais(semPaginacao(filtros));
   const rotulo = rotuloPeriodo(filtros.de, filtros.ate, hojeLocal());
   const dados = lista.data;
+
+  const marcar = (ids: string[], marcado: boolean) => {
+    const novo = new Set(selecionados);
+    for (const id of ids) {
+      if (marcado) novo.add(id);
+      else novo.delete(id);
+    }
+    setSelecao({ chave: chaveFiltros, ids: novo });
+  };
+  const controleSelecao: SelecaoTabela | undefined = aba === 'aprovar'
+    ? { selecionados, aoAlternar: (id, m) => marcar([id], m), aoAlternarTodos: marcar }
+    : undefined;
+  // Só os que ainda estão na página: um pedido decidido em outro canal sai da seleção sozinho.
+  const pedidosSelecionados = useMemo(
+    () => (dados?.itens ?? []).filter((p) => selecionados.has(p.id) && p.status === 'pendente'),
+    [dados, selecionados],
+  );
 
   // Página além do fim (URL antiga ou itens que sumiram): volta para a primeira.
   useEffect(() => {
@@ -46,7 +68,8 @@ export function ListaPedidos({ aba, selecao }: { aba: Aba; selecao?: SelecaoTabe
   } else {
     conteudo = (
       <>
-        <TabelaPedidos aba={aba} pedidos={lista.data.itens} selecao={selecao} />
+        <TabelaPedidos aba={aba} pedidos={lista.data.itens} selecao={controleSelecao} />
+        {aba === 'aprovar' && <BarraLote pedidos={pedidosSelecionados} aoConcluir={() => setSelecao({ chave: chaveFiltros, ids: new Set() })} />}
         <Paginacao total={lista.data.total} pagina={filtros.pagina} tamanho={filtros.tamanho}
           aoMudar={(pagina, tamanho) => atualizar({ pagina: String(pagina), tamanho: String(tamanho) })} />
       </>

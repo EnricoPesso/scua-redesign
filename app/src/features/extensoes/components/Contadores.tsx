@@ -8,7 +8,7 @@ const CARTAO = 'relative min-w-[13.5rem] shrink-0 snap-start md:min-w-0 [&>p:las
 const FAIXA = 'flex min-w-0 snap-x gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-3 md:overflow-visible md:pb-0';
 
 /** Horas aprovadas em horas decimais: 90 min → 1,5 h (o KpiCard anima um número). */
-const emHoras = (minutos: number) => ({ valor: minutos / 60, casas: minutos % 60 === 0 ? 0 : 2 });
+const emHoras = (minutos: number) => ({ valor: minutos / 60, casas: minutos % 60 === 0 ? 0 : 1 });
 
 export function Contadores({ totais, rotulo }: { totais: UseQueryResult<Totais>; rotulo: string }) {
   if (totais.isError) return null;

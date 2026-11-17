@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import { semPaginacao, useFiltros } from './useFiltros';
 /** `selecao` é opcional: a Task 13 liga a coluna de seleção só na aba "Para aprovar". */
 export function ListaPedidos({ aba, selecao }: { aba: Aba; selecao?: SelecaoTabela }) {
   const { filtros, atualizar, limpar, ativos } = useFiltros(aba);
+  const { search } = useLocation();
   const lista = useListaPedidos(filtros);
   const totais = useTotais(semPaginacao(filtros));
   const rotulo = rotuloPeriodo(filtros.de, filtros.ate, hojeLocal());
@@ -40,7 +41,7 @@ export function ListaPedidos({ aba, selecao }: { aba: Aba; selecao?: SelecaoTabe
   } else if (lista.data.itens.length === 0) {
     conteudo =
       aba === 'aprovar' ? <EstadoLista tipo="vazio" titulo="Tudo em dia!" texto="Nenhum pedido esperando sua aprovação." />
-      : aba === 'meus' ? <EstadoLista tipo="vazio" titulo="Você ainda não pediu nenhuma extensão." acao={<Link to="/extensoes/meus/novo" className={cn(buttonVariants(), 'max-md:h-11')}>+ Nova extensão</Link>} />
+      : aba === 'meus' ? <EstadoLista tipo="vazio" titulo="Você ainda não pediu nenhuma extensão." acao={<Link to={{ pathname: '/extensoes/meus/novo', search }} className={cn(buttonVariants(), 'max-md:h-11')}>+ Nova extensão</Link>} />
       : <EstadoLista tipo="vazio" titulo={`Nenhum pedido ${rotulo}.`} />;
   } else {
     conteudo = (

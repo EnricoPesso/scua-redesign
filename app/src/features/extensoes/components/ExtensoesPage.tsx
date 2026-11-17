@@ -1,4 +1,4 @@
-import { Link, Navigate, Outlet, useParams } from 'react-router';
+import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { cn } from '@/lib/utils';
 import { abasPermitidas, ehAba } from '../domain/abas';
@@ -12,6 +12,7 @@ const PAGINA = 'mx-auto grid w-full grid-cols-[minmax(0,1fr)] max-w-[75rem] gap-
 
 export function ExtensoesPage() {
   const { aba } = useParams();
+  const { search } = useLocation();
   const permissoes = usePermissoes();
 
   if (permissoes.isPending) return <main className={PAGINA}><EstadoLista tipo="carregando" /></main>;
@@ -33,7 +34,7 @@ export function ExtensoesPage() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Extensões de jornada</h1>
         {permissoes.data.podePedir && (
-          <Link to="/extensoes/meus/novo" className={cn(buttonVariants(), 'max-md:h-11')}>+ Nova extensão</Link>
+          <Link to={{ pathname: '/extensoes/meus/novo', search: aba === 'meus' ? search : '' }} className={cn(buttonVariants(), 'max-md:h-11')}>+ Nova extensão</Link>
         )}
       </header>
       <AbasExtensoes abas={abas} ativa={aba} />

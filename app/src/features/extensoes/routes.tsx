@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router';
+import { DetalhePedido } from './components/DetalhePedido';
 import { ExtensoesPage } from './components/ExtensoesPage';
 import { PainelPedido } from './components/PainelPedido';
 
@@ -13,7 +14,7 @@ export function RotasExtensoes() {
       <Route index element={<ExtensoesPage />} />
       <Route path=":aba" element={<ExtensoesPage />}>
         <Route path="novo" element={<PainelPedido />} />
-        <Route path=":id" />
+        <Route path=":id" element={<DetalhePedido />} />
         <Route path=":id/editar" element={<PainelPedido />} />
       </Route>
     </Routes>

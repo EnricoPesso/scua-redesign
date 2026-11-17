@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
+import type { ReactNode } from 'react';
+import { useParams, useSearchParams } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Drawer } from '@/components/ui/drawer';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,39 +9,9 @@ import type { Pedido, Pessoa } from '../domain/types';
 import { useColaboradores, useJustificativas, usePedido, usePermissoes } from '../hooks/queries';
 import { FormularioPedido, textoSucesso } from './FormularioPedido';
 import { useAvisar } from './useAvisar';
+import { useFecharPainel } from './useFecharPainel';
 
-/** Fecha o painel voltando para a lista (com os filtros da URL) e devolve o foco a quem o abriu. */
-function useFecharPainel(aba: string) {
-  const navigate = useNavigate();
-  const { search } = useLocation();
-  const [gatilho] = useState(() => document.activeElement as HTMLElement | null);
-
-  const semBase = () => {
-    const p = new URLSearchParams(search);
-    p.delete('base');
-    const texto = p.toString();
-    return texto ? `?${texto}` : '';
-  };
-  const devolverFoco = () => {
-    setTimeout(() => {
-      if (gatilho && gatilho !== document.body && gatilho.isConnected) gatilho.focus();
-    }, 0);
-  };
-  return {
-    /** Cancelar, ✕ ou Esc: mesma aba, mesmos filtros. */
-    fechar: () => {
-      void navigate({ pathname: `/extensoes/${aba}`, search: semBase() });
-      devolverFoco();
-    },
-    /** Depois de salvar: pedido novo vai para "Meus pedidos" sem filtros, para aparecer na lista. */
-    concluir: (novo: boolean) => {
-      void navigate(novo ? { pathname: '/extensoes/meus' } : { pathname: `/extensoes/${aba}`, search: semBase() });
-      devolverFoco();
-    },
-  };
-}
-
-function PainelMensagem({ titulo, children, aoFechar, aoTentar }: { titulo: string; children: ReactNode; aoFechar: () => void; aoTentar?: () => void }) {
+export function PainelMensagem({ titulo, children, aoFechar, aoTentar }: { titulo: string; children: ReactNode; aoFechar: () => void; aoTentar?: () => void }) {
   return (
     <Drawer
       open
@@ -59,8 +29,8 @@ function PainelMensagem({ titulo, children, aoFechar, aoTentar }: { titulo: stri
   );
 }
 
-const Carregando = () => (
-  <div role="status" aria-busy="true" aria-label="Carregando" className="grid gap-4">
+export const Carregando = ({ rotulo = 'Carregando' }: { rotulo?: string }) => (
+  <div role="status" aria-busy="true" aria-label={rotulo} className="grid gap-4">
     <Skeleton className="h-10" />
     <Skeleton className="h-10" />
     <Skeleton className="h-10" />

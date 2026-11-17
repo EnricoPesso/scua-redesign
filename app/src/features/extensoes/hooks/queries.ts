@@ -14,10 +14,11 @@ export function usePermissoes() {
   return useQuery({ queryKey: ['permissoes'], queryFn: extensoesApi.permissoes, staleTime: 5 * 60_000 });
 }
 
-export function useListaPedidos(f: Filtros) {
+export function useListaPedidos(f: Filtros, habilitado = true) {
   return useQuery({
     queryKey: chaves.lista(f),
     queryFn: () => extensoesApi.listar(f),
+    enabled: habilitado,
     placeholderData: keepPreviousData,
     // A fila do gestor se atualiza sozinha: decisões tomadas no Teams/WhatsApp tiram o pedido da fila.
     refetchInterval: f.aba === 'aprovar' ? 60_000 : false,

@@ -62,6 +62,15 @@ describe('Lista de pedidos', () => {
     expect(horas).toHaveTextContent('a partir de 01/10');
   });
 
+  it('"Para aprovar" mostra só o contador "Em aprovação" (aprovadas e reprovadas não fazem sentido numa fila de pendentes)', async () => {
+    entrarComo('carlos');
+    renderApp('/extensoes/aprovar');
+    const emAprovacao = await kpi('Em aprovação');
+    await waitFor(() => expect(emAprovacao).toHaveTextContent('5'));
+    expect(screen.queryByRole('group', { name: 'Horas aprovadas' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Reprovados' })).not.toBeInTheDocument();
+  });
+
   it('RH filtra por status e o link de exportar leva o filtro', async () => {
     entrarComo('renata');
     const { user } = renderApp('/extensoes/todos');

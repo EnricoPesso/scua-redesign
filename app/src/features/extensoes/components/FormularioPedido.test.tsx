@@ -166,6 +166,7 @@ describe('Formulário de pedido: novo', () => {
     const aviso = await screen.findByRole('alert');
     expect(aviso).toHaveTextContent('Não conseguimos enviar. Seus dados estão salvos aqui.');
     expect(aviso.textContent).not.toMatch(/503|HTTP|ProgressEvent/i);
+    await waitFor(() => expect(aviso).toHaveFocus());
     expect(screen.getByRole('dialog', { name: /extensão/ })).toBeInTheDocument();
     expect(screen.getByLabelText('Primeiro dia')).toHaveValue('2026-10-21');
     expect(screen.getByLabelText('Último dia (opcional)')).toHaveValue('2026-10-22');
@@ -204,6 +205,20 @@ describe('Formulário de pedido: novo', () => {
     await user.click(screen.getByRole('button', { name: 'Enviar pedido' }));
     expect(await screen.findByText('Escolha para quem é a extensão')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Colaborador' })).toHaveFocus();
+  });
+});
+
+describe('Formulário de pedido: equipe indisponível', () => {
+  it('se a lista da equipe não carrega, o gestor vê o aviso e "Tentar de novo" em vez de uma lista vazia', async () => {
+    server.use(http.get('*/api/colaboradores', () => new HttpResponse(null, { status: 503 }), { once: true }));
+    entrarComo('carlos');
+    const { user } = renderApp('/extensoes/meus/novo');
+    const aviso = await screen.findByRole('alert');
+    expect(aviso).toHaveTextContent('Não conseguimos carregar a sua equipe.');
+    await user.click(within(aviso).getByRole('button', { name: 'Tentar de novo' }));
+    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
+    await user.click(screen.getByRole('combobox', { name: 'Colaborador' }));
+    expect(await screen.findByRole('option', { name: 'Ana Souza' })).toBeInTheDocument();
   });
 });
 

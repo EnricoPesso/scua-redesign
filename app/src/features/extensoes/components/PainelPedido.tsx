@@ -71,6 +71,21 @@ export function PainelPedido() {
     return <PainelMensagem titulo={titulo} aoFechar={fechar}><p role="alert" className="text-sm text-foreground">Você não tem permissão para pedir extensões.</p></PainelMensagem>;
   }
 
+  // Gestor: sem a lista da equipe, "Para outra pessoa" ficaria vazio e sem saída. Melhor avisar e oferecer tentar de novo.
+  if (perm.podePedirParaOutros && colaboradores.isPending) {
+    return <PainelMensagem titulo={titulo} aoFechar={fechar}><Carregando /></PainelMensagem>;
+  }
+  if (perm.podePedirParaOutros && colaboradores.isError) {
+    return (
+      <PainelMensagem titulo={titulo} aoFechar={fechar}>
+        <div role="alert" className="grid gap-2 text-sm text-foreground">
+          <p>Não conseguimos carregar a sua equipe. Verifique sua conexão e tente de novo.</p>
+          <Button variant="secondary" className="w-fit max-md:h-11" onClick={() => void colaboradores.refetch()}>Tentar de novo</Button>
+        </div>
+      </PainelMensagem>
+    );
+  }
+
   const pedido = alvo.data;
   if (editando && pedido) {
     if (pedido.solicitante.id !== perm.usuario.id) {

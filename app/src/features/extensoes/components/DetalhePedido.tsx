@@ -22,6 +22,7 @@ import { Carregando, PainelMensagem } from './PainelPedido';
 import { SeloStatus } from './SeloStatus';
 import { useAvisar } from './useAvisar';
 import { useFecharPainel } from './useFecharPainel';
+import { useFocarAviso } from './useFocarAviso';
 import { useFiltros } from './useFiltros';
 
 // No celular os botões do rodapé dividem a largura e têm 44px de altura (spec, seção 7.4).
@@ -94,6 +95,8 @@ function ConteudoPedido({ pedido, perm, aba, aoFechar }: { pedido: Pedido; perm:
   const [erroAcao, setErroAcao] = useState<{ texto: string; tentar?: () => void } | null>(null);
   const [conflito, setConflito] = useState<string | null>(null);
   const [confirmarCancelamento, setConfirmarCancelamento] = useState(false);
+  const refErro = useFocarAviso<HTMLDivElement>(erroAcao);
+  const refConflito = useFocarAviso<HTMLParagraphElement>(conflito);
 
   const nome = pedido.beneficiario.nome;
   const pendente = pedido.status === 'pendente';
@@ -188,10 +191,10 @@ function ConteudoPedido({ pedido, perm, aba, aoFechar }: { pedido: Pedido; perm:
           </p>
 
           {textoDoConflito && (
-            <p role="status" className="rounded-md bg-[var(--color-warning-bg)] p-3 text-sm font-semibold text-[var(--color-warning-text)]">{textoDoConflito}</p>
+            <p ref={refConflito} tabIndex={-1} role="status" className="rounded-md bg-[var(--color-warning-bg)] outline-none focus-visible:ring-3 focus-visible:ring-ring p-3 text-sm font-semibold text-[var(--color-warning-text)]">{textoDoConflito}</p>
           )}
           {erroAcao && (
-            <div role="alert" className="grid gap-2 rounded-md bg-[var(--color-danger-bg)] p-3 text-sm text-[var(--color-danger-text)]">
+            <div ref={refErro} tabIndex={-1} role="alert" className="grid gap-2 rounded-md bg-[var(--color-danger-bg)] p-3 outline-none focus-visible:ring-3 focus-visible:ring-ring text-sm text-[var(--color-danger-text)]">
               <p className="font-semibold">{erroAcao.texto}</p>
               {erroAcao.tentar && <Button variant="secondary" className="w-fit max-md:h-11" onClick={erroAcao.tentar}>Tentar de novo</Button>}
             </div>

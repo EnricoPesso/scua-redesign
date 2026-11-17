@@ -10,7 +10,8 @@ const FAIXA = 'flex min-w-0 snap-x gap-3 overflow-x-auto pb-1 md:grid md:grid-co
 /** Horas aprovadas em horas decimais: 90 min → 1,5 h (o KpiCard anima um número). */
 const emHoras = (minutos: number) => ({ valor: minutos / 60, casas: minutos % 60 === 0 ? 0 : 1 });
 
-export function Contadores({ totais, rotulo }: { totais: UseQueryResult<Totais>; rotulo: string }) {
+/** `soPendentes`: na fila "Para aprovar" só existem pendentes, então aprovadas e reprovadas ficariam sempre em 0. */
+export function Contadores({ totais, rotulo, soPendentes = false }: { totais: UseQueryResult<Totais>; rotulo: string; soPendentes?: boolean }) {
   if (totais.isError) return null;
   const carregando = totais.isPending;
   const t = totais.data;
@@ -18,8 +19,10 @@ export function Contadores({ totais, rotulo }: { totais: UseQueryResult<Totais>;
   return (
     <div className={FAIXA}>
       <KpiCard className={CARTAO} label="Em aprovação" value={t?.pendentes ?? 0} period={rotulo} loading={carregando} />
+      {!soPendentes && <>
       <KpiCard className={CARTAO} label="Horas aprovadas" value={horas.valor} decimals={horas.casas} unit="h" period={rotulo} loading={carregando} />
       <KpiCard className={CARTAO} label="Reprovados" value={t?.reprovados ?? 0} period={rotulo} loading={carregando} />
+      </>}
     </div>
   );
 }

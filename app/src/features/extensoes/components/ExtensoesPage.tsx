@@ -11,7 +11,7 @@ import { ListaPedidos } from './ListaPedidos';
 const PAGINA = 'mx-auto grid w-full grid-cols-[minmax(0,1fr)] max-w-[75rem] gap-4 px-4 pt-5 pb-10 md:px-6';
 
 export function ExtensoesPage() {
-  const { aba } = useParams();
+  const { aba, id } = useParams();
   const { search } = useLocation();
   const permissoes = usePermissoes();
 
@@ -27,7 +27,9 @@ export function ExtensoesPage() {
   if (abas.length === 0) {
     return <main className={PAGINA}><p role="status" className="text-[var(--color-text-muted)]">Você não tem acesso às extensões de jornada.</p></main>;
   }
-  if (!ehAba(aba) || !abas.includes(aba)) return <Navigate to={`/extensoes/${abas[0]}`} replace />;
+  // Link para uma aba que a pessoa não tem (ex.: RH com link de "Para aprovar"): mantém o pedido e os filtros;
+  // o detalhe decide se mostra o pedido ou "Você não tem acesso".
+  if (!ehAba(aba) || !abas.includes(aba)) return <Navigate to={{ pathname: `/extensoes/${abas[0]}${id ? `/${id}` : ''}`, search }} replace />;
 
   return (
     <main className={PAGINA}>

@@ -11,6 +11,7 @@ import { JUSTIFICATIVA_OUTRA, type Justificativa, type Pedido, type Permissoes, 
 import { LIMITE_DETALHES, validarPedido, type FormPedido } from '../domain/validacao';
 import { useCriarPedido, useEditarPedido } from '../hooks/mutations';
 import { GrupoRadio } from './GrupoRadio';
+import { useFocarAviso } from './useFocarAviso';
 import { ResumoPedido } from './ResumoPedido';
 
 /** Ordem em que o foco procura o primeiro campo inválido. */
@@ -57,6 +58,7 @@ export function FormularioPedido(props: Props) {
   const [tentou, setTentou] = useState(false);
   const [erroDias, setErroDias] = useState<string>();
   const [falha, setFalha] = useState<Falha>();
+  const refFalha = useFocarAviso<HTMLDivElement>(falha);
   const [enviando, setEnviando] = useState(false);
   const emAndamento = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -141,7 +143,7 @@ export function FormularioPedido(props: Props) {
       className="grid gap-5"
     >
       {falha && (
-        <div role="alert" className="grid gap-2 rounded-lg border border-[var(--color-danger)] bg-[var(--color-danger-bg)] p-3 text-sm text-[var(--color-danger-text)]">
+        <div ref={refFalha} tabIndex={-1} role="alert" className="grid gap-2 outline-none focus-visible:ring-3 focus-visible:ring-ring rounded-lg border border-[var(--color-danger)] bg-[var(--color-danger-bg)] p-3 text-sm text-[var(--color-danger-text)]">
           <p className="font-semibold">{falha.mensagem}</p>
           {falha.podeRepetir && (
             <Button type="button" variant="secondary" className={`w-fit ${ALTO_NO_CELULAR}`} loading={enviando} onClick={() => void enviar()}>
@@ -182,6 +184,7 @@ export function FormularioPedido(props: Props) {
             <DateField
               label="Primeiro dia"
               name="dataInicial"
+              className="max-md:[&_input]:h-11"
               min={hoje}
               value={form.dataInicial}
               onChange={(v) => mudar('dataInicial', v)}
@@ -192,6 +195,7 @@ export function FormularioPedido(props: Props) {
             <DateField
               label="Último dia (opcional)"
               name="dataFinal"
+              className="max-md:[&_input]:h-11"
               min={form.dataInicial || hoje}
               value={form.dataFinal}
               onChange={(v) => mudar('dataFinal', v)}

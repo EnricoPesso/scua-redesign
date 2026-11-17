@@ -69,7 +69,6 @@ export function ListaPedidos({ aba }: { aba: Aba }) {
     conteudo = (
       <>
         <TabelaPedidos aba={aba} pedidos={lista.data.itens} selecao={controleSelecao} />
-        {aba === 'aprovar' && <BarraLote pedidos={pedidosSelecionados} aoConcluir={() => setSelecao({ chave: chaveFiltros, ids: new Set() })} />}
         <Paginacao total={lista.data.total} pagina={filtros.pagina} tamanho={filtros.tamanho}
           aoMudar={(pagina, tamanho) => atualizar({ pagina: String(pagina), tamanho: String(tamanho) })} />
       </>
@@ -79,8 +78,10 @@ export function ListaPedidos({ aba }: { aba: Aba }) {
   return (
     <section aria-label="Pedidos" aria-busy={lista.isPlaceholderData || undefined} className="grid min-w-0 gap-4">
       <FiltrosBarra aba={aba} filtros={filtros} ativos={ativos} atualizar={atualizar} limpar={limpar} />
-      <Contadores totais={totais} rotulo={rotulo} />
+      <Contadores totais={totais} rotulo={rotulo} soPendentes={aba === 'aprovar'} />
       <div className={cn('grid min-w-0 gap-4', lista.isPlaceholderData && 'opacity-60 transition-opacity')}>{conteudo}</div>
+      {/* Fora do ramo da tabela: se a fila esvaziar depois do lote, o diálogo de resultado continua montado. */}
+      {aba === 'aprovar' && <BarraLote pedidos={pedidosSelecionados} aoConcluir={() => setSelecao({ chave: chaveFiltros, ids: new Set() })} />}
     </section>
   );
 }

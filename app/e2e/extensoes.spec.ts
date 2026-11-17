@@ -222,6 +222,7 @@ test('12: fluxo completo no celular sem rolagem horizontal e com alvos de 44px',
   const form = page.getByRole('dialog', { name: 'Nova extensão' });
   await preencherPedidoParaAna(page, diaDaqui(10), '');
   await alvoDeToque(form.getByRole('button', { name: /Enviar pedido|Cancelar/ }));
+  for (const campo of ['Primeiro dia', 'Último dia (opcional)', 'Início', 'Fim']) await alvoDeToque(form.getByLabel(campo, { exact: true }));
   await semRolagemHorizontal(page);
   await form.getByRole('button', { name: 'Enviar pedido' }).click();
   await expect(page.getByText('Pedido enviado. Carlos Mendes vai receber o aviso.')).toBeVisible();

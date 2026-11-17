@@ -101,6 +101,24 @@ describe('Lote: aprovar', () => {
   });
 });
 
+describe('Lote: fila que esvazia', () => {
+  it('o resultado parcial continua na tela mesmo quando a fila fica vazia', async () => {
+    entrarComo('carlos');
+    for (const id of ['p-8', 'p-3', 'p-4']) decidirExterno(id, 'aprovado');
+    const { user } = renderApp('/extensoes/aprovar');
+    await screen.findByRole('link', { name: 'Ana Souza' });
+    decidirExterno('p-2', 'reprovado', 'whatsapp');
+    await user.click(screen.getByRole('checkbox', { name: 'Selecionar todos desta página' }));
+    await user.click(within(screen.getByRole('region', { name: 'Ações em lote' })).getByRole('button', { name: 'Aprovar' }));
+    await user.click(within(await screen.findByRole('dialog', { name: 'Aprovar 2 pedidos?' })).getByRole('button', { name: 'Aprovar 2' }));
+    await screen.findByRole('dialog', { name: 'Resultado da aprovação' });
+    // A fila recarrega vazia ("Tudo em dia!") e o resultado precisa continuar visível.
+    expect(await screen.findByText('Tudo em dia!')).toBeInTheDocument();
+    const resultado = screen.getByRole('dialog', { name: 'Resultado da aprovação' });
+    expect(resultado).toHaveTextContent(/João Lima — já tinha sido reprovado por Carlos Mendes via WhatsApp/);
+  });
+});
+
 describe('Lote: reprovar', () => {
   it('um motivo para todos, obrigatório', async () => {
     const { user } = await abrirFila();

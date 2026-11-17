@@ -109,7 +109,10 @@ describe('Detalhe do pedido: aprovar', () => {
     const { user } = await abrir('/extensoes/aprovar/p-1');
     const p = within(await detalhe('Ana Souza'));
     await user.click(p.getByRole('button', { name: 'Aprovar' }));
-    expect(await p.findByRole('alert')).toHaveTextContent('Não conseguimos registrar a decisão. Tente de novo.');
+    const aviso = await p.findByRole('alert');
+    expect(aviso).toHaveTextContent('Não conseguimos registrar a decisão. Tente de novo.');
+    // O aviso fica no topo do painel e os botões no rodapé: o foco vai até ele.
+    await waitFor(() => expect(aviso).toHaveFocus());
     expect(p.getByRole('button', { name: 'Tentar de novo' })).toBeInTheDocument();
     expect(local()).toBe('/extensoes/aprovar/p-1');
   });
@@ -168,6 +171,17 @@ describe('Detalhe do pedido: conflito e acesso', () => {
     await abrir('/extensoes/aprovar/p-1', 'olga');
     expect(await screen.findByText('Você não tem acesso a este pedido.')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Voltar para minhas extensões' })).toHaveAttribute('href', '/extensoes/meus');
+  });
+
+  it('link de uma aba que a pessoa não tem leva o pedido para a aba que ela tem', async () => {
+    await abrir('/extensoes/aprovar/p-1', 'renata');
+    expect(await detalhe('Ana Souza')).toBeInTheDocument();
+    expect(local()).toBe('/extensoes/todos/p-1');
+  });
+
+  it('colaborador com link de pedido de outra pessoa vê o acesso negado (critério 11)', async () => {
+    await abrir('/extensoes/aprovar/p-1', 'joao');
+    expect(await screen.findByText('Você não tem acesso a este pedido.')).toBeInTheDocument();
   });
 
   it('não encontrado: mensagem e "Voltar"', async () => {

@@ -7,4 +7,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': path.resolve(import.meta.dirname, './src') } },
+  // prototipos.html: exemplos do modelo de relatório, também no build (preview e Lighthouse de performance)
+  build: { rolldownOptions: { input: ['index.html', 'prototipos.html'] } },
 })

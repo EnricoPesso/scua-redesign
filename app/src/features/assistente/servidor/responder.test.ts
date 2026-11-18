@@ -77,7 +77,7 @@ describe('responder', () => {
 
   it('rota externa, com esquema ou fora das telas da pessoa é descartada; formulário fora da lista também', async () => {
     const comForm = { ...pedido, ferramentas: ['navegar', 'abrir_formulario'] as PedidoAssistente['ferramentas'], contexto: { ...pedido.contexto, formularios: [{ id: 'jornada', titulo: 'Jornada de trabalho' }] } };
-    const usos = ['https://exemplo.com/x', '//exemplo.com', 'javascript:alert(1)', '/\exemplo.com', '/ausencias\..\auditoria', 'ausencias', '/auditoria', '/ausencias/../auditoria'].map((rota) => ({ type: 'tool_use', name: 'navegar', input: { rota } }));
+    const usos = ['https://exemplo.com/x', '//exemplo.com', 'javascript:alert(1)', '/\\exemplo.com', '/ausencias\\..\\auditoria','ausencias', '/auditoria', '/ausencias/../auditoria'].map((rota) => ({ type: 'tool_use', name: 'navegar', input: { rota } }));
     const buscar = ok({ content: [...usos,
       { type: 'tool_use', name: 'navegar', input: { rota: '/ausencias?de=2026-10-11&ate=2026-10-11' } },
       { type: 'tool_use', name: 'abrir_formulario', input: { formulario: 'usuario' } },

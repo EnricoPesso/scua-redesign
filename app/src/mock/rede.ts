@@ -38,9 +38,17 @@ export function rede<T>(fn: () => T): Promise<T> {
 export function redeCancelavel<T>(fn: () => T, signal: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
     const id = setTimeout(() => {
-      if (falhando) reject(new ErroDeRede());
-      else resolve(structuredClone(fn()));
+      if (falhando) {
+        reject(new ErroDeRede());
+        return;
+      }
+      try {
+        resolve(structuredClone(fn()));
+      } catch (e) {
+        // Sem isto a promessa nunca terminaria e o relatório ficaria "carregando" para sempre.
+        reject(e);
+      }
     }, ATRASO_MS);
-    signal.addEventListener('abort', () => clearTimeout(id));
+    signal.addEventListener('abort', () => clearTimeout(id), { once: true });
   });
 }

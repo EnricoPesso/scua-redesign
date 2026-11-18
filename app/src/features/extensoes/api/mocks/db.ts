@@ -1,6 +1,6 @@
 import { formatarHora, nomeCanal } from '../../domain/formatacao';
 import { contarDias, minutosPorDia, totalMinutos } from '../../domain/horas';
-import { deslocarDatas, diasEntre, hoje } from '../../../../mock/datas';
+import { deslocarDatas, diasEntre, hoje, isoDia } from '../../../../mock/datas';
 import { definirFalhaDeRede } from '../../../../mock/rede';
 import { JUSTIFICATIVA_OUTRA } from '../../domain/types';
 import type {
@@ -123,7 +123,12 @@ export function permissoesAtuais(): Permissoes {
   return { usuario: usuarioAtual(), ...(PERFIL[estado.usuarioId] ?? COLABORADOR) };
 }
 
-const agoraIso = () => new Date().toISOString();
+/** Agora, no horário local e sem fuso ("2026-10-12T22:30:00"), igual às datas dos dados de exemplo. */
+const agoraIso = () => {
+  const d = new Date();
+  const dois = (n: number) => String(n).padStart(2, '0');
+  return `${isoDia(d)}T${dois(d.getHours())}:${dois(d.getMinutes())}:${dois(d.getSeconds())}`;
+};
 const acharPedido = (id: string) => estado.pedidos.find((p) => p.id === id);
 function semHistorico(p: Pedido): Pedido {
   const { historico, ...resto } = p;

@@ -1,10 +1,10 @@
-import { Suspense, lazy, useMemo, type ComponentType, type ReactNode } from 'react';
+import { Suspense, lazy, useMemo, useState, type ComponentType, type ReactNode } from 'react';
 import { Link, Route, Routes, useParams, useSearchParams } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Field } from '@/components/ui/field';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ModeloRelatorio } from '@/modelos/relatorio';
+import { ModeloRelatorio, type ConfigRelatorio, type ValoresFiltro } from '@/modelos/relatorio';
 import { cn } from '@/lib/utils';
 import { NaoEncontrada } from '../../layout/ErroGlobal';
 import { Pagina, Trilha, useTituloDaAba } from '../../componentes/Pagina';
@@ -82,6 +82,49 @@ function Entrada() {
 }
 
 type TelaDoRelatorio = ComponentType<{ trilha: ReactNode }>;
+/**
+ * Liga o modelo de relatório à URL: os filtros aplicados viram parâmetros (o link reabre o relatório
+ * já filtrado, como nas outras telas), e "Limpar filtros" tira os parâmetros.
+ */
+function RelatorioNaUrl<T extends object>({ config, trilha }: { config: ConfigRelatorio<T>; trilha: ReactNode }) {
+  const [params, setParams] = useSearchParams();
+  const [iniciais] = useState<ValoresFiltro>(() => {
+    const v: ValoresFiltro = {};
+    for (const f of config.filtros) {
+      if (f.tipo === 'periodo') {
+        for (const chave of ['inicio', 'fim']) {
+          const data = params.get(chave);
+          if (data && /^\d{4}-\d{2}-\d{2}$/.test(data)) v[chave] = data;
+        }
+      } else if (f.tipo === 'multi') {
+        const validos = params.getAll(f.chave).filter((x) => f.opcoes.some((o) => o.value === x));
+        if (validos.length > 0) v[f.chave] = validos;
+      } else if (params.has(f.chave)) {
+        const texto = params.get(f.chave) ?? '';
+        if (f.tipo === 'texto' || f.opcoes.some((o) => o.value === texto)) v[f.chave] = texto;
+      }
+    }
+    return v;
+  });
+  return (
+    <ModeloRelatorio
+      config={config}
+      trilha={trilha}
+      valoresIniciais={iniciais}
+      aoAplicar={(aplicados, padrao) => {
+        const novo = new URLSearchParams();
+        if (!padrao) {
+          for (const [chave, valor] of Object.entries(aplicados)) {
+            if (Array.isArray(valor)) valor.forEach((x) => novo.append(chave, x));
+            else if (valor) novo.set(chave, valor);
+          }
+        }
+        setParams(novo, { replace: true });
+      }}
+    />
+  );
+}
+
 const telas = new Map<string, ReturnType<typeof lazy<TelaDoRelatorio>>>();
 
 /** Uma tela por relatório, criada uma só vez: a configuração entra no pacote só quando é aberta. */
@@ -90,7 +133,7 @@ function telaDe(slug: string) {
   if (!tela) {
     tela = lazy<TelaDoRelatorio>(async () => {
       const { default: config } = await CARREGADORES[slug]();
-      return { default: ({ trilha }) => <ModeloRelatorio config={config} trilha={trilha} /> };
+      return { default: ({ trilha }) => <RelatorioNaUrl config={config} trilha={trilha} /> };
     });
     telas.set(slug, tela);
   }

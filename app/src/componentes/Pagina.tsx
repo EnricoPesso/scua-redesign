@@ -15,7 +15,7 @@ export function Trilha({ passos }: { passos: PassoTrilha[] }) {
         {passos.map((p, i) => (
           <li key={p.rotulo} className="flex items-center gap-1.5">
             {i > 0 && <span aria-hidden="true">/</span>}
-            {p.para ? <Link to={p.para} className={cn(LINK, 'inline-flex min-h-6 items-center')}>{p.rotulo}</Link> : <span>{p.rotulo}</span>}
+            {p.para ? <Link to={p.para} className={cn(LINK, 'inline-flex min-h-6 items-center max-md:min-h-11')}>{p.rotulo}</Link> : <span>{p.rotulo}</span>}
           </li>
         ))}
       </ol>

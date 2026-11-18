@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { localidadesPorIp as localidades } from '../../features/configuracoes/cadastros/localidades-por-ip';
 import { perfisDePausas } from '../../features/pausas/api';
 import { renderApp } from '../../test/render';
 import { validarCadastro } from './ModeloCadastro';
@@ -32,6 +33,28 @@ describe('validarCadastro', () => {
   it('as regras próprias do cadastro entram junto', () => {
     const validar = (d: Omit<Item, 'id'>) => (d.nome === 'x' ? { nome: 'Nome reservado' } : {});
     expect(validarCadastro({ campos, validar }, { nome: 'x', minutos: 5, tipo: 'a', ativo: true })).toEqual({ nome: 'Nome reservado' });
+  });
+});
+
+describe('modelo de cadastro: paginação', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+  afterEach(() => localidades.resetar());
+
+  it('depois de salvar um item da página 2, a lista continua na página 2', async () => {
+    const { user } = renderApp('/configuracoes/localidades-por-ip');
+    expect(await screen.findByText('Mostrando 1 a 10 de 18')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Próxima' }));
+    expect(screen.getByText('Mostrando 11 a 18 de 18')).toBeInTheDocument();
+    const editar = screen.getAllByRole('button', { name: /^Editar / })[0];
+    await user.click(editar);
+    const painel = within(await screen.findByRole('dialog', { name: 'Editar localidade' }));
+    await user.type(painel.getByLabelText('Localidade *'), ' (novo)');
+    await user.click(painel.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Editar localidade' })).not.toBeInTheDocument());
+    await screen.findByText(/\(novo\)/);
+    expect(screen.getByText('Mostrando 11 a 18 de 18')).toBeInTheDocument();
   });
 });
 

@@ -12,10 +12,11 @@
  * pedir ao @PhLima07: alvo de 44px no celular direto nos componentes.
  */
 @media (max-width: 767px) {
-  :where(button, select, [role="combobox"], input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"])):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"]) {
+  :where(button, select, [role="combobox"], input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"])):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"], [data-alvo-livre]) {
     min-height: 2.75rem;
   }
-  :where(button):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"], [role="tab"]) {
+  /* [data-alvo-livre]: marcas de gráfico (ex.: barras da linha do tempo), que têm o tamanho do dado. */
+  :where(button):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"], [role="tab"], [data-alvo-livre]) {
     min-width: 2.75rem;
   }
 }

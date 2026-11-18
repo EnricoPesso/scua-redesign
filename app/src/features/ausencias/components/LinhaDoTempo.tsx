@@ -39,6 +39,7 @@ function Barra({ ausencia }: { ausencia: Ausencia }) {
     <>
       <button
         type="button"
+        data-alvo-livre
         aria-label={texto}
         aria-describedby={dica ? idDica : undefined}
         onMouseEnter={() => setDica(true)}

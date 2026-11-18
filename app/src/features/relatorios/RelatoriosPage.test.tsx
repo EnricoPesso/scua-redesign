@@ -84,7 +84,7 @@ describe('Relatório aberto por rota (Tempo de bloqueio)', () => {
     fireEvent.change(screen.getByLabelText('Data inicial'), { target: { value: '2020-01-01' } });
     await user.click(screen.getByRole('button', { name: 'Filtrar' }));
     expect(await screen.findByText(/Nenhum bloqueio com liberação nesse período\./)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Limpar filtros' }));
+    await user.click(screen.getAllByRole('button', { name: 'Limpar filtros' }).at(-1)!);
     expect(await screen.findByText(/Mostrando 1 a 10 de/)).toBeInTheDocument();
   });
 

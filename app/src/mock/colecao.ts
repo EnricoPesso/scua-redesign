@@ -52,6 +52,8 @@ export function criarColecao<T extends ComId>(prefixo: string, semente: () => T[
       return novo;
     }),
     editar: (id, dados) => rede(() => {
+      // Outra pessoa pode ter excluído o item enquanto este formulário estava aberto.
+      if (!carregar().some((i) => i.id === id)) throw new ErroDeValidacao('Este item não existe mais. Feche e confira a lista.');
       conferir(dados, id);
       const novo = { ...dados, id } as T;
       guardados = carregar().map((i) => (i.id === id ? novo : i));

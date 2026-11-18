@@ -116,7 +116,17 @@ export function diaDaSemana(iso: string): number {
 }
 
 /** Segunda a sexta dentro do período, em ordem. */
+const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
+const MAXIMO_DE_DIAS = 366;
+
+/**
+ * Dias úteis do período. Datas inválidas ou um período de mais de um ano devolvem lista vazia:
+ * as datas vêm da URL (ano digitado pela metade, link errado) e não podem travar a tela.
+ */
 export function diasUteisEntre(de: string, ate: string): string[] {
+  if (!DATA_ISO.test(de) || !DATA_ISO.test(ate)) return [];
+  const intervalo = (new Date(`${ate}T12:00:00`).getTime() - new Date(`${de}T12:00:00`).getTime()) / 86_400_000;
+  if (!Number.isFinite(intervalo) || intervalo < 0 || intervalo > MAXIMO_DE_DIAS) return [];
   const dias: string[] = [];
   for (let d = de; d <= ate; d = somarDias(d, 1)) {
     const s = diaDaSemana(d);

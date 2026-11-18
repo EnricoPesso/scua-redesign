@@ -18,12 +18,16 @@ type ModeloRelatorioProps<T> = {
   hoje?: string
   // Trilha própria do app (ex.: com links do roteador, sem recarregar a página). Substitui a trilha padrão.
   trilha?: ReactNode
+  // Filtros com que o relatório abre (ex.: lidos da URL); o que faltar usa o padrão.
+  valoresIniciais?: ValoresFiltro
+  // Avisa a cada Filtrar/Limpar, para o app guardar os filtros aplicados (ex.: na URL). `padrao` = sem filtro próprio.
+  aoAplicar?: (aplicados: ValoresFiltro, padrao: boolean) => void
 }
 
 // Modelo único de relatório (variante A, escolhida em 2026-10-29):
 // cabeçalho com Exportar → faixa de filtros → KPIs → tabela.
-export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha }: ModeloRelatorioProps<T>) {
-  const r = useModeloRelatorio(config, hoje)
+export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha, valoresIniciais, aoAplicar }: ModeloRelatorioProps<T>) {
+  const r = useModeloRelatorio(config, hoje, { valoresIniciais, aoAplicar })
   const carregando = r.status === "carregando"
   const erro = r.status === "erro"
   const periodo = textoPeriodo(r.aplicados)
@@ -49,7 +53,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), tr
         <Filtros filtros={config.filtros} valores={r.rascunho} onChange={r.setRascunho} erroPeriodo={r.erroPeriodo} />
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" onClick={r.limpar}>
-            Limpar
+            Limpar filtros
           </Button>
           <Button type="submit" loading={carregando} disabled={Boolean(r.erroPeriodo)}>
             Filtrar

@@ -34,9 +34,11 @@ function DataTable<T extends object>({
   empty = "Nenhum registro encontrado. Ajuste os filtros ou tente outro período.",
 }: DataTableProps<T>) {
   const [requestedPage, setRequestedPage] = useState(1)
-  const [prevRows, setPrevRows] = useState(rows)
-  if (prevRows !== rows) {
-    setPrevRows(rows)
+  // Volta para a página 1 só quando a quantidade de linhas muda (novo filtro ou busca).
+  // Recarregar os mesmos dados (ex.: depois de salvar um item) mantém a página em que a pessoa estava.
+  const [prevCount, setPrevCount] = useState(rows.length)
+  if (prevCount !== rows.length) {
+    setPrevCount(rows.length)
     setRequestedPage(1)
   }
   const info = paginate({ total: rows.length, page: requestedPage, pageSize })

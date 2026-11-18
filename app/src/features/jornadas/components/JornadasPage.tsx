@@ -15,6 +15,8 @@ import { mensagemDeErro } from '../../../lib/mensagens';
 import { excluirJornada } from '../api';
 import type { Jornada } from '../domain/tipos';
 import { CHAVE_JORNADAS, Carregando, useJornadas } from './apoio';
+import { BotaoExportar } from '../../../componentes/BotaoExportar';
+import { COLUNAS_PLANILHA } from '../planilha';
 import { TabelaJornadas } from './TabelaJornadas';
 
 const semAcento = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -104,7 +106,12 @@ export function JornadasPage() {
     <Pagina
       titulo="Jornadas de trabalho"
       descricao="Horários de trabalho que podem ser atribuídos às pessoas."
-      acoes={total === 0 ? undefined : <Link to={novo} className={buttonVariants()}><PlusIcon aria-hidden="true" />Adicionar jornada</Link>}
+      acoes={total === 0 ? undefined : (
+        <>
+          <BotaoExportar arquivo="jornadas-de-trabalho" colunas={COLUNAS_PLANILHA} linhas={itens} />
+          <Link to={novo} className={buttonVariants()}><PlusIcon aria-hidden="true" />Adicionar jornada</Link>
+        </>
+      )}
     >
       {corpo}
       <Outlet />

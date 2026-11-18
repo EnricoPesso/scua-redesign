@@ -73,7 +73,7 @@ describe('whatsappValido', () => {
 
 describe('validarDados', () => {
   const ok: DadosUsuario = {
-    email: 'ana@scua.com.br', whatsapp: '', gestorId: 'u-carlos', departamento: 'Vendas', jornadaId: 'jor-adm-8h',
+    email: 'ana@scua.com.br', whatsapp: '', gestorId: 'u-carlos', departamento: 'Vendas', jornadaId: 'jor-adm-8h', grupoId: null,
     permissoes: { avisosPorEmail: true, liberaRegra: false, administrador: false, rhAprovador: false, sustentacao: false, producao: false },
   };
   it('aceita dados corretos, com WhatsApp opcional', () => expect(validarDados(ok)).toEqual({}));

@@ -1,12 +1,15 @@
 import { useId, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
+import { paginate } from '@/lib/paginate';
 import type { PessoaDiretorio } from '../../../mock/diretorio';
 import {
   EXPEDIENTE, MOTIVOS, formatarDuracao, paraMinutos, posicaoDaBarra, rotuloDoDia, textoDaAusencia, totaisPorPessoa,
   type Ausencia,
 } from '../domain/ausencias';
 import { ESTILO_MOTIVO } from './estiloMotivo';
+import { OPCOES_PESSOAS_POR_VEZ, type PessoasPorVez } from './useFiltros';
 
 const HORAS = Array.from({ length: (EXPEDIENTE.fim - EXPEDIENTE.inicio) / 60 + 1 }, (_, i) => EXPEDIENTE.inicio / 60 + i);
 const GRADE = { backgroundImage: 'repeating-linear-gradient(to right, var(--color-line) 0 1px, transparent 1px 10%)' };
@@ -47,11 +50,10 @@ function Barra({ ausencia }: { ausencia: Ausencia }) {
         onFocus={() => setDica(true)}
         onBlur={() => setDica(false)}
         onKeyDown={(e) => { if (e.key === 'Escape') setDica(false); }}
-        className="absolute inset-y-1.5 min-w-2 cursor-default overflow-hidden rounded-sm text-xs font-semibold outline-none focus-visible:z-20 focus-visible:ring-3 focus-visible:ring-ring"
+        className="absolute inset-y-1.5 min-w-2 cursor-default overflow-hidden rounded-sm outline-none focus-visible:z-20 focus-visible:ring-3 focus-visible:ring-ring"
         style={{ left: `${pos.esquerda}%`, width: `${pos.largura}%`, ...ESTILO_MOTIVO[ausencia.motivo] }}
       >
-        {/* O texto interno é só um reforço visual quando a barra é larga; o nome acessível é o aria-label. */}
-        {pos.largura >= 9 && <span aria-hidden="true" className="mx-0.5 truncate rounded-sm bg-[var(--color-surface)] px-1 text-foreground">{ausencia.motivo}</span>}
+        {/* Sem texto dentro da barra: a legenda explica cada padrão, e o passar do mouse (ou o foco) mostra motivo e horário. */}
       </button>
       {dica && (
         <span
@@ -73,11 +75,54 @@ interface Props {
   dia: string;
   diasUteis: string[];
   aoMudarDia: (dia: string) => void;
+  pessoasPorVez: PessoasPorVez;
+  paginaPessoas: number;
+  aoMudarPessoasPorVez: (valor: PessoasPorVez) => void;
+  aoMudarPaginaPessoas: (pagina: number) => void;
+}
+
+const ROTULO_POR_VEZ = (v: PessoasPorVez) => (v === 'todas' ? 'Todas' : String(v));
+
+/** Quantas pessoas aparecem por vez e qual grupo delas: evita rolar a página inteira com muita gente. */
+function PessoasExibidas({ total, porVez, pagina, aoMudarPorVez, aoMudarPagina }: {
+  total: number;
+  porVez: PessoasPorVez;
+  pagina: number;
+  aoMudarPorVez: (v: PessoasPorVez) => void;
+  aoMudarPagina: (p: number) => void;
+}) {
+  const tamanho = porVez === 'todas' ? Math.max(total, 1) : porVez;
+  const info = paginate({ total, page: pagina, pageSize: tamanho });
+  return (
+    <div role="group" aria-label="Pessoas exibidas" className="flex flex-wrap items-end gap-2">
+      <Select
+        label="Pessoas por vez"
+        className="w-32"
+        options={OPCOES_PESSOAS_POR_VEZ.map((v) => ({ value: String(v), label: ROTULO_POR_VEZ(v) }))}
+        value={String(porVez)}
+        onValueChange={(v) => aoMudarPorVez((v === 'todas' ? 'todas' : Number(v)) as PessoasPorVez)}
+      />
+      {porVez !== 'todas' && total > tamanho && (
+        <div className="flex items-center gap-1">
+          <Button variant="secondary" size="icon" aria-label="Pessoas anteriores" disabled={!info.hasPrev} onClick={() => aoMudarPagina(info.page - 1)}>
+            <ChevronLeftIcon aria-hidden="true" />
+          </Button>
+          <Button variant="secondary" size="icon" aria-label="Próximas pessoas" disabled={!info.hasNext} onClick={() => aoMudarPagina(info.page + 1)}>
+            <ChevronRightIcon aria-hidden="true" />
+          </Button>
+        </div>
+      )}
+      <span aria-live="polite" className="pb-2.5 text-sm text-muted-foreground tabular-nums">{`${info.from}–${info.to} de ${total}`}</span>
+    </div>
+  );
 }
 
 /** Uma linha por pessoa; o eixo horizontal é o expediente (08h às 18h) do dia escolhido. */
-export function LinhaDoTempo({ pessoas, ausencias, dia, diasUteis, aoMudarDia }: Props) {
+export function LinhaDoTempo({ pessoas, ausencias, dia, diasUteis, aoMudarDia, pessoasPorVez, paginaPessoas, aoMudarPessoasPorVez, aoMudarPaginaPessoas }: Props) {
   const i = diasUteis.indexOf(dia);
+  const tamanho = pessoasPorVez === 'todas' ? Math.max(pessoas.length, 1) : pessoasPorVez;
+  const faixa = paginate({ total: pessoas.length, page: paginaPessoas, pageSize: tamanho });
+  const visiveis = pessoas.slice(Math.max(0, faixa.from - 1), faixa.to);
   const totais = totaisPorPessoa(ausencias);
   const doDia = ausencias.filter((a) => a.dia === dia);
 
@@ -93,6 +138,7 @@ export function LinhaDoTempo({ pessoas, ausencias, dia, diasUteis, aoMudarDia }:
             <ChevronRightIcon aria-hidden="true" />
           </Button>
         </div>
+        <PessoasExibidas total={pessoas.length} porVez={pessoasPorVez} pagina={faixa.page} aoMudarPorVez={aoMudarPessoasPorVez} aoMudarPagina={aoMudarPaginaPessoas} />
         <Legenda />
       </div>
 
@@ -107,7 +153,7 @@ export function LinhaDoTempo({ pessoas, ausencias, dia, diasUteis, aoMudarDia }:
             </div>
           </div>
           <div role="list" aria-label={`Ausências em ${dia ? rotuloDoDia(dia) : ''}`}>
-          {pessoas.map((p) => (
+          {visiveis.map((p) => (
             <div key={p.id} role="listitem" className="grid grid-cols-[11rem_minmax(0,1fr)] items-center border-b border-border last:border-b-0">
               <div className="min-w-0 px-4 py-2">
                 <p className="truncate text-sm font-semibold text-foreground">{p.nome}</p>

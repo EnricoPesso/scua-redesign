@@ -10,6 +10,9 @@ type Column<T> = {
   header: string
   render?: (row: T) => ReactNode
   numeric?: boolean
+  // O cabeçalho só existe para leitor de tela (ex.: coluna de ações, cujos ícones já se explicam).
+  // A célula fica `relative` para o texto invisível não escapar da rolagem da tabela e alargar a página.
+  cabecalhoOculto?: boolean
 }
 
 type DataTableProps<T> = {
@@ -52,8 +55,8 @@ function DataTable<T extends object>({
           <thead className="bg-[var(--color-surface-muted)]">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} scope="col" className={cn("px-4 py-3 font-semibold whitespace-nowrap text-foreground", col.numeric && "text-right tabular-nums")}>
-                  {col.header}
+                <th key={col.key} scope="col" className={cn("px-4 py-3 font-semibold whitespace-nowrap text-foreground", col.numeric && "text-right tabular-nums", col.cabecalhoOculto && "relative")}>
+                  {col.cabecalhoOculto ? <span className="sr-only">{col.header}</span> : col.header}
                 </th>
               ))}
             </tr>

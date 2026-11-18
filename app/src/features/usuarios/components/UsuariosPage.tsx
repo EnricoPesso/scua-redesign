@@ -11,8 +11,10 @@ import { GESTORES } from '../../../mock/diretorio';
 import { DEPARTAMENTOS } from '../dados';
 import { filtrarUsuarios, temFiltro, textoContagem, type Situacao } from '../domain/filtros';
 import { Carregando, useUsuarios } from './apoio';
-import { Paginacao } from './Paginacao';
+import { Paginacao } from '../../../componentes/Paginacao';
 import { TabelaUsuarios } from './TabelaUsuarios';
+import { BotaoExportar } from '../../../componentes/BotaoExportar';
+import { COLUNAS_PLANILHA } from '../planilha';
 import { useFiltrosUsuarios } from './useFiltrosUsuarios';
 
 const TODOS = '__todos';
@@ -76,7 +78,11 @@ export function UsuariosPage() {
   }
 
   return (
-    <Pagina titulo="Usuários" descricao="Pessoas com acesso ao Scua Logon. Abra uma pessoa para ver e ajustar os dados, feriados, substituto, exceções e férias.">
+    <Pagina
+      titulo="Usuários"
+      descricao="Pessoas com acesso ao Scua Logon. Abra uma pessoa para ver e ajustar os dados, feriados, substituto, exceções e férias."
+      acoes={<BotaoExportar arquivo="usuarios" colunas={COLUNAS_PLANILHA} linhas={filtrados} desabilitado={lista.isPending || lista.isError} />}
+    >
       <section aria-label="Lista de usuários" className="grid min-w-0 gap-4">
         <div role="search" aria-label="Filtros de usuários" className="grid gap-3 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
           <Field

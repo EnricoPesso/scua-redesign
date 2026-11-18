@@ -38,11 +38,30 @@ describe('Ausências', () => {
     expect(screen.getByRole('button', { name: 'Ver linha do tempo' })).toBeInTheDocument();
   });
 
+  it('seletor de pessoas por vez, ao lado do dia: troca a quantidade, pagina e guarda na URL', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('min-width'), media: q, addEventListener() {}, removeEventListener() {} }));
+    const { user } = renderApp('/ausencias');
+    const lista = await screen.findByRole('list', { name: 'Ausências em Seg 12/10' }, { timeout: 15_000 });
+    const grupo = screen.getByRole('group', { name: 'Pessoas exibidas' });
+    expect(within(grupo).getByText('1–10 de 24')).toBeInTheDocument();
+    await user.click(within(grupo).getByRole('button', { name: 'Próximas pessoas' }));
+    expect(within(grupo).getByText('11–20 de 24')).toBeInTheDocument();
+    expect(screen.getByTestId('local-atual').textContent).toContain('pessoasPagina=2');
+    expect(within(lista).getAllByRole('listitem')[0]).toHaveTextContent('Fábio Nunes');
+    await user.click(within(grupo).getByRole('combobox', { name: 'Pessoas por vez' }));
+    await user.click(await screen.findByRole('option', { name: 'Todas' }));
+    await waitFor(() => expect(within(screen.getByRole('list', { name: 'Ausências em Seg 12/10' })).getAllByRole('listitem')).toHaveLength(24));
+    expect(screen.getByTestId('local-atual').textContent).toContain('pessoas=todas');
+    expect(screen.getByTestId('local-atual').textContent).not.toContain('pessoasPagina');
+    expect(screen.queryByRole('button', { name: 'Próximas pessoas' })).not.toBeInTheDocument();
+  });
+
   it('em tela larga a linha do tempo é a padrão, com uma linha por pessoa e barras com nome acessível', async () => {
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('min-width'), media: q, addEventListener() {}, removeEventListener() {} }));
     renderApp('/ausencias');
     const lista = await screen.findByRole('list', { name: 'Ausências em Seg 12/10' });
-    expect(within(lista).getAllByRole('listitem')).toHaveLength(24);
+    // 10 pessoas por vez, para não precisar rolar a página inteira.
+    expect(within(lista).getAllByRole('listitem')).toHaveLength(10);
     expect(within(lista).getAllByRole('button', { name: BARRA }).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Ver como tabela' })).toBeInTheDocument();
     // Legenda com texto, não só cor.

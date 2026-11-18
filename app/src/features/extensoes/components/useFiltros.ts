@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import { hojeLocal, periodoDoMes } from '../domain/formatacao';
 import type { Aba, Filtros, FiltrosSemPagina, Status } from '../domain/types';
-import { TAMANHOS_PAGINA } from './Paginacao';
+import { TAMANHOS_PAGINA } from '../../../componentes/Paginacao';
 
 const STATUS: Status[] = ['pendente', 'aprovado', 'reprovado', 'cancelado'];
 const CHAVES_FILTRO = ['de', 'ate', 'status', 'pessoa', 'gestor', 'grupo'] as const;

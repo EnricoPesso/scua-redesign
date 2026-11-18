@@ -7,7 +7,8 @@ const OPCOES = TAMANHOS_PAGINA.map((t) => ({ value: String(t), label: String(t) 
 
 interface Props { total: number; pagina: number; tamanho: number; aoMudar: (pagina: number, tamanho: number) => void }
 
-// pedir ao @PhLima07: paginação no servidor (o DataTable do sistema de design pagina no cliente).
+// Paginação comum das listas (Extensões, Usuários, Ausências, Auditoria): "Itens por página" e "1–24 de 24".
+// pedir ao @PhLima07: paginação com seletor de tamanho (o DataTable do sistema de design pagina no cliente e não tem seletor).
 export function Paginacao({ total, pagina, tamanho, aoMudar }: Props) {
   const info = paginate({ total, page: pagina, pageSize: tamanho });
   return (

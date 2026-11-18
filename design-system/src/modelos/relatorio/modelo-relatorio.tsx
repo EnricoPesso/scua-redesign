@@ -5,7 +5,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { ErrorState } from "@/components/ui/error-state"
 import { KpiCard } from "@/components/ui/kpi-card"
 import { useToast } from "@/components/ui/use-toast"
-import { gerarCsv } from "@/lib/csv"
+import { exportarPlanilha } from "@/components/exportar-planilha"
 import { formatNumber } from "@/lib/format-number"
 import { formatarDataBr, hojeIso, nomeArquivo, periodoDe } from "@/lib/relatorio"
 import { Filtros } from "./filtros"
@@ -140,26 +140,17 @@ function Vazio({ mensagem, podeLimpar, limpar }: { mensagem: string; podeLimpar:
 function BotaoExportar<T>({ colunas, rows, arquivo, disabled }: { colunas: ColunaRelatorio<T>[]; rows: T[]; arquivo: string; disabled: boolean }) {
   const toast = useToast()
   function exportar() {
-    const csv = gerarCsv(
-      colunas.map((c) => ({ header: c.header, texto: c.texto ?? ((row: T) => String(row[c.key as keyof T] ?? "")) })),
-      rows,
-    )
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
-    // Safari e Firefox só baixam com o link no DOM e a URL ainda válida durante o clique.
-    const a = document.createElement("a")
-    a.href = url
-    a.download = arquivo
-    a.hidden = true
-    document.body.append(a)
-    a.click()
-    a.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-    toast.success(`${formatNumber(rows.length)} ${rows.length === 1 ? "registro exportado" : "registros exportados"} em ${arquivo}`)
+    const nome = exportarPlanilha({
+      arquivo,
+      colunas: colunas.map((c) => ({ header: c.header, texto: c.texto ?? ((row: T) => String(row[c.key as keyof T] ?? "")) })),
+      linhas: rows,
+    })
+    toast.success(`${formatNumber(rows.length)} ${rows.length === 1 ? "registro exportado" : "registros exportados"} em ${nome}`)
   }
   return (
     <Button variant="secondary" disabled={disabled} onClick={exportar}>
       <DownloadIcon aria-hidden="true" />
-      Exportar CSV
+      Exportar para Excel
     </Button>
   )
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { dia, hoje } from '../../../mock/datas';
 import { OPCOES_PESSOAS } from '../../../mock/diretorio';
-import { TAMANHOS_PAGINA } from '../../extensoes/components/Paginacao';
+import { TAMANHOS_PAGINA } from '../../../componentes/Paginacao';
 
 const CHAVES = ['de', 'ate', 'quem', 'busca'] as const;
 export type ChaveFiltro = (typeof CHAVES)[number] | 'pagina' | 'tamanho';

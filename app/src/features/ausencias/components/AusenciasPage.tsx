@@ -11,6 +11,8 @@ import { FiltrosBarra } from './FiltrosBarra';
 import { LinhaDoTempo } from './LinhaDoTempo';
 import { ResumoAusencias } from './ResumoAusencias';
 import { TabelaAusencias } from './TabelaAusencias';
+import { BotaoExportar } from '../../../componentes/BotaoExportar';
+import { COLUNAS_PLANILHA } from '../planilha';
 import { useFiltros } from './useFiltros';
 
 function Carregando() {
@@ -23,7 +25,7 @@ function Carregando() {
 }
 
 export function AusenciasPage() {
-  const { filtros, visao, dia, diasUteis, pagina, tamanho, ativos, atualizar, limpar } = useFiltros();
+  const { filtros, visao, dia, diasUteis, pagina, tamanho, pessoasPorVez, paginaPessoas, ativos, atualizar, limpar } = useFiltros();
   const erroPeriodo = validarPeriodo(filtros.de, filtros.ate);
   const chave = [filtros.de, filtros.ate, filtros.colaboradores.join(','), filtros.gestor];
   const consulta = useQuery({
@@ -55,7 +57,19 @@ export function AusenciasPage() {
   } else if (visao === 'tabela') {
     conteudo = <TabelaAusencias ausencias={dados!.ausencias} pagina={pagina} tamanho={tamanho} aoMudarPagina={(p, t) => atualizar({ pagina: String(p), tamanho: String(t) })} />;
   } else {
-    conteudo = <LinhaDoTempo pessoas={dados!.pessoas} ausencias={dados!.ausencias} dia={dia} diasUteis={diasUteis} aoMudarDia={(d) => atualizar({ dia: d })} />;
+    conteudo = (
+      <LinhaDoTempo
+        pessoas={dados!.pessoas}
+        ausencias={dados!.ausencias}
+        dia={dia}
+        diasUteis={diasUteis}
+        aoMudarDia={(d) => atualizar({ dia: d, pessoasPagina: paginaPessoas === 1 ? '' : String(paginaPessoas) })}
+        pessoasPorVez={pessoasPorVez}
+        paginaPessoas={paginaPessoas}
+        aoMudarPessoasPorVez={(v) => atualizar({ pessoas: v === 10 ? '' : String(v) })}
+        aoMudarPaginaPessoas={(p) => atualizar({ pessoasPagina: p === 1 ? '' : String(p) })}
+      />
+    );
   }
 
   const podeAlternar = !erroPeriodo && !consulta.isPending && !consulta.isError && (dados?.ausencias.length ?? 0) > 0;
@@ -65,9 +79,13 @@ export function AusenciasPage() {
       titulo="Ausências"
       descricao="Períodos em que cada pessoa esteve longe da estação durante a jornada, por dia."
       acoes={podeAlternar ? (
-        <Button variant="secondary" aria-pressed={visao === 'tabela'} onClick={() => atualizar({ visao: visao === 'tabela' ? 'linha' : 'tabela' })}>
-          {visao === 'tabela' ? 'Ver linha do tempo' : 'Ver como tabela'}
-        </Button>
+        <>
+          {/* Exporta todas as ausências do período e dos filtros, nas duas visões. */}
+          <BotaoExportar arquivo={`ausencias_${filtros.de}_a_${filtros.ate}`} colunas={COLUNAS_PLANILHA} linhas={dados?.ausencias ?? []} />
+          <Button variant="secondary" aria-pressed={visao === 'tabela'} onClick={() => atualizar({ visao: visao === 'tabela' ? 'linha' : 'tabela' })}>
+            {visao === 'tabela' ? 'Ver linha do tempo' : 'Ver como tabela'}
+          </Button>
+        </>
       ) : undefined}
     >
       <FiltrosBarra filtros={filtros} ativos={ativos} atualizar={atualizar} limpar={limpar} />

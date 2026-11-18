@@ -25,6 +25,15 @@ async function abrirLista() {
 }
 
 describe('Lista de jornadas', () => {
+  it('colunas na ordem combinada: ações por último, sem texto visível no cabeçalho', async () => {
+    await abrirLista();
+    const cabecalhos = screen.getAllByRole('columnheader');
+    expect(cabecalhos.map((c) => c.textContent)).toEqual(['Identificador', 'Descrição', 'Horário', 'Carga semanal', 'Situação', 'Ações']);
+    const acoes = cabecalhos.at(-1)!;
+    expect(acoes.querySelector('.sr-only')).toHaveTextContent('Ações');
+    expect(within(linhaDe('ADM-8H')).getAllByRole('cell').at(-1)).toContainElement(screen.getByRole('button', { name: 'Excluir ADM-8H' }));
+  });
+
   it('mostra título, botão de adicionar, horário resumido, carga semanal e Sim/Não em texto', async () => {
     await abrirLista();
     expect(screen.getByRole('heading', { level: 1, name: 'Jornadas de trabalho' })).toBeInTheDocument();
@@ -32,7 +41,13 @@ describe('Lista de jornadas', () => {
     const adm = within(linhaDe('ADM-8H'));
     expect(adm.getByText('Seg a sex, 08:00–17:00')).toBeInTheDocument();
     expect(adm.getByText('40h')).toBeInTheDocument();
-    expect(adm.getAllByText('Sim')).toHaveLength(2); // ativa e padrão
+    // Situação numa coluna só: o que está ligado aparece como etiqueta; nada de "Sim/Não" solto.
+    expect(adm.getByText('Ativa')).toBeInTheDocument();
+    expect(adm.getByText('Padrão')).toBeInTheDocument();
+    expect(adm.queryByText('Informativa')).not.toBeInTheDocument();
+    expect(within(linhaDe('TURNO-B')).getByText('Inativa')).toBeInTheDocument();
+    expect(within(linhaDe('TURNO-B')).getByText('Libera regra')).toBeInTheDocument();
+    expect(within(linhaDe('LIVRE-INFO')).getByText('Informativa')).toBeInTheDocument();
     expect(within(linhaDe('COM-44H')).getByText('Seg a sex, 08:00–17:00; Sáb, 08:00–12:00')).toBeInTheDocument();
     expect(within(linhaDe('COM-44H')).getByText('44h')).toBeInTheDocument();
     expect(within(linhaDe('TURNO-A')).getByText('37h30')).toBeInTheDocument();
@@ -142,8 +157,9 @@ describe('Adicionar jornada', () => {
     expect(p.getByText('Ao salvar, ADM-8H deixa de ser a jornada padrão.')).toBeInTheDocument();
     await user.click(p.getByRole('button', { name: 'Salvar' }));
     await screen.findByText('Jornada NOVA-PADRAO adicionada.');
-    await waitFor(() => expect(within(linhaDe('ADM-8H')).queryAllByText('Sim')).toHaveLength(1));
-    expect(within(linhaDe('NOVA-PADRAO')).getAllByText('Sim')).toHaveLength(2);
+    await waitFor(() => expect(within(linhaDe('ADM-8H')).queryByText('Padrão')).not.toBeInTheDocument());
+    expect(within(linhaDe('NOVA-PADRAO')).getByText('Padrão')).toBeInTheDocument();
+    expect(within(linhaDe('NOVA-PADRAO')).getByText('Ativa')).toBeInTheDocument();
   });
 
   it('erro ao salvar preserva os dados e leva o foco ao aviso', async () => {

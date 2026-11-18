@@ -3,9 +3,9 @@ import { filtrarUsuarios, lerFiltros, restringe, temFiltro, textoContagem, type 
 import { dataCurta, resumoSubstituto } from './formatacao';
 import type { Usuario } from './tipos';
 
-const PADRAO: FiltrosUsuarios = { busca: '', gestor: '', departamento: '', situacao: 'ativos', pagina: 1, tamanho: 25 };
+const PADRAO: FiltrosUsuarios = { busca: '', gestor: '', departamento: '', situacao: 'ativos', pagina: 1, tamanho: 10 };
 const u = (id: string, nome: string, login: string, gestorId: string | null, departamento: string, ativo = true): Usuario => ({
-  id, nome, login, matricula: '1', email: '', whatsapp: '', gestorId, departamento, jornadaId: 'j', jornadaNome: 'J', ativo,
+  id, nome, login, matricula: '1', email: '', whatsapp: '', gestorId, departamento, jornadaId: 'j', jornadaNome: 'J', grupoId: null, ativo,
   permissoes: { avisosPorEmail: false, liberaRegra: false, administrador: false, rhAprovador: false, sustentacao: false, producao: false },
   feriados: [], substituto: null, excecoes: [], ferias: [],
 });
@@ -19,8 +19,8 @@ const usuarios = [
 describe('lerFiltros', () => {
   it('sem parâmetros, usa os padrões', () => expect(lerFiltros(new URLSearchParams())).toEqual(PADRAO));
   it('lê os valores válidos', () => {
-    const f = lerFiltros(new URLSearchParams('busca=ana&gestor=u-carlos&departamento=Vendas&situacao=todos&pagina=3&tamanho=10'));
-    expect(f).toEqual({ busca: 'ana', gestor: 'u-carlos', departamento: 'Vendas', situacao: 'todos', pagina: 3, tamanho: 10 });
+    const f = lerFiltros(new URLSearchParams('busca=ana&gestor=u-carlos&departamento=Vendas&situacao=todos&pagina=3&tamanho=50'));
+    expect(f).toEqual({ busca: 'ana', gestor: 'u-carlos', departamento: 'Vendas', situacao: 'todos', pagina: 3, tamanho: 50 });
   });
   it('valores inválidos caem nos padrões', () => {
     const f = lerFiltros(new URLSearchParams('gestor=nao-existe&departamento=Marte&situacao=xx&pagina=-2&tamanho=9999'));

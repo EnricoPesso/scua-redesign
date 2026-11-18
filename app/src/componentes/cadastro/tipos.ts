@@ -26,6 +26,10 @@ export interface ColunaCadastro<T> {
   header: string;
   render?: (item: T) => ReactNode;
   numeric?: boolean;
+  /** Cabeçalho só para leitor de tela. */
+  cabecalhoOculto?: boolean;
+  /** Texto da coluna na planilha exportada. Sem ele, usa o texto que a coluna mostra ou o valor do item. */
+  texto?: (item: T) => string;
 }
 
 export type ErrosCadastro<T> = Partial<Record<Chave<T>, string>>;

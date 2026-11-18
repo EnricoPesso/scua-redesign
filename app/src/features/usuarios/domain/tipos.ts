@@ -40,6 +40,8 @@ export interface Usuario {
   /** Só o id e o nome: a jornada em si pertence à feature de jornadas. */
   jornadaId: string;
   jornadaNome: string;
+  /** Grupo de usuários (define o limite mensal de extensão). O vínculo fica em mock/grupos. */
+  grupoId: string | null;
   ativo: boolean;
   permissoes: Permissoes;
   feriados: Calendario[];
@@ -55,6 +57,7 @@ export interface DadosUsuario {
   gestorId: string | null;
   departamento: string;
   jornadaId: string;
+  grupoId: string | null;
   permissoes: Permissoes;
 }
 

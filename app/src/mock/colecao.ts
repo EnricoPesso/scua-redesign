@@ -18,6 +18,8 @@ export interface Colecao<T extends ComId> {
   excluir: (id: string) => Promise<void>;
   /** Volta aos dados de exemplo (usado nos testes). */
   resetar: () => void;
+  /** Os itens agora, sem simular rede (para outro dado simulado consultar, ex.: o limite do grupo na extensão). */
+  itensAgora: () => T[];
 }
 
 /**
@@ -65,5 +67,6 @@ export function criarColecao<T extends ComId>(prefixo: string, semente: () => T[
     resetar: () => {
       guardados = null;
     },
+    itensAgora: () => carregar(),
   };
 }

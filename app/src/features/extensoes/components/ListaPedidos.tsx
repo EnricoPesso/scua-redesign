@@ -11,7 +11,7 @@ import { Contadores } from './Contadores';
 import { BarraLote } from './BarraLote';
 import { EstadoLista } from './EstadoLista';
 import { FiltrosBarra } from './FiltrosBarra';
-import { Paginacao } from './Paginacao';
+import { Paginacao } from '../../../componentes/Paginacao';
 import { TabelaPedidos, type SelecaoTabela } from './TabelaPedidos';
 import { semPaginacao, useFiltros } from './useFiltros';
 

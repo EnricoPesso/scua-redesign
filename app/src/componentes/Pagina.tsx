@@ -51,7 +51,7 @@ export function Pagina({ titulo, trilha = [], descricao, acoes, children, classN
           <h1 className="font-heading text-xl font-bold text-foreground">{titulo}</h1>
           {descricao && <p className="max-w-2xl text-sm text-muted-foreground">{descricao}</p>}
         </div>
-        {acoes && <div className="flex flex-wrap gap-2 max-md:w-full max-md:[&>*]:h-11 max-md:[&>*]:flex-1">{acoes}</div>}
+        {acoes && <div className="flex flex-wrap gap-2 max-md:w-full max-md:flex-col max-md:[&>*]:h-11 max-md:[&>*]:w-full">{acoes}</div>}
       </header>
       {children}
     </main>

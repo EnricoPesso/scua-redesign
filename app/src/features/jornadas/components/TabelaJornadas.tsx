@@ -11,9 +11,17 @@ const TH = 'px-4 py-3 text-left font-semibold whitespace-nowrap text-[var(--colo
 const TD = 'px-4 py-3 align-middle max-md:p-0';
 const COM_ROTULO = "max-md:before:mr-1 max-md:before:font-semibold max-md:before:text-[var(--color-text-muted)] max-md:before:content-[attr(data-rotulo)_':']";
 
-const Sim = ({ valor, destaque = 'info' }: { valor: boolean; destaque?: 'info' | 'success' }) => (
-  <Badge status={valor ? destaque : 'neutral'}>{valor ? 'Sim' : 'Não'}</Badge>
-);
+/** Situação numa coluna só: ativa ou inativa, mais uma etiqueta para cada opção ligada. */
+function Situacao({ jornada: j }: { jornada: Jornada }) {
+  return (
+    <span className="flex flex-wrap gap-1.5">
+      <Badge status={j.ativa ? 'success' : 'neutral'}>{j.ativa ? 'Ativa' : 'Inativa'}</Badge>
+      {j.padrao && <Badge status="info">Padrão</Badge>}
+      {j.liberaRegra && <Badge status="info">Libera regra</Badge>}
+      {j.informativa && <Badge status="info">Informativa</Badge>}
+    </span>
+  );
+}
 
 // pedir ao @PhLima07: tabela que vira cartões no celular (o DataTable do sistema de design só rola na horizontal).
 export function TabelaJornadas({ jornadas, aoExcluir }: { jornadas: Jornada[]; aoExcluir: (j: Jornada) => void }) {
@@ -31,11 +39,9 @@ export function TabelaJornadas({ jornadas, aoExcluir }: { jornadas: Jornada[]; a
               <th scope="col" className={TH}>Descrição</th>
               <th scope="col" className={TH}>Horário</th>
               <th scope="col" className={TH}>Carga semanal</th>
-              <th scope="col" className={TH}>Ativa</th>
-              <th scope="col" className={TH}>Padrão</th>
-              <th scope="col" className={TH}>Libera regra</th>
-              <th scope="col" className={TH}>Informativa</th>
-              <th scope="col" className={cn(TH, 'text-right')}>Ações</th>
+              <th scope="col" className={TH}>Situação</th>
+              {/* Padrão do sistema: ações por último, sem texto (os ícones já se explicam). */}
+              <th scope="col" className={cn(TH, 'relative')}><span className="sr-only">Ações</span></th>
             </tr>
           </thead>
           <tbody className="max-md:grid max-md:gap-3">
@@ -52,10 +58,7 @@ export function TabelaJornadas({ jornadas, aoExcluir }: { jornadas: Jornada[]; a
                 <td className={cn(TD, 'max-md:col-span-2')}>{j.descricao}</td>
                 <td className={cn(TD, 'whitespace-nowrap max-md:col-span-2 max-md:font-semibold')}>{resumirHorario(j.semana)}</td>
                 <td data-rotulo="Carga semanal" className={cn(TD, COM_ROTULO, 'tabular-nums max-md:col-span-2')}>{cargaSemanal(j.semana)}</td>
-                <td data-rotulo="Ativa" className={cn(TD, COM_ROTULO)}><Sim valor={j.ativa} destaque="success" /></td>
-                <td data-rotulo="Padrão" className={cn(TD, COM_ROTULO)}><Sim valor={j.padrao} /></td>
-                <td data-rotulo="Libera regra" className={cn(TD, COM_ROTULO)}><Sim valor={j.liberaRegra} /></td>
-                <td data-rotulo="Informativa" className={cn(TD, COM_ROTULO)}><Sim valor={j.informativa} /></td>
+                <td className={cn(TD, 'max-md:col-span-2')}><Situacao jornada={j} /></td>
                 <td className={cn(TD, 'max-md:col-span-2')}>
                   <span className="flex justify-end gap-1 max-md:justify-start">
                     <Link

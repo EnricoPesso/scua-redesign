@@ -2,7 +2,8 @@ import { DEPARTAMENTOS, GESTORES_IDS } from '../dados';
 import type { Usuario } from './tipos';
 
 export const TAMANHOS_PAGINA = [10, 25, 50];
-export const TAMANHO_PADRAO = 25;
+// 10 por página: a lista cabe na tela sem rolar muito; quem quiser mais escolhe no seletor.
+export const TAMANHO_PADRAO = 10;
 export type Situacao = 'ativos' | 'inativos' | 'todos';
 const SITUACOES: Situacao[] = ['ativos', 'inativos', 'todos'];
 

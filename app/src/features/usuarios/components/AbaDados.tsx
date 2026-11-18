@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Field } from '@/components/ui/field';
 import { Select } from '@/components/ui/select';
 import { Toggle } from '@/components/ui/toggle';
 import { useToast } from '@/components/ui/use-toast';
 import { mensagemDeErro } from '../../../lib/mensagens';
 import { PESSOAS_DIRETORIO } from '../../../mock/diretorio';
+import { grupos } from '../../../mock/grupos';
 import { salvarDados } from '../api';
 import { DEPARTAMENTOS, JORNADAS_ATRIBUIVEIS } from '../dados';
 import { PERMISSOES, type DadosUsuario, type Usuario } from '../domain/tipos';
@@ -15,7 +16,8 @@ import { AVISO_DE_FALHA, ID_FORM_ABA, focarPrimeiroInvalido, useFocarAviso, useG
 const SEM_GESTOR = '__sem_gestor';
 const OPCOES_DEPARTAMENTO = DEPARTAMENTOS.map((d) => ({ value: d, label: d }));
 const OPCOES_JORNADA = JORNADAS_ATRIBUIVEIS.map((j) => ({ value: j.id, label: j.nome }));
-const dadosDe = (u: Usuario): DadosUsuario => ({ email: u.email, whatsapp: u.whatsapp, gestorId: u.gestorId, departamento: u.departamento, jornadaId: u.jornadaId, permissoes: { ...u.permissoes } });
+const SEM_GRUPO = '__sem_grupo';
+const dadosDe = (u: Usuario): DadosUsuario => ({ email: u.email, whatsapp: u.whatsapp, gestorId: u.gestorId, departamento: u.departamento, jornadaId: u.jornadaId, grupoId: u.grupoId, permissoes: { ...u.permissoes } });
 const iguais = (a: DadosUsuario, b: DadosUsuario) => JSON.stringify(a) === JSON.stringify(b);
 
 export function AbaDados({ usuario, aoMudarSujo, aoSalvando }: PropsAba) {
@@ -27,6 +29,8 @@ export function AbaDados({ usuario, aoMudarSujo, aoSalvando }: PropsAba) {
   const [falha, setFalha] = useState<string | null>(null);
   const refFalha = useFocarAviso<HTMLParagraphElement>(falha);
   const sujo = !iguais(dados, dadosDe(usuario));
+  // Mesma chave do cadastro de Grupos: um grupo novo ou renomeado lá já aparece aqui.
+  const listaGrupos = useQuery({ queryKey: ['cadastro', 'grupos'], queryFn: grupos.listar });
 
   const opcoesGestor = [
     { value: SEM_GESTOR, label: 'Sem gestor' },
@@ -84,6 +88,17 @@ export function AbaDados({ usuario, aoMudarSujo, aoSalvando }: PropsAba) {
         <Select label="Gestor" options={opcoesGestor} value={dados.gestorId ?? SEM_GESTOR} onValueChange={(v) => mudar('gestorId', !v || v === SEM_GESTOR ? null : v)} className="max-md:[&_[role=combobox]]:h-11" />
         <Select label="Departamento *" placeholder="Selecione" options={OPCOES_DEPARTAMENTO} value={dados.departamento || null} error={erros.departamento} onValueChange={(v) => mudar('departamento', v ?? '')} className="max-md:[&_[role=combobox]]:h-11" />
         <Select label="Jornada *" placeholder="Selecione" options={OPCOES_JORNADA} value={dados.jornadaId || null} error={erros.jornadaId} onValueChange={(v) => mudar('jornadaId', v ?? '')} className="max-md:[&_[role=combobox]]:h-11" />
+        <div className="grid gap-1">
+          <Select
+            label="Grupo"
+            options={[{ value: SEM_GRUPO, label: 'Sem grupo' }, ...(listaGrupos.data ?? []).map((g) => ({ value: g.id, label: g.nome }))]}
+            value={dados.grupoId ?? SEM_GRUPO}
+            disabled={listaGrupos.isPending}
+            onValueChange={(v) => mudar('grupoId', !v || v === SEM_GRUPO ? null : v)}
+            className="max-md:[&_[role=combobox]]:h-11"
+          />
+          <p className="text-xs text-muted-foreground">Define o limite mensal de extensão de jornada (Configurações › Grupos).</p>
+        </div>
       </div>
 
       <fieldset className="grid gap-3">

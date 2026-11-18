@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { resetarDb } from '../features/extensoes/api/mocks/db';
+import { resetarGrupos } from '../mock/grupos';
 import { server } from './server';
 
 // O primeiro render de cada arquivo carrega a casca e a tela sob demanda (lazy): 1 s é pouco.
@@ -68,6 +69,8 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();
   server.resetHandlers();
+  // Os pedidos de exemplo leem o grupo de cada pessoa: os grupos voltam ao padrão antes deles.
+  resetarGrupos();
   resetarDb();
 });
 afterAll(() => server.close());

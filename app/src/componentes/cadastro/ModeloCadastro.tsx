@@ -16,7 +16,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { mensagemDeErro } from '../../lib/mensagens';
 import { useTelaEstreita } from '../../lib/useTelaEstreita';
 import type { ComId } from '../../mock/colecao';
+import { BotaoExportar } from '../BotaoExportar';
 import { EstadoErro } from '../EstadoErro';
+import { colunasDaPlanilha } from './planilha';
 import { Pagina } from '../Pagina';
 import type { CampoCadastro, ConfigCadastro, ErrosCadastro } from './tipos';
 
@@ -94,7 +96,9 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
     ...config.colunas,
     {
       key: '__acoes',
+      // Padrão do sistema: ações sempre na última coluna, sem texto no cabeçalho (os ícones já se explicam).
       header: 'Ações',
+      cabecalhoOculto: true,
       render: (item: T) => (
         <span className="flex justify-end gap-1">
           <Button variant="ghost" size="icon" className="max-md:size-11" aria-label={`Editar ${config.nomeDe(item)}`} onClick={() => abrir('editar', item.id)}>
@@ -166,7 +170,13 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
       titulo={config.titulo}
       descricao={config.descricao}
       trilha={config.trilha}
-      acoes={config.podeCriar === false || total === 0 ? undefined : <Button onClick={() => abrir('novo', '1')}><PlusIcon aria-hidden="true" />{novoRotulo}</Button>}
+      acoes={total === 0 ? undefined : (
+        <>
+          {/* Exporta o que a lista mostra: todos os itens, ou só os que a busca encontrou. */}
+          <BotaoExportar arquivo={config.chave} colunas={colunasDaPlanilha(config.colunas)} linhas={itens} desabilitado={lista.isPending} />
+          {config.podeCriar !== false && <Button onClick={() => abrir('novo', '1')}><PlusIcon aria-hidden="true" />{novoRotulo}</Button>}
+        </>
+      )}
     >
       {corpo}
 

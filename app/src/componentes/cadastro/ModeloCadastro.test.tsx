@@ -36,6 +36,17 @@ describe('validarCadastro', () => {
   });
 });
 
+describe('modelo de cadastro: coluna de ações', () => {
+  it('é a última e não mostra texto no cabeçalho, mas tem nome para leitor de tela', async () => {
+    renderApp('/configuracoes/parametros');
+    await screen.findAllByRole('button', { name: /^Editar / }, { timeout: 20_000 });
+    const cabecalhos = screen.getAllByRole('columnheader');
+    const ultimo = cabecalhos.at(-1)!;
+    expect(ultimo).toHaveTextContent('Ações');
+    expect(ultimo.querySelector('.sr-only')).toHaveTextContent('Ações');
+  });
+});
+
 describe('modelo de cadastro: paginação', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {});

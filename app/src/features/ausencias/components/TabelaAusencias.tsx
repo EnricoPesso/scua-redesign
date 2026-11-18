@@ -1,5 +1,5 @@
 import { nomeDe } from '../../../mock/diretorio';
-import { Paginacao } from '../../extensoes/components/Paginacao';
+import { Paginacao } from '../../../componentes/Paginacao';
 import { duracaoEmMinutos, formatarData, formatarDuracao, type Ausencia } from '../domain/ausencias';
 import { ESTILO_MOTIVO } from './estiloMotivo';
 

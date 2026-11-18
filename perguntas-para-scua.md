@@ -96,3 +96,12 @@ Contexto: [`analise-sistema/inventario-relatorios.md`](analise-sistema/inventari
 49. O relatório **Horas extras** tem alguma diferença em relação à tela **Extensão de jornada** (registros antigos, outros status)? Se não tiver, pode virar só um botão "Exportar" naquela tela?
 50. Em **Jornada e Controle**, de onde vem o "último evento de controle"? No demo ele aparece vazio para um usuário que tem evento em 05/10 no relatório Usuários x Última data de controle.
 51. A estação DEMO-WS05 aparece com a versão do agente **em branco** em Estações e como **"Não instalado"** em Estações inativas. Qual dos dois está certo? Versão em branco significa que o agente não está instalado?
+
+## 11. Bloqueio da estação e extensão de jornada (adicionadas em 2026-11-18)
+
+Contexto: o redesign da tela de Extensão de jornada parte de que o Scua Logon bloqueia o computador fora da jornada e de que a extensão aprovada libera esse acesso. O sistema atual indica isso (relatórios de bloqueio, tempo de bloqueio e tentativas fora da jornada), mas nada foi confirmado com vocês.
+
+52. ⭐ O bloqueio da estação fora da jornada vale para todo mundo ou depende da jornada? O que muda numa jornada marcada como **"Informativa"**: ela só registra os horários, sem bloquear?
+53. ⭐ Quando o gestor aprova uma extensão de jornada, o computador da pessoa é **liberado automaticamente** naqueles dias e horários, ou alguém precisa liberar de outro jeito?
+54. ⭐ A extensão aprovada vira **hora extra paga** na folha, ou serve só para liberar o acesso ao computador? Isso define se o sistema deve falar em "hora extra" ou só em "extensão de jornada".
+55. O que a opção **"Libera regra"** faz? Ela aparece no cadastro da jornada e nas permissões do usuário. O que a pessoa (ou a jornada) com essa opção consegue fazer?

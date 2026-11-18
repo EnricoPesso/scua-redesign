@@ -1,19 +1,17 @@
-import { DownloadIcon } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
-import { formatNumber } from '@/lib/format-number';
 import { Abas } from '../../../componentes/Abas';
+import { BotaoExportar } from '../../../componentes/BotaoExportar';
 import { EstadoErro } from '../../../componentes/EstadoErro';
 import { Pagina } from '../../../componentes/Pagina';
 import { hoje } from '../../../mock/datas';
-import { Paginacao } from '../../extensoes/components/Paginacao';
+import { Paginacao } from '../../../componentes/Paginacao';
 import { auditoriaApi } from '../api';
 import { ABAS, ehAba, nomeDoArquivo, rotuloDaAba, type Aba } from '../domain/auditoria';
-import { baixarCsv, csvDosRegistros } from '../exportar';
+import { COLUNAS_PLANILHA } from '../exportar';
 import { FiltrosBarra } from './FiltrosBarra';
 import { CartoesRegistros, TabelaRegistros } from './ListaRegistros';
 import { useFiltros, useTelaLarga } from './useFiltros';
@@ -30,7 +28,6 @@ function Carregando() {
 export function AuditoriaPage() {
   const { aba: abaUrl } = useParams();
   const navegar = useNavigate();
-  const toast = useToast();
   const telaLarga = useTelaLarga();
   const { filtros, pagina, tamanho, ativos, search, atualizar, limpar } = useFiltros();
   const aba: Aba = ehAba(abaUrl) ? abaUrl : ABAS[0].valor;
@@ -54,12 +51,6 @@ export function AuditoriaPage() {
     params.delete('pagina');
     const resto = params.toString();
     void navegar({ pathname: `/auditoria/${nova}`, search: resto ? `?${resto}` : '' });
-  };
-
-  const exportar = () => {
-    const arquivo = nomeDoArquivo(aba, hoje());
-    baixarCsv(csvDosRegistros(registros), arquivo);
-    toast.success(`${formatNumber(registros.length)} ${registros.length === 1 ? 'registro exportado' : 'registros exportados'} em ${arquivo}`);
   };
 
   let conteudo;
@@ -89,10 +80,7 @@ export function AuditoriaPage() {
       titulo="Auditoria"
       descricao="Registro de quem mudou o quê no sistema."
       acoes={(
-        <Button variant="secondary" disabled={consulta.isPending || consulta.isError || registros.length === 0} onClick={exportar}>
-          <DownloadIcon aria-hidden="true" />
-          Exportar CSV
-        </Button>
+        <BotaoExportar arquivo={nomeDoArquivo(aba, hoje())} colunas={COLUNAS_PLANILHA} linhas={registros} desabilitado={consulta.isPending || consulta.isError} />
       )}
     >
       <Abas rotulo="Tipos de alteração" abas={ABAS} ativa={aba} aoMudar={trocarAba}>

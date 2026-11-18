@@ -1,6 +1,7 @@
 import { ErroDeValidacao } from '../../mock/colecao';
 import { dia, hoje } from '../../mock/datas';
 import { PESSOAS_DIRETORIO } from '../../mock/diretorio';
+import { definirGrupoDaPessoa, grupoDaPessoa, grupos } from '../../mock/grupos';
 import { rede } from '../../mock/rede';
 import { GESTORES_IDS, JORNADAS_ATRIBUIVEIS } from './dados';
 import type { Calendario, DadosUsuario, Excecao, Ferias, NovaExcecao, NovasFerias, Permissoes, Substituto, Usuario } from './domain/tipos';
@@ -36,6 +37,7 @@ const semente = (): { usuarios: Usuario[]; seq: number } => {
       departamento: p.departamento,
       jornadaId: jornada.id,
       jornadaNome: jornada.nome,
+      grupoId: grupoDaPessoa(p.id),
       ativo: !INATIVOS.includes(p.id),
       permissoes: {
         avisosPorEmail: true,
@@ -89,8 +91,13 @@ const proximoId = (prefixo: string) => {
 };
 const ano = () => hoje().slice(0, 4);
 
-export const listarUsuarios = (): Promise<Usuario[]> => rede(() => carregar().usuarios);
-export const obterUsuario = (id: string): Promise<Usuario | null> => rede(() => carregar().usuarios.find((u) => u.id === id) ?? null);
+// O grupo vem sempre do vínculo compartilhado (mock/grupos), que também alimenta o limite da extensão.
+const comGrupo = (u: Usuario): Usuario => ({ ...u, grupoId: grupoDaPessoa(u.id) });
+export const listarUsuarios = (): Promise<Usuario[]> => rede(() => carregar().usuarios.map(comGrupo));
+export const obterUsuario = (id: string): Promise<Usuario | null> => rede(() => {
+  const u = carregar().usuarios.find((x) => x.id === id);
+  return u ? comGrupo(u) : null;
+});
 
 export function salvarDados(id: string, dados: DadosUsuario): Promise<Usuario> {
   return rede(() => {
@@ -98,6 +105,8 @@ export function salvarDados(id: string, dados: DadosUsuario): Promise<Usuario> {
     const jornada = JORNADAS_ATRIBUIVEIS.find((j) => j.id === dados.jornadaId);
     if (!jornada) throw new ErroDeValidacao('Escolha uma das jornadas da lista.');
     const permissoes: Permissoes = { ...dados.permissoes };
+    if (dados.grupoId !== null && !grupos.itensAgora().some((g) => g.id === dados.grupoId)) throw new ErroDeValidacao('Esse grupo não existe mais. Escolha outro.');
+    definirGrupoDaPessoa(id, dados.grupoId);
     return trocar(id, (u) => ({
       ...u,
       email: dados.email.trim(),
@@ -106,6 +115,7 @@ export function salvarDados(id: string, dados: DadosUsuario): Promise<Usuario> {
       departamento: dados.departamento,
       jornadaId: jornada.id,
       jornadaNome: jornada.nome,
+      grupoId: dados.grupoId,
       permissoes,
     }));
   });

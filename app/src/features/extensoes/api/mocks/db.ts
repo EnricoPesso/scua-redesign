@@ -1,6 +1,7 @@
 import { formatarHora, nomeCanal } from '../../domain/formatacao';
 import { contarDias, minutosPorDia, totalMinutos } from '../../domain/horas';
 import { deslocarDatas, diasEntre, hoje, isoDia } from '../../../../mock/datas';
+import { grupoCompletoDaPessoa } from '../../../../mock/grupos';
 import { definirFalhaDeRede } from '../../../../mock/rede';
 import { JUSTIFICATIVA_OUTRA } from '../../domain/types';
 import type {
@@ -24,13 +25,8 @@ const { carlos, ana, joao, bia, rui, xavier, olga, renata } = PESSOAS;
 const GESTOR: Record<string, Pessoa | null> = {
   [ana.id]: carlos, [joao.id]: carlos, [bia.id]: carlos, [rui.id]: carlos, [xavier.id]: olga,
 };
-const GRUPO: Record<string, string> = {
-  [ana.id]: 'GRP-COMERCIAL', [joao.id]: 'GRP-COMERCIAL', [bia.id]: 'GRP-OPERATIONS', [rui.id]: 'GRP-COMERCIAL', [xavier.id]: 'GRP-FINANCEIRO',
-};
-/** Limite mensal em minutos. null = sem limite. Pessoa fora da tabela = API sem o dado (resumo 404). */
-const LIMITE: Record<string, number | null> = {
-  [ana.id]: 600, [joao.id]: 600, [bia.id]: null, [rui.id]: 0, [xavier.id]: 600, [carlos.id]: null,
-};
+// O grupo e o limite mensal de cada pessoa vêm do cadastro de Grupos (mock/grupos).
+const nomeDoGrupo = (pessoaId: string): string | null => grupoCompletoDaPessoa(pessoaId)?.nome ?? null;
 const COLABORADOR = { podePedir: true, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false, podeVerRelatorios: false, podeGerirPessoas: false, podeAdministrar: false };
 const GESTOR_PERFIL = { ...COLABORADOR, podePedirParaOutros: true, podeAprovar: true, podeVerRelatorios: true };
 const PERFIL: Record<string, Omit<Permissoes, 'usuario'>> = {
@@ -55,7 +51,7 @@ function pedido(d: Semente): Pedido {
   return {
     solicitante: d.beneficiario,
     gestor: GESTOR[d.beneficiario.id] ?? null,
-    grupo: GRUPO[d.beneficiario.id] ?? null,
+    grupo: nomeDoGrupo(d.beneficiario.id),
     dataFinal: d.dataInicial,
     detalhes: '',
     status: 'pendente',
@@ -217,7 +213,7 @@ export function criarPedidoDb(d: NovoPedido): Pedido | 'conflito' | 'invalido' {
   const historico: Evento[] = [{ tipo: 'criado', por: u, canal: 'painel', em }];
   if (gestor) historico.push({ tipo: 'avisado', por: gestor, canal: 'whatsapp', em });
   const novo: Pedido = {
-    id: `p-${++estado.seq}`, beneficiario, solicitante: u, gestor, grupo: GRUPO[beneficiario.id] ?? null,
+    id: `p-${++estado.seq}`, beneficiario, solicitante: u, gestor, grupo: nomeDoGrupo(beneficiario.id),
     dataInicial: d.dataInicial, dataFinal: d.dataFinal, horario: d.horario, justificativa: justificativaDe(d.justificativaCodigo)!,
     detalhes: d.detalhes, status: 'pendente', criadoEm: em, decisao: null, historico,
   };
@@ -244,7 +240,7 @@ export function editarPedidoDb(id: string, d: NovoPedido): Pedido | 'nao-encontr
   const detalhe = descreverMudancas(p, d);
   const beneficiario = pessoaPorId(d.beneficiarioId)!;
   Object.assign(p, {
-    beneficiario, gestor: GESTOR[beneficiario.id] ?? null, grupo: GRUPO[beneficiario.id] ?? null,
+    beneficiario, gestor: GESTOR[beneficiario.id] ?? null, grupo: nomeDoGrupo(beneficiario.id),
     dataInicial: d.dataInicial, dataFinal: d.dataFinal, horario: d.horario, justificativa: justificativaDe(d.justificativaCodigo)!, detalhes: d.detalhes,
   });
   p.historico = [...(p.historico ?? []), { tipo: 'editado', por: usuarioAtual(), canal: 'painel', em: agoraIso(), detalhe }];
@@ -313,9 +309,12 @@ export function colaboradoresDb(): Pessoa[] {
 }
 
 export function resumoDb(beneficiarioId: string, mes: string): ResumoBeneficiario | null {
-  if (!(beneficiarioId in LIMITE)) return null;
+  // Sem grupo, não há dado de limite: a tela esconde a parte de limite (spec, seção 6).
+  const grupo = grupoCompletoDaPessoa(beneficiarioId);
+  if (!grupo) return null;
   const minutos = estado.pedidos
     .filter((p) => p.beneficiario.id === beneficiarioId && p.status === 'aprovado' && p.dataInicial.startsWith(mes))
     .reduce((s, p) => s + totalMinutos(p.dataInicial, p.dataFinal, p.horario), 0);
-  return { minutosAprovadosNoMes: minutos, limiteMensalMin: LIMITE[beneficiarioId], aprovador: GESTOR[beneficiarioId] ?? null };
+  const limiteMensalMin = grupo.limiteHoras === '' ? null : grupo.limiteHoras * 60;
+  return { minutosAprovadosNoMes: minutos, limiteMensalMin, aprovador: GESTOR[beneficiarioId] ?? null };
 }

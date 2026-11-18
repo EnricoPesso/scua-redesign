@@ -55,6 +55,19 @@ describe.each(CONFIGURACOES)('Tela $titulo', ({ slug, titulo, area }) => {
   });
 });
 
+describe('Grupos: pessoas de cada grupo', () => {
+  it('a coluna "Pessoas" conta quem está no grupo (vem do campo Grupo de Usuários)', async () => {
+    const { pessoasDoGrupo } = await import('../../mock/grupos');
+    renderApp('/configuracoes/grupos');
+    const linha = (await screen.findByRole('cell', { name: 'Comercial' }, { timeout: 20_000 })).closest('tr')!;
+    const celulas = within(linha).getAllByRole('cell');
+    const comercial = (await grupos.listar()).find((g) => g.nome === 'Comercial')!;
+    expect(celulas[3]).toHaveTextContent(String(pessoasDoGrupo(comercial.id).length));
+    expect(pessoasDoGrupo(comercial.id).length).toBeGreaterThan(0);
+    expect(screen.getByRole('cell', { name: 'Estágio' })).toBeInTheDocument();
+  });
+});
+
 describe('Grupos: fluxo completo', () => {
   it('valida obrigatório com foco, recusa duplicado e adiciona', async () => {
     const { user } = renderApp('/configuracoes/grupos');
@@ -93,7 +106,9 @@ describe('Grupos: fluxo completo', () => {
     expect(await screen.findByText('Grupo Comercial atualizado.')).toBeInTheDocument();
     const linha = (await screen.findByRole('cell', { name: 'Comercial' })).closest('tr')!;
     expect(linha).toHaveTextContent('Sem limite');
-    expect(linha).toHaveTextContent('6');
+    // A coluna "Pessoas" é calculada pelo vínculo de Usuários e não muda ao editar o limite.
+    const { pessoasDoGrupo } = await import('../../mock/grupos');
+    expect(within(linha).getAllByRole('cell')[3]).toHaveTextContent(String(pessoasDoGrupo('grp-1').length));
   });
 
   it('exclui com confirmação, avisando o que acontece com as pessoas', async () => {

@@ -104,11 +104,11 @@ describe('Auditoria', () => {
   it('nenhum registro mostra o vazio com "Limpar filtros", que desfaz a busca', async () => {
     const { user } = renderApp('/auditoria?busca=zzzz');
     expect(await screen.findByText('Nenhuma alteração em Parâmetros nesse período.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Exportar CSV' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Exportar para Excel' })).toBeDisabled();
     await user.click(screen.getAllByRole('button', { name: 'Limpar filtros' })[0]);
     expect(await screen.findByRole('list', { name: 'Alterações registradas' })).toBeInTheDocument();
     expect(local()).not.toContain('busca');
-    expect(screen.getByRole('button', { name: 'Exportar CSV' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Exportar para Excel' })).toBeEnabled();
   });
 
   it('paginação: 25 por padrão, 10 por escolha, e o tamanho não muda sozinho', async () => {
@@ -131,14 +131,14 @@ describe('Auditoria', () => {
     expect(local()).not.toContain('pagina=');
   });
 
-  it('Exportar CSV baixa a aba atual com os filtros aplicados e avisa com toast', async () => {
+  it('Exportar para Excel baixa a aba atual com os filtros aplicados e avisa com toast', async () => {
     const criar = vi.fn((b: Blob) => { void b; return 'blob:teste'; });
     URL.createObjectURL = criar;
     URL.revokeObjectURL = vi.fn();
     const cliques: string[] = [];
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) { cliques.push(this.download); });
     const { user } = renderApp('/auditoria/jornadas?quem=u-ana');
-    const botao = await screen.findByRole('button', { name: 'Exportar CSV' });
+    const botao = await screen.findByRole('button', { name: 'Exportar para Excel' });
     await waitFor(() => expect(botao).toBeEnabled());
     await user.click(botao);
     expect(cliques).toEqual(['auditoria-jornadas-2026-10-12.csv']);
@@ -156,7 +156,7 @@ describe('Auditoria', () => {
     const alerta = await screen.findByRole('alert');
     expect(alerta).toHaveTextContent('Não conseguimos carregar os dados');
     expect(alerta).not.toHaveTextContent(/Falha de rede simulada|ErroDeRede/);
-    expect(screen.getByRole('button', { name: 'Exportar CSV' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Exportar para Excel' })).toBeDisabled();
     definirFalhaDeRede(false);
     await user.click(screen.getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByRole('list', { name: 'Alterações registradas' })).toBeInTheDocument();

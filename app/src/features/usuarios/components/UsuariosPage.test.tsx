@@ -40,7 +40,9 @@ describe('Lista de usuários', () => {
     await abrirLista();
     expect(screen.getByRole('heading', { level: 1, name: 'Usuários' })).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('22 usuários');
-    expect(screen.getByText('1–22 de 22')).toBeInTheDocument();
+    // 10 por página por padrão: a lista cabe na tela sem rolar tanto.
+    expect(screen.getByText('1–10 de 22')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Itens por página/ })).toHaveTextContent('10');
     const linha = screen.getByRole('link', { name: 'Ana Souza' }).closest('tr')!;
     expect(within(linha).getByText('ana.souza')).toBeInTheDocument();
     expect(within(linha).getByText('Carlos Mendes')).toBeInTheDocument();
@@ -98,24 +100,26 @@ describe('Lista de usuários', () => {
   it('URL editada à mão com valores inválidos cai nos padrões', async () => {
     await abrirLista('/usuarios?pagina=abc&tamanho=7&situacao=xx&gestor=ninguem&departamento=Marte');
     expect(screen.getByRole('status')).toHaveTextContent(/^22 usuários$/);
-    expect(screen.getByText('1–22 de 22')).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: /Itens por página/ })).toHaveTextContent('25');
+    expect(screen.getByText('1–10 de 22')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /Itens por página/ })).toHaveTextContent('10');
     expect(screen.getByRole('combobox', { name: /Situação/ })).toHaveTextContent('Ativos');
   });
 
   it('pagina em português, com 10, 25 ou 50 por página, e guarda página e tamanho na URL', async () => {
     const { user } = await abrirLista();
-    await escolher(user, screen.getByRole('combobox', { name: /Itens por página/ }), '10');
-    expect(await screen.findByText('1–10 de 22')).toBeInTheDocument();
-    expect(local()).toBe('/usuarios?tamanho=10');
+    expect(screen.getByText('1–10 de 22')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Próxima' }));
     expect(await screen.findByText('11–20 de 22')).toBeInTheDocument();
-    expect(local()).toBe('/usuarios?tamanho=10&pagina=2');
+    expect(local()).toBe('/usuarios?pagina=2');
     await user.click(screen.getByRole('button', { name: 'Próxima' }));
     expect(await screen.findByText('21–22 de 22')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Próxima' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Anterior' }));
     expect(await screen.findByText('11–20 de 22')).toBeInTheDocument();
+    // Quem quiser ver mais de uma vez escolhe no seletor; trocar o tamanho volta para a primeira página.
+    await escolher(user, screen.getByRole('combobox', { name: /Itens por página/ }), '25');
+    expect(await screen.findByText('1–22 de 22')).toBeInTheDocument();
+    expect(local()).toBe('/usuarios?tamanho=25');
   });
 
   it('abrir e fechar o painel de um usuário não muda página nem tamanho (problema #3 do sistema atual)', async () => {
@@ -231,6 +235,21 @@ describe('Detalhe: aba Dados', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(local()).toBe('/usuarios'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('o campo Grupo define o limite de extensão da pessoa', async () => {
+    const { grupoDaPessoa, grupos } = await import('../../../mock/grupos');
+    const { user, p } = await abrirDetalhe('/usuarios/u-ana', 'Ana Souza');
+    const campo = await p.findByRole('combobox', { name: /Grupo/ });
+    await waitFor(() => expect(campo).toHaveTextContent('Comercial'));
+    await escolher(user, campo, 'Operações');
+    await user.click(p.getByRole('button', { name: 'Salvar' }));
+    await screen.findByText('Dados de Ana Souza salvos.');
+    const operacoes = (await grupos.listar()).find((g) => g.nome === 'Operações')!;
+    expect(grupoDaPessoa('u-ana')).toBe(operacoes.id);
+    await escolher(user, p.getByRole('combobox', { name: /Grupo/ }), 'Sem grupo');
+    await user.click(p.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => expect(grupoDaPessoa('u-ana')).toBeNull());
   });
 
   it('troca gestor, departamento e jornada e a lista mostra os novos valores', async () => {

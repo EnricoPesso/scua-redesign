@@ -66,7 +66,7 @@ describe('Página de extensões', () => {
   it('falha ao carregar permissões mostra mensagem amigável e tenta de novo', async () => {
     server.use(http.get('*/api/me/permissoes', () => HttpResponse.json({ codigo: 'X' }, { status: 500 }), { once: true }));
     const { user } = renderApp('/extensoes');
-    expect(await screen.findByRole('alert')).toHaveTextContent('Não conseguimos carregar os pedidos');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não conseguimos carregar os dados');
     await user.click(screen.getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByRole('tab', { name: /Para aprovar/ })).toBeInTheDocument();
   });

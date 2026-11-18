@@ -57,6 +57,12 @@ export interface Permissoes {
   podePedirParaOutros: boolean;
   podeAprovar: boolean;
   podeVerTodos: boolean;
+  /** Painel inicial, ausências e relatórios (gestor, RH e administrador). */
+  podeVerRelatorios: boolean;
+  /** Cadastro de usuários, jornadas, pausas e liberações (RH e administrador). */
+  podeGerirPessoas: boolean;
+  /** Configurações, carga de dados, auditoria e sobre (administrador). */
+  podeAdministrar: boolean;
 }
 
 export interface Filtros {

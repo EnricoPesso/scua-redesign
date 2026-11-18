@@ -16,11 +16,13 @@ type ModeloRelatorioProps<T> = {
   config: ConfigRelatorio<T>
   // Data de referência do período padrão. Fixa em protótipo e teste; hoje no sistema real.
   hoje?: string
+  // Trilha própria do app (ex.: com links do roteador, sem recarregar a página). Substitui a trilha padrão.
+  trilha?: ReactNode
 }
 
 // Modelo único de relatório (variante A, escolhida em 2026-10-29):
 // cabeçalho com Exportar → faixa de filtros → KPIs → tabela.
-export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: ModeloRelatorioProps<T>) {
+export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha }: ModeloRelatorioProps<T>) {
   const r = useModeloRelatorio(config, hoje)
   const carregando = r.status === "carregando"
   const erro = r.status === "erro"
@@ -30,7 +32,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
     <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <Trilha grupo={config.grupo} href={config.linkRelatorios} />
+          {trilha ?? <Trilha grupo={config.grupo} href={config.linkRelatorios} />}
           <h1 className="font-heading text-xl font-bold text-foreground">{config.titulo}</h1>
         </div>
         <BotaoExportar colunas={config.colunas} rows={r.rows} arquivo={nomeArquivo(config.arquivo, r.aplicados)} disabled={r.status !== "pronto" || r.rows.length === 0} />

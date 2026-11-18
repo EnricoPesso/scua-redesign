@@ -1,12 +1,17 @@
 import '@testing-library/jest-dom/vitest';
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { resetarDb } from '../features/extensoes/api/mocks/db';
 import { server } from './server';
 
+// O primeiro render de cada arquivo carrega a casca e a tela sob demanda (lazy): 1 s é pouco.
+configure({ asyncUtilTimeout: 4000 });
+
 // Data fixa: segunda, 12/10/2026 às 10:00 (hora local). Só o Date é falso; timers continuam reais.
 vi.useFakeTimers({ toFake: ['Date'] });
 vi.setSystemTime(new Date('2026-10-12T10:00:00'));
+// O mock foi importado antes de o relógio ser fixado: recria os dados de exemplo já na data fixa.
+resetarDb();
 
 // jsdom não implementa showModal/close do <dialog>.
 if (!HTMLDialogElement.prototype.showModal) {

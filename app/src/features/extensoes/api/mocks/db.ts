@@ -1,5 +1,7 @@
 import { formatarHora, nomeCanal } from '../../domain/formatacao';
 import { contarDias, minutosPorDia, totalMinutos } from '../../domain/horas';
+import { deslocarDatas, diasEntre, hoje } from '../../../../mock/datas';
+import { definirFalhaDeRede } from '../../../../mock/rede';
 import { JUSTIFICATIVA_OUTRA } from '../../domain/types';
 import type {
   Canal, Decisao, Evento, Justificativa, NovoPedido, Pedido, Permissoes, Pessoa, ResultadoLote, ResumoBeneficiario, Totais,
@@ -29,12 +31,13 @@ const GRUPO: Record<string, string> = {
 const LIMITE: Record<string, number | null> = {
   [ana.id]: 600, [joao.id]: 600, [bia.id]: null, [rui.id]: 0, [xavier.id]: 600, [carlos.id]: null,
 };
-const COLABORADOR = { podePedir: true, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false };
-const GESTOR_PERFIL = { podePedir: true, podePedirParaOutros: true, podeAprovar: true, podeVerTodos: false };
+const COLABORADOR = { podePedir: true, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false, podeVerRelatorios: false, podeGerirPessoas: false, podeAdministrar: false };
+const GESTOR_PERFIL = { ...COLABORADOR, podePedirParaOutros: true, podeAprovar: true, podeVerRelatorios: true };
 const PERFIL: Record<string, Omit<Permissoes, 'usuario'>> = {
-  [carlos.id]: GESTOR_PERFIL,
+  // Carlos é o usuário padrão da demonstração: gestor que também administra o sistema (vê o menu inteiro).
+  [carlos.id]: { ...GESTOR_PERFIL, podeGerirPessoas: true, podeAdministrar: true },
   [olga.id]: GESTOR_PERFIL,
-  [renata.id]: { podePedir: false, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: true },
+  [renata.id]: { ...COLABORADOR, podePedir: false, podeVerTodos: true, podeVerRelatorios: true, podeGerirPessoas: true },
 };
 
 export const JUSTIFICATIVAS: Justificativa[] = [
@@ -62,8 +65,11 @@ function pedido(d: Semente): Pedido {
   };
 }
 
+/** Os pedidos de exemplo foram escritos para 12/10/2026; aqui eles acompanham a data de hoje. */
+const DIA_DE_REFERENCIA = '2026-10-12';
+
 function estadoInicial() {
-  return {
+  return deslocarDatas({
     usuarioId: carlos.id,
     falhar: false,
     seq: 9,
@@ -98,14 +104,14 @@ function estadoInicial() {
       pedido({ id: 'p-8', beneficiario: bia, dataInicial: '2026-09-29', horario: { inicio: '18:00', fim: '20:00' }, justificativa: J('3'), criadoEm: '2026-09-28T11:00:00' }),
       pedido({ id: 'p-9', beneficiario: xavier, dataInicial: '2026-10-14', horario: { inicio: '18:00', fim: '19:00' }, justificativa: J('5'), criadoEm: '2026-10-10T10:00:00' }),
     ],
-  };
+  }, diasEntre(DIA_DE_REFERENCIA, hoje()));
 }
 
 let estado = estadoInicial();
 
-export function resetarDb(): void { estado = estadoInicial(); }
+export function resetarDb(): void { estado = estadoInicial(); definirFalhaDeRede(false); }
 export function entrarComo(chave: ChavePessoa): void { estado.usuarioId = PESSOAS[chave].id; }
-export function simularFalha(ligado: boolean): void { estado.falhar = ligado; }
+export function simularFalha(ligado: boolean): void { estado.falhar = ligado; definirFalhaDeRede(ligado); }
 export function estaFalhando(): boolean { return estado.falhar; }
 export function todosOsPedidos(): Pedido[] { return estado.pedidos; }
 

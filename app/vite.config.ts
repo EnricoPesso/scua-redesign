@@ -10,6 +10,8 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(import.meta.dirname, '../design-system/src') },
+      // Ícones: o app usa o mesmo lucide-react do sistema de design (não é dependência de app/).
+      { find: /^lucide-react$/, replacement: path.resolve(import.meta.dirname, '../design-system/node_modules/lucide-react/dist/esm/lucide-react.mjs') },
     ],
     dedupe: ['react', 'react-dom'],
   },

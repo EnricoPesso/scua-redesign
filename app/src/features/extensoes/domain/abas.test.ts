@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { abasPermitidas, ehAba } from './abas';
 import type { Permissoes } from './types';
 
-const base: Permissoes = { usuario: { id: 'u', nome: 'U' }, podePedir: false, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false };
+const base: Permissoes = { usuario: { id: 'u', nome: 'U' }, podePedir: false, podePedirParaOutros: false, podeAprovar: false, podeVerTodos: false, podeVerRelatorios: false, podeGerirPessoas: false, podeAdministrar: false };
 
 describe('abasPermitidas', () => {
   it('gestor', () => expect(abasPermitidas({ ...base, podePedir: true, podeAprovar: true })).toEqual(['aprovar', 'meus']));

@@ -1,5 +1,6 @@
 @import "../../design-system/src/index.css";
 @source "../../design-system/src/components";
+@source "../../design-system/src/modelos";
 @source "./";
 
 #root { min-height: 100vh; }

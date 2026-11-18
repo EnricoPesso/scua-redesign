@@ -1,3 +1,4 @@
+import { Bolha } from '../features/assistente/Bolha';
 import { AssistenteProvider } from '../features/assistente/estado';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { MenuIcon, MoonIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon, SunIcon, XIcon } from 'lucide-react';
@@ -200,6 +201,7 @@ export function AppShell() {
         </div>
       </div>
 
+      <Bolha />
       {buscaAberta && permissoes.data && <BuscaDeTelas permissoes={permissoes.data} aoFechar={() => setBuscaAberta(false)} />}
     </div>
     </AssistenteProvider>

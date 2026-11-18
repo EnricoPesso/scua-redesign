@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { perguntar } from './api';
+import { ErroDoAssistente, perguntar, perguntarNoServidor } from './api';
 import type { AlvoFormulario, AlvoRelatorio, ContextoTela, NomeFerramenta, PedidoAssistente } from './contrato';
 import { interpretarJornada, responderSimulado } from './simulado';
 
@@ -147,5 +147,44 @@ describe('perguntar', () => {
     expect(r.simulado).toBe(true);
     expect(espia).not.toHaveBeenCalled();
     espia.mockRestore();
+  });
+});
+
+describe('perguntarNoServidor', () => {
+  const json = (corpo: unknown, status = 200) => new Response(JSON.stringify(corpo), { status });
+  const p = pedido('oi', {}, []);
+
+  it('sem IA conectada: devolve null e não faz o POST (nada de erro no console)', async () => {
+    const buscar = vi.fn().mockResolvedValue(json({ ativo: false, provedor: null }));
+    expect(await perguntarNoServidor(p, buscar)).toBeNull();
+    expect(buscar).toHaveBeenCalledTimes(1);
+    expect(buscar.mock.calls[0][0]).toBe('/api/assistente/estado');
+  });
+
+  it('com IA conectada: faz o POST e devolve texto e ações', async () => {
+    const buscar = vi.fn()
+      .mockResolvedValueOnce(json({ ativo: true, provedor: 'anthropic' }))
+      .mockResolvedValueOnce(json({ texto: 'Olá', acoes: [{ tipo: 'navegar', rota: '/ausencias' }] }));
+    expect(await perguntarNoServidor(p, buscar)).toEqual({ texto: 'Olá', acoes: [{ tipo: 'navegar', rota: '/ausencias' }] });
+    expect(buscar.mock.calls[1][0]).toBe('/api/assistente');
+    expect(JSON.parse(buscar.mock.calls[1][1].body)).toEqual(p);
+  });
+
+  it('resposta com a forma errada vira texto vazio e nenhuma ação', async () => {
+    const buscar = vi.fn().mockResolvedValueOnce(json({ ativo: true })).mockResolvedValueOnce(json({ texto: 5, acoes: 'x' }));
+    expect(await perguntarNoServidor(p, buscar)).toEqual({ texto: '', acoes: [] });
+  });
+
+  it.each([['limite', 429], ['chave-recusada', 502], ['indisponivel', 502]] as const)('erro "%s" do servidor vira ErroDoAssistente', async (motivo, status) => {
+    const buscar = vi.fn().mockResolvedValueOnce(json({ ativo: true })).mockResolvedValueOnce(json({ motivo }, status));
+    await expect(perguntarNoServidor(p, buscar)).rejects.toMatchObject({ name: 'ErroDoAssistente', motivo });
+  });
+
+  it('rede fora do ar e resposta que não é JSON viram "indisponivel"; chave retirada no meio vira null', async () => {
+    await expect(perguntarNoServidor(p, vi.fn().mockRejectedValue(new TypeError('fetch failed')))).rejects.toBeInstanceOf(ErroDoAssistente);
+    const html = vi.fn().mockResolvedValueOnce(json({ ativo: true })).mockResolvedValueOnce(new Response('<html>', { status: 200 }));
+    await expect(perguntarNoServidor(p, html)).rejects.toMatchObject({ motivo: 'indisponivel' });
+    const semChave = vi.fn().mockResolvedValueOnce(json({ ativo: true })).mockResolvedValueOnce(json({ motivo: 'sem-chave' }, 503));
+    expect(await perguntarNoServidor(p, semChave)).toBeNull();
   });
 });

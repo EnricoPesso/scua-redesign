@@ -22,35 +22,49 @@ export function forcarSimulado(): boolean {
 const MOTIVOS: MotivoDeErro[] = ['sem-chave', 'configuracao', 'chave-recusada', 'limite', 'indisponivel'];
 
 /**
- * Pergunta ao assistente. Com IA configurada no servidor, a resposta vem dela;
- * sem chave (ou sem servidor, como no build publicado), vem do modo demonstração.
+ * Existe um servidor para perguntar? No desenvolvimento, sim (o intermediário do Vite).
+ * No pacote publicado só quando o back-end real existir (VITE_ASSISTENTE_API=1); sem isso, modo demonstração,
+ * sem pedir nada à rede (um 404 apareceria como erro no console).
  */
-export async function perguntar(pedido: PedidoAssistente, signal?: AbortSignal): Promise<RespostaAssistente> {
-  if (forcarSimulado()) return responderSimulado(pedido);
+const temServidor = (): boolean => import.meta.env.DEV || import.meta.env.VITE_ASSISTENTE_API === '1';
 
+/**
+ * Pergunta ao servidor. Devolve `null` quando não há IA conectada (sem chave): quem chamou usa o modo demonstração.
+ * Primeiro consulta o estado (resposta 200 nos dois casos), para a falta de chave não virar erro no console.
+ */
+export async function perguntarNoServidor(pedido: PedidoAssistente, buscar: typeof fetch, signal?: AbortSignal): Promise<RespostaAssistente | null> {
   let r: Response;
   try {
-    r = await fetch('/api/assistente', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(pedido), signal });
+    const estado = await buscar('/api/assistente/estado', { signal });
+    const { ativo } = (estado.ok ? await estado.json() : { ativo: false }) as { ativo?: boolean };
+    if (!ativo) return null;
+    r = await buscar('/api/assistente', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(pedido), signal });
   } catch (e) {
     if (signal?.aborted) throw e;
     throw new ErroDoAssistente('indisponivel');
   }
-  // 404: não existe intermediário (build sem servidor). Cai no modo demonstração.
-  if (r.status === 404) return responderSimulado(pedido);
 
   let corpo: unknown;
   try {
     corpo = await r.json();
   } catch {
-    // Resposta que não é JSON (ex.: página HTML do servidor estático): também é "sem intermediário".
-    if (r.ok) return responderSimulado(pedido);
     throw new ErroDoAssistente('indisponivel');
   }
   if (r.ok) {
-    const { texto, acoes } = corpo as Partial<RespostaAssistente>;
+    const { texto, acoes } = (corpo ?? {}) as Partial<RespostaAssistente>;
     return { texto: typeof texto === 'string' ? texto : '', acoes: Array.isArray(acoes) ? acoes : [] };
   }
   const motivo = (corpo as { motivo?: MotivoDeErro } | null)?.motivo;
-  if (motivo === 'sem-chave') return responderSimulado(pedido);
+  // A chave foi tirada entre a consulta e o pedido.
+  if (motivo === 'sem-chave') return null;
   throw new ErroDoAssistente(motivo && MOTIVOS.includes(motivo) ? (motivo as Exclude<MotivoDeErro, 'sem-chave'>) : 'indisponivel');
+}
+
+/**
+ * Pergunta ao assistente. Com IA configurada no servidor, a resposta vem dela;
+ * sem chave (ou sem servidor, como no pacote publicado), vem do modo demonstração.
+ */
+export async function perguntar(pedido: PedidoAssistente, signal?: AbortSignal): Promise<RespostaAssistente> {
+  if (forcarSimulado() || !temServidor()) return responderSimulado(pedido);
+  return (await perguntarNoServidor(pedido, fetch, signal)) ?? responderSimulado(pedido);
 }

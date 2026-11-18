@@ -20,3 +20,8 @@
     min-width: 2.75rem;
   }
 }
+
+/* Com a bolha do assistente no canto inferior direito, os avisos (toasts) sobem para ficar acima dela. */
+:root:has([data-assistente]) {
+  --toaster-bottom: 5.5rem;
+}

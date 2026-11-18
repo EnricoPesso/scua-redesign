@@ -1,3 +1,4 @@
+import { AssistenteProvider } from '../features/assistente/estado';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { MenuIcon, MoonIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon, SunIcon, XIcon } from 'lucide-react';
 import { NavLink, Outlet, useLocation } from 'react-router';
@@ -129,6 +130,7 @@ export function AppShell() {
   const grupos = permissoes.data ? menuPara(permissoes.data) : [];
 
   return (
+    <AssistenteProvider>
     <div className="flex min-h-screen bg-background text-foreground">
       <a
         href="#conteudo"
@@ -200,6 +202,7 @@ export function AppShell() {
 
       {buscaAberta && permissoes.data && <BuscaDeTelas permissoes={permissoes.data} aoFechar={() => setBuscaAberta(false)} />}
     </div>
+    </AssistenteProvider>
   );
 }
 

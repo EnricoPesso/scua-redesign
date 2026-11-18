@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { resetarDb } from '../features/extensoes/api/mocks/db';
+import { resetarConfigAssistente } from '../features/assistente/preferencias';
 import { resetarGrupos } from '../mock/grupos';
 import { server } from './server';
 
@@ -72,5 +73,6 @@ afterEach(() => {
   // Os pedidos de exemplo leem o grupo de cada pessoa: os grupos voltam ao padrão antes deles.
   resetarGrupos();
   resetarDb();
+  resetarConfigAssistente();
 });
 afterAll(() => server.close());

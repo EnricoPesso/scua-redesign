@@ -69,6 +69,19 @@ describe('casca do app', () => {
     expect(screen.getByText('Administração', { selector: 'span' })).toBeInTheDocument();
   });
 
+  it('mostra o logo da Scua: inteiro com "Logon" no menu aberto e só o símbolo no menu recolhido', async () => {
+    entrarComo('carlos');
+    const { user } = renderApp('/extensoes');
+    const [lateral] = await menu();
+    const aside = lateral.closest('aside')!;
+    const logo = within(aside).getByRole('img', { name: 'Scua' });
+    expect(logo.getAttribute('src')).toMatch(/scua-logo/);
+    expect(within(aside).getByText('Logon')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Recolher menu' }));
+    const simbolo = within(aside).getByRole('img', { name: 'Scua Logon' });
+    expect(simbolo.getAttribute('src')).toMatch(/scua-simbolo/);
+  });
+
   it('colaborador vê só o que pode usar', async () => {
     entrarComo('ana');
     renderApp('/extensoes');
@@ -120,6 +133,29 @@ describe('casca do app', () => {
     entrarComo('olga');
     renderApp('/configuracoes');
     expect(await screen.findByRole('heading', { level: 1, name: 'Sem acesso' })).toBeInTheDocument();
+  });
+
+  it('modo escuro: o botão do cabeçalho põe e tira a classe "dark" e lembra a escolha', async () => {
+    document.documentElement.classList.remove('dark');
+    entrarComo('carlos');
+    const { user } = renderApp('/extensoes');
+    const botao = await screen.findByRole('button', { name: 'Modo escuro' });
+    expect(botao).toHaveAttribute('aria-pressed', 'false');
+    await user.click(botao);
+    expect(document.documentElement).toHaveClass('dark');
+    expect(botao).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem('scua.tema')).toBe('escuro');
+    await user.click(botao);
+    expect(document.documentElement).not.toHaveClass('dark');
+    expect(window.localStorage.getItem('scua.tema')).toBe('claro');
+  });
+
+  it('modo escuro: abre já escuro quando a página carregou com o tema escuro', async () => {
+    document.documentElement.classList.add('dark');
+    entrarComo('carlos');
+    renderApp('/extensoes');
+    expect(await screen.findByRole('button', { name: 'Modo escuro' })).toHaveAttribute('aria-pressed', 'true');
+    document.documentElement.classList.remove('dark');
   });
 
   it('tem o atalho "Pular para o conteúdo"', async () => {

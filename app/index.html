@@ -5,6 +5,16 @@
     <link rel="icon" href="data:," />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scua Logon</title>
+    <script>
+      // Aplica o tema antes de a página aparecer (sem "piscar" claro no modo escuro).
+      // Preferência salva pela pessoa; sem ela, segue o sistema operacional.
+      (function () {
+        var tema = null;
+        try { tema = localStorage.getItem('scua.tema'); } catch (e) {}
+        var escuro = tema ? tema === 'escuro' : !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+        if (escuro) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

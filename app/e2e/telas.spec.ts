@@ -88,6 +88,33 @@ for (const [nome, tamanho] of Object.entries(TAMANHOS)) {
   });
 }
 
+// Tema escuro em todas as telas (desktop): o sistema operacional em modo escuro já abre o app escuro.
+test.describe('tema escuro, desktop 1440×900', () => {
+  test.use({ viewport: TAMANHOS.desktop, colorScheme: 'dark' });
+
+  for (const tela of TELAS) {
+    test(`${tela.rota}`, async ({ page }) => {
+      await abrir(page, tela);
+      await expect(page.locator('html')).toHaveClass(/dark/);
+      await conferirLargura(page, tela);
+      await page.screenshot({ path: `e2e/screenshots/telas/${tela.arquivo}-escuro.png`, fullPage: true });
+      expect(errosConsole, `erros no console em ${tela.rota}`).toEqual([]);
+    });
+  }
+});
+
+test('o botão "Modo escuro" alterna o tema e a escolha vale depois de recarregar', async ({ page }) => {
+  await page.goto('/inicio');
+  await expect(page.getByRole('heading', { level: 1, name: 'Início' })).toBeVisible({ timeout: 30_000 });
+  const botao = page.getByRole('button', { name: 'Modo escuro' });
+  await expect(botao).toHaveAttribute('aria-pressed', 'false');
+  await botao.click();
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  await page.reload();
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect(page.getByRole('button', { name: 'Modo escuro' })).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('todos os links do menu abrem uma tela que existe', async ({ page }) => {
   await page.goto('/inicio');
   const menu = page.getByRole('navigation', { name: 'Menu principal' }).first();

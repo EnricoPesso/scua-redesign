@@ -42,7 +42,7 @@ const regras = [
   <>Botão primário é fundo laranja com texto escuro (<code className="font-mono">--color-on-brand</code>), nunca branco: branco sobre o laranja dá 3,2:1 e reprova AA.</>,
   <>Texto ou ícone laranja sobre o fundo da página usa <code className="font-mono">--color-brand-text</code>. Ícone ou borda laranja (<code className="font-mono">--color-brand</code>) só sobre branco (<code className="font-mono">--color-surface</code>).</>,
   <>Componente consome só tokens semânticos (<code className="font-mono">--color-*</code>), nunca <code className="font-mono">--scua-*</code>.</>,
-  <>Sem modo escuro. Não use <code className="font-mono">dark:</code>.</>,
+  <>Modo escuro vem dos tokens (classe <code className="font-mono">.dark</code> no <code className="font-mono">&lt;html&gt;</code>). Não use <code className="font-mono">dark:</code> nos componentes: ajuste o token.</>,
   <>Alvo clicável mínimo de 40px, em altura e largura.</>,
   <>Animação sempre respeita <code className="font-mono">prefers-reduced-motion</code>: use as durações <code className="font-mono">--dur</code> e <code className="font-mono">--dur-fast</code>, que zeram nesse modo.</>,
 ]

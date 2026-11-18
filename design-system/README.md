@@ -18,7 +18,7 @@ npm test          # testes das funções puras em src/lib
 
 1. Botão primário usa fundo laranja com texto escuro (`--color-on-brand`), nunca branco. Texto laranja sobre o fundo da página usa `--color-brand-text`; ícone ou borda laranja só sobre `--color-surface`.
 2. Componente consome só tokens semânticos (`--color-*`), nunca `--scua-*`.
-3. Sem modo escuro: não use `dark:`.
+3. Modo escuro vem dos tokens: a classe `.dark` no `<html>` troca os semânticos (bloco `:root.dark` em `tokens.css`). Não use `dark:` nos componentes; se uma cor não fica boa no escuro, ajuste o token. `npm run contrast` confere os dois temas.
 4. Alvo clicável mínimo de 40px, em altura e largura.
 5. Animação respeita `prefers-reduced-motion`: use `--dur` e `--dur-fast`, que zeram nesse modo.
 

@@ -23,13 +23,13 @@ Os números entre parênteses são os itens do bloco de notas.
 - [x] **4. Barras de Ausências sem o nome dentro** (5)
   - A legenda já explica cada símbolo. Manter o passar do mouse e o foco mostrando motivo e horário.
 
-- [ ] **5. Logo da Scua** (1)
+- [x] **5. Logo da Scua** (1)
   - Arquivo: `app/src/assets/scua-logo.png` (191×50 px, recorte de tela com fundo transparente).
   - Hoje a marca é texto (quadrado laranja com "S" + "Scua Logon") em `app/src/layout/AppShell.tsx` (componente `Marca`): menu lateral, gaveta do celular e cabeçalho.
   - Trocar pelo logo com `alt="Scua"` e "Logon" ao lado em texto. No menu recolhido e no cabeçalho do celular, só o símbolo.
   - 191×50 fica borrado em tela de alta densidade: pedir o SVG à Scua (seção 9 de `perguntas-para-scua.md`).
 
-- [ ] **6. Modo claro/escuro** (15)
+- [x] **6. Modo claro/escuro** (15)
   - Botão no **cabeçalho**, que aparece em todas as telas (confirmado).
   - Valores escuros para todos os tokens semânticos do sistema de design, com a checagem de contraste (`npm run contrast` em `design-system/`). Conferir o logo nos dois fundos.
   - Fazer antes das etapas 7 a 9, para os painéis novos já nascerem nos dois temas.

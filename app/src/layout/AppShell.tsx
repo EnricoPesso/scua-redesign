@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { MenuIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon, XIcon } from 'lucide-react';
+import { MenuIcon, MoonIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon, SunIcon, XIcon } from 'lucide-react';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,9 +7,12 @@ import { cn } from '@/lib/utils';
 import { EstadoErro } from '../componentes/EstadoErro';
 import type { Permissoes } from '../features/extensoes/domain/types';
 import { usePermissoes } from '../features/extensoes/hooks/queries';
+import logo from '../assets/scua-logo.png';
+import simbolo from '../assets/scua-simbolo.png';
 import { BuscaDeTelas } from './BuscaDeTelas';
 import { ErroGlobal } from './ErroGlobal';
 import { menuPara, papelDe, type GrupoMenu } from './menu';
+import { useTema } from './tema';
 
 const CHAVE_RECOLHIDO = 'scua.menu.recolhido';
 
@@ -21,12 +24,17 @@ function lerRecolhido(): boolean {
   }
 }
 
-/** Marca do produto em texto: não há arquivo de logotipo no repositório. */
+/**
+ * Logo da Scua: inteiro com "Logon" ao lado, ou só o símbolo (menu recolhido e cabeçalho do celular).
+ * O PNG tem fundo transparente, então serve nos temas claro e escuro.
+ * Pedido à Scua: a versão em SVG, que fica nítida em telas de alta densidade.
+ */
 function Marca({ curta = false }: { curta?: boolean }) {
+  if (curta) return <img src={simbolo} alt="Scua Logon" width={32} height={24} className="h-6 w-auto shrink-0" />;
   return (
-    <span className="inline-flex items-center gap-2 font-heading text-lg font-bold text-foreground">
-      <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-md bg-[var(--color-brand)] text-[var(--color-on-brand)]">S</span>
-      <span className={cn(curta && 'sr-only')}>Scua <span className="text-[var(--color-brand-text)]">Logon</span></span>
+    <span className="inline-flex items-center gap-2">
+      <img src={logo} alt="Scua" width={128} height={29} className="h-7 w-auto shrink-0" />
+      <span className="font-heading text-lg font-bold text-foreground">Logon</span>
     </span>
   );
 }
@@ -175,6 +183,7 @@ export function AppShell() {
             <span className="max-sm:sr-only">Buscar tela</span>
             <kbd className="ml-auto hidden rounded border border-[var(--color-line)] px-1.5 text-xs sm:inline">Ctrl K</kbd>
           </button>
+          <span className="ml-auto max-sm:ml-0"><BotaoTema /></span>
           {permissoes.data && <Usuario permissoes={permissoes.data} />}
         </header>
 
@@ -194,11 +203,30 @@ export function AppShell() {
   );
 }
 
+/** Botão do tema no cabeçalho. Nome fixo + aria-pressed (o leitor de tela anuncia "Modo escuro, pressionado"). */
+function BotaoTema() {
+  const { tema, alternar } = useTema();
+  const escuro = tema === 'escuro';
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-11 shrink-0 lg:size-10"
+      aria-label="Modo escuro"
+      aria-pressed={escuro}
+      title={escuro ? 'Voltar ao modo claro' : 'Ativar modo escuro'}
+      onClick={alternar}
+    >
+      {escuro ? <SunIcon aria-hidden="true" /> : <MoonIcon aria-hidden="true" />}
+    </Button>
+  );
+}
+
 function Usuario({ permissoes }: { permissoes: Permissoes }) {
   const { nome } = permissoes.usuario;
   const iniciais = nome.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
   return (
-    <div className="ml-auto flex items-center gap-2 max-sm:ml-0">
+    <div className="flex items-center gap-2">
       <span className="grid text-right leading-tight max-sm:hidden">
         <span className="text-sm font-semibold text-foreground">{nome}</span>
         <span className="text-xs text-muted-foreground">{papelDe(permissoes)}</span>

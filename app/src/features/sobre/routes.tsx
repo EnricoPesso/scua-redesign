@@ -1,5 +1,10 @@
-import { EmConstrucao } from '../../componentes/EmConstrucao';
+import { Route, Routes } from 'react-router';
+import { SobrePage } from './components/SobrePage';
 
 export default function Rotas() {
-  return <EmConstrucao titulo="Sobre" />;
+  return (
+    <Routes>
+      <Route index element={<SobrePage />} />
+    </Routes>
+  );
 }

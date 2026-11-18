@@ -44,7 +44,8 @@ test.beforeEach(async ({ page }) => {
 /** Espera a tela assentar: título visível, sem esqueleto de carregamento e animações de entrada terminadas. */
 async function abrir(page: Page, tela: Tela) {
   await page.goto(tela.rota);
-  await expect(page.getByRole('heading', { level: 1, name: tela.titulo, exact: true })).toBeVisible();
+  // A primeira abertura de cada área compila o código sob demanda no servidor de desenvolvimento.
+  await expect(page.getByRole('heading', { level: 1, name: tela.titulo, exact: true })).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('#conteudo [aria-busy="true"]')).toHaveCount(0);
   await page.waitForTimeout(700);
 }

@@ -12,7 +12,9 @@ import { Field } from '@/components/ui/field';
 import { Select } from '@/components/ui/select';
 import { Toggle } from '@/components/ui/toggle';
 import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 import { mensagemDeErro } from '../../lib/mensagens';
+import { useTelaEstreita } from '../../lib/useTelaEstreita';
 import type { ComId } from '../../mock/colecao';
 import { EstadoErro } from '../EstadoErro';
 import { Pagina } from '../Pagina';
@@ -51,6 +53,7 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
   const [params, setParams] = useSearchParams();
   const [busca, setBusca] = useState('');
   const [excluindo, setExcluindo] = useState<T | null>(null);
+  const estreita = useTelaEstreita();
 
   const lista = useQuery({ queryKey: chaveCache, queryFn: config.colecao.listar });
   const excluir = useMutation({
@@ -129,6 +132,17 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
             inputProps={{ type: 'search', value: busca, placeholder: `Buscar ${singular}`, onValueChange: (v: string) => setBusca(v), className: 'max-md:h-11' }}
           />
         )}
+        {estreita ? (
+          <CartoesCadastro
+            config={config}
+            itens={itens}
+            carregando={lista.isPending}
+            busca={busca}
+            aoLimparBusca={() => setBusca('')}
+            aoEditar={(item) => abrir('editar', item.id)}
+            aoExcluir={setExcluindo}
+          />
+        ) : (
         <DataTable
           columns={colunas}
           rows={itens}
@@ -142,6 +156,7 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
             </span>
           }
         />
+        )}
       </>
     );
   }
@@ -185,6 +200,70 @@ export function ModeloCadastro<T extends ComId>({ config }: { config: ConfigCada
         onConfirm={() => { if (excluindo) excluir.mutate(excluindo); }}
       />
     </Pagina>
+  );
+}
+
+/**
+ * Celular: cada item vira um cartão, com Editar e Excluir sempre à vista
+ * (na tabela, as ações ficavam escondidas atrás da rolagem lateral).
+ */
+function CartoesCadastro<T extends ComId>({ config, itens, carregando, busca, aoLimparBusca, aoEditar, aoExcluir }: {
+  config: ConfigCadastro<T>;
+  itens: T[];
+  carregando: boolean;
+  busca: string;
+  aoLimparBusca: () => void;
+  aoEditar: (item: T) => void;
+  aoExcluir: (item: T) => void;
+}) {
+  const passo = config.itensPorPagina ?? 10;
+  const [visiveis, setVisiveis] = useState(passo);
+  if (carregando) {
+    return (
+      <div role="status" aria-label="Carregando" className="grid gap-3">
+        {Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-28" />)}
+      </div>
+    );
+  }
+  if (itens.length === 0) {
+    return (
+      <p className="rounded-lg border border-dashed border-input bg-card px-4 py-8 text-center text-sm text-muted-foreground">
+        Nenhum resultado para “{busca}”.{' '}
+        <button type="button" className="font-semibold text-[var(--color-brand-text)] underline underline-offset-4" onClick={aoLimparBusca}>Limpar busca</button>
+      </p>
+    );
+  }
+  const [principal, ...demais] = config.colunas;
+  const valor = (item: T, c: (typeof config.colunas)[number]) => c.render ? c.render(item) : String((item as Record<string, unknown>)[c.key] ?? '');
+  const mostrados = itens.slice(0, visiveis);
+  return (
+    <div className="grid gap-3">
+      <ul aria-label={config.titulo} className="grid gap-3">
+        {mostrados.map((item) => (
+          <li key={item.id} className="grid gap-3 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-1)]">
+            <p className="text-base font-semibold break-words text-foreground">{valor(item, principal)}</p>
+            {demais.length > 0 && (
+              <dl className="grid gap-1.5 text-sm">
+                {demais.map((c) => (
+                  <div key={c.key} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2">
+                    <dt className="text-muted-foreground">{c.header}</dt>
+                    <dd className="min-w-0 break-words text-foreground">{valor(item, c)}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            <div className="flex gap-2">
+              <Button variant="secondary" className="flex-1" aria-label={`Editar ${config.nomeDe(item)}`} onClick={() => aoEditar(item)}><PencilIcon aria-hidden="true" />Editar</Button>
+              {config.podeExcluir !== false && (
+                <Button variant="secondary" className="flex-1" aria-label={`Excluir ${config.nomeDe(item)}`} onClick={() => aoExcluir(item)}><Trash2Icon aria-hidden="true" />Excluir</Button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-sm text-muted-foreground">Mostrando {mostrados.length} de {itens.length}</p>
+      {visiveis < itens.length && <Button variant="secondary" onClick={() => setVisiveis((v) => v + passo)}>Mostrar mais</Button>}
+    </div>
   );
 }
 

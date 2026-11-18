@@ -26,7 +26,8 @@ const config: ConfigRelatorio<Ocorrencia> = {
     { key: 'colaborador', header: 'Colaborador' },
     { key: 'gestor', header: 'Gestor' },
     { key: 'evento', header: 'Evento', render: (r) => <Badge status={statusEvento(r.evento)}>{rotuloEvento(r.evento)}</Badge>, texto: (r) => rotuloEvento(r.evento) },
-    { key: 'mensagem', header: 'Mensagem' },
+    // Texto longo: largura mínima para a linha não ficar com uma palavra por linha.
+    { key: 'mensagem', header: 'Mensagem', render: (r) => <span className="block min-w-[18rem]">{r.mensagem}</span>, texto: (r) => r.mensagem },
     colunaSemQuebra('estacao', 'Estação'),
     colunaDataHora('bloqueioEm', 'Bloqueado em'),
     colunaDataHora('liberacaoEm', 'Liberado em'),

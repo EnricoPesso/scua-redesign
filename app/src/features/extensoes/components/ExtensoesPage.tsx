@@ -1,6 +1,7 @@
 import { Link, Navigate, Outlet, useLocation, useParams } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { cn } from '@/lib/utils';
+import { useTituloDaAba } from '../../../componentes/Pagina';
 import { abasPermitidas, ehAba } from '../domain/abas';
 import { mensagemParaUsuario } from '../domain/erros';
 import { usePermissoes } from '../hooks/queries';
@@ -14,6 +15,7 @@ export function ExtensoesPage() {
   const { aba, id } = useParams();
   const { search } = useLocation();
   const permissoes = usePermissoes();
+  useTituloDaAba('Extensões de jornada');
 
   if (permissoes.isPending) return <main className={PAGINA}><EstadoLista tipo="carregando" /></main>;
   if (permissoes.isError) {

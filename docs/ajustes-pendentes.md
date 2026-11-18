@@ -34,10 +34,10 @@ Os números entre parênteses são os itens do bloco de notas.
   - Valores escuros para todos os tokens semânticos do sistema de design, com a checagem de contraste (`npm run contrast` em `design-system/`). Conferir o logo nos dois fundos.
   - Fazer antes das etapas 7 a 9, para os painéis novos já nascerem nos dois temas.
 
-- [ ] **7. Início: seletor de data** (2)
+- [x] **7. Início: seletor de data** (2)
   - Manter o "resumo de hoje" e colocar ao lado um seletor com **atalhos** (Hoje, Ontem, Últimos 7 dias, Este mês) mais **"Escolher data"**, que abre o calendário (confirmado). Os indicadores passam a ser do período escolhido, e o período fica na URL.
 
-- [ ] **8. Auditoria: painel com o panorama geral** (14)
+- [x] **8. Auditoria: painel com o panorama geral** (14)
   - Indicadores e gráficos **antes** das tabelas (ex.: alterações no período, por tipo de ação, quem mais alterou, área mais alterada, alterações por dia). As abas e tabelas atuais continuam abaixo.
 
 - [ ] **9. Início personalizável** (16)

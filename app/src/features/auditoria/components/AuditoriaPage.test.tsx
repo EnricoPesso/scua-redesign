@@ -2,6 +2,9 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { definirFalhaDeRede } from '../../../mock/rede';
 import { renderApp } from '../../../test/render';
+import { auditoriaApi } from '../api';
+import { ABAS } from '../domain/auditoria';
+import { dia, hoje } from '../../../mock/datas';
 
 const local = () => screen.getByTestId('local-atual').textContent;
 
@@ -166,5 +169,39 @@ describe('Auditoria', () => {
     renderApp('/auditoria');
     expect(await screen.findByRole('status', { name: 'Carregando' })).toBeInTheDocument();
     await screen.findByRole('list', { name: 'Alterações registradas' });
+  });
+});
+
+describe('Auditoria: painel com o panorama geral', () => {
+  const filtroPadrao = { de: dia(-29), ate: hoje(), pessoa: '', busca: '' };
+
+  it('vem antes das tabelas e soma todas as áreas', async () => {
+    renderApp('/auditoria');
+    const painel = await screen.findByRole('region', { name: 'Panorama geral' }, { timeout: 20_000 });
+    let total = 0;
+    for (const a of ABAS) total += (await auditoriaApi.listar(a.valor, filtroPadrao)).length;
+    const alteracoes = within(painel).getByRole('group', { name: 'Alterações' });
+    await waitFor(() => expect(alteracoes).toHaveTextContent(String(total)));
+    // O painel aparece antes das abas com as tabelas.
+    const abas = screen.getByRole('tablist', { name: 'Tipos de alteração' });
+    expect(painel.compareDocumentPosition(abas) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(painel).getByRole('list', { name: 'Alterações por dia' })).toBeInTheDocument();
+    expect(within(painel).getByRole('list', { name: 'Quem mais alterou' })).toBeInTheDocument();
+  });
+
+  it('clicar numa área abre a aba dela', async () => {
+    const { user } = renderApp('/auditoria');
+    const painel = await screen.findByRole('region', { name: 'Panorama geral' }, { timeout: 20_000 });
+    await user.click(await within(painel).findByRole('button', { name: /^WhatsApp, \d+ alterações?$/ }));
+    await waitFor(() => expect(local()).toContain('/auditoria/whatsapp'));
+  });
+
+  it('os filtros valem para o painel: "Quem alterou" reduz o total', async () => {
+    renderApp('/auditoria?quem=u-ana');
+    const painel = await screen.findByRole('region', { name: 'Panorama geral' }, { timeout: 20_000 });
+    let total = 0;
+    for (const a of ABAS) total += (await auditoriaApi.listar(a.valor, { ...filtroPadrao, pessoa: 'u-ana' })).length;
+    await waitFor(() => expect(within(painel).getByRole('group', { name: 'Alterações' })).toHaveTextContent(String(total)));
+    expect(within(painel).getByRole('group', { name: 'Pessoas que alteraram' })).toHaveTextContent('1');
   });
 });

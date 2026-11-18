@@ -4,7 +4,7 @@ import { rede } from '../../mock/rede';
 import { permissoesAtuais, todosOsPedidos } from '../extensoes/api/mocks/db';
 import { totalMinutos } from '../extensoes/domain/horas';
 import type { Pedido } from '../extensoes/domain/types';
-import { inicioDaJanela, ultimosMeses, type ContagemPorStatus, type Janela, type MesDoHistorico } from './domain';
+import { diasUteisDoPeriodo, minutosNoPeriodo, ultimosMeses, type ContagemPorStatus, type MesDoHistorico, type Periodo } from './domain';
 
 /**
  * Dados do painel inicial (simulados; contrato a definir com a Scua).
@@ -14,13 +14,14 @@ import { inicioDaJanela, ultimosMeses, type ContagemPorStatus, type Janela, type
 
 export interface ResumoDoPainel {
   usuarios: number;
-  presentes: number;
-  ausentes: number;
-  /** Pedidos esperando a decisão de quem está logado. */
+  /** Presentes e ausentes no dia, ou a média por dia útil num período de vários dias. null = sem dia útil (fim de semana). */
+  presentes: number | null;
+  ausentes: number | null;
+  diasUteis: number;
+  /** Pedidos esperando a decisão de quem está logado (estado atual, não depende do período). */
   pendentesParaMim: number;
-  minutosAprovadosNoMes: number;
-  /** YYYY-MM do mês atual. */
-  mes: string;
+  /** Minutos de extensão aprovada que caem dentro do período. */
+  minutosAprovados: number;
 }
 
 /** Administração e RH veem a empresa toda; gestão vê a própria equipe. */
@@ -39,34 +40,41 @@ function pessoasVisiveis() {
 
 const minutosDe = (p: Pedido) => totalMinutos(p.dataInicial, p.dataFinal, p.horario);
 
+/** Ausência simulada e estável: a mesma pessoa falta sempre nos mesmos dias (cerca de 1 dia em 7). */
+function estaAusente(pessoaId: string, dia: string): boolean {
+  let h = 0;
+  for (const c of `${pessoaId}|${dia}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h % 7 === 0;
+}
+
 /** Histórico dos meses anteriores (o mês atual é calculado a partir dos pedidos). */
 const MESES_ANTERIORES_MIN = [540, 720, 390, 960, 660];
 
 export const inicioApi = {
-  resumo: (): Promise<ResumoDoPainel> => rede(() => {
-    const mes = hoje().slice(0, 7);
+  resumo: (periodo: Periodo): Promise<ResumoDoPainel> => rede(() => {
     const pessoas = pessoasVisiveis();
-    // Sem dado real de presença: 1 em cada 6 pessoas aparece como ausente no exemplo.
-    const ausentes = pessoas.filter((_, i) => i % 6 === 5).length;
+    const dias = diasUteisDoPeriodo(periodo);
+    // Presença simulada (ainda não há dado real): cada pessoa falta em alguns dias, sempre os mesmos.
+    let ausencias = 0;
+    for (const dia of dias) ausencias += pessoas.filter((p) => estaAusente(p.id, dia)).length;
+    const mediaAusentes = dias.length ? Math.round(ausencias / dias.length) : null;
     const eu = permissoesAtuais().usuario.id;
-    const pedidos = pedidosVisiveis();
     return {
       usuarios: pessoas.length,
-      presentes: pessoas.length - ausentes,
-      ausentes,
+      presentes: mediaAusentes === null ? null : pessoas.length - mediaAusentes,
+      ausentes: mediaAusentes,
+      diasUteis: dias.length,
       pendentesParaMim: todosOsPedidos().filter((x) => x.status === 'pendente' && x.gestor?.id === eu).length,
-      minutosAprovadosNoMes: pedidos.filter((x) => x.status === 'aprovado' && x.dataInicial.startsWith(mes)).reduce((s, x) => s + minutosDe(x), 0),
-      mes,
+      minutosAprovados: pedidosVisiveis().filter((x) => x.status === 'aprovado').reduce((s, x) => s + minutosNoPeriodo(x, periodo.de, periodo.ate), 0),
     };
   }),
 
-  /** Pedidos criados na janela, contados por status. */
-  pedidosPorStatus: (janela: Janela): Promise<ContagemPorStatus> => rede(() => {
-    const de = inicioDaJanela(janela, hoje());
+  /** Pedidos criados no período, contados por status. */
+  pedidosPorStatus: (periodo: Periodo): Promise<ContagemPorStatus> => rede(() => {
     const contagem: ContagemPorStatus = { pendente: 0, aprovado: 0, reprovado: 0, cancelado: 0 };
     for (const x of pedidosVisiveis()) {
       const criado = x.criadoEm.slice(0, 10);
-      if (criado >= de && criado <= hoje()) contagem[x.status] += 1;
+      if (criado >= periodo.de && criado <= periodo.ate) contagem[x.status] += 1;
     }
     return contagem;
   }),

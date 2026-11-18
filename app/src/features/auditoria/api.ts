@@ -46,17 +46,27 @@ const MODELOS: Record<Aba, { item: string; antes: string; depois: string }[]> = 
 };
 
 const ABAS: Aba[] = ['parametros', 'jornadas', 'excecoes', 'liberacoes', 'whatsapp'];
-const POR_ABA = 25;
+/** Quantidade de registros de cada área: diferente por área, para o panorama ter o que mostrar. */
+const POR_ABA: Record<Aba, number> = { parametros: 25, jornadas: 38, excecoes: 52, liberacoes: 31, whatsapp: 12 };
 const ACOES: Acao[] = ['Alterou', 'Alterou', 'Criou', 'Alterou', 'Excluiu'];
+/** Quem mais mexe no sistema (RH e administração): aparecem com mais frequência fora de Parâmetros. */
+const FREQUENTES = ['u-renata', 'u-carlos', 'u-karen', 'u-marcos'];
 
-/** ~25 registros por aba, espalhados pelos últimos ~30 dias, sempre os mesmos. */
+/** Registros espalhados pelos últimos ~30 dias, sempre os mesmos. */
 function gerar(aba: Aba): Registro[] {
   const modelos = MODELOS[aba];
   const base = ABAS.indexOf(aba);
-  return Array.from({ length: POR_ABA }, (_, k): Registro => {
+  const n = POR_ABA[aba];
+  // Parâmetros mantém o espaçamento original (os testes de paginação contam com ele).
+  const passo = aba === 'parametros' ? 1.3 : 30 / n;
+  const pessoaDe = (k: number) => {
+    if (aba !== 'parametros' && (k * 7 + base) % 5 < 3) return FREQUENTES[(k + base) % FREQUENTES.length];
+    return PESSOAS_DIRETORIO[(k * 5 + base * 3) % PESSOAS_DIRETORIO.length].id;
+  };
+  return Array.from({ length: n }, (_, k): Registro => {
     const m = modelos[(k + base) % modelos.length];
     const acao = ACOES[(k * 3 + base) % ACOES.length];
-    const deslocamento = -Math.floor(k * 1.3);
+    const deslocamento = -Math.floor(k * passo);
     // Hoje só registros da manhã (o relógio dos exemplos é 10:00).
     const hora = deslocamento === 0 ? 8 + (k % 2) : 8 + ((k * 7 + base) % 10);
     const minuto = (k * 11 + base * 7) % 60;
@@ -67,7 +77,7 @@ function gerar(aba: Aba): Registro[] {
       acao,
       anterior: acao === 'Criou' ? null : m.antes,
       novo: acao === 'Excluiu' ? null : m.depois,
-      pessoaId: PESSOAS_DIRETORIO[(k * 5 + base * 3) % PESSOAS_DIRETORIO.length].id,
+      pessoaId: pessoaDe(k),
       quando: quando(deslocamento, `${String(hora).padStart(2, '0')}:${String(minuto).padStart(2, '0')}`),
     };
   });
@@ -76,6 +86,10 @@ function gerar(aba: Aba): Registro[] {
 export const auditoriaApi = {
   listar(aba: Aba, filtro: FiltroRegistros): Promise<Registro[]> {
     return rede(() => filtrarRegistros(gerar(aba), filtro));
+  },
+  /** Registros de todas as áreas com os mesmos filtros (para o painel com o panorama geral). */
+  todas(filtro: FiltroRegistros): Promise<Registro[]> {
+    return rede(() => filtrarRegistros(ABAS.flatMap((a) => gerar(a)), filtro));
   },
 };
 

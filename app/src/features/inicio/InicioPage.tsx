@@ -2,6 +2,7 @@ import { useId, type ReactNode } from 'react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
+import { DateField } from '@/components/ui/date-field';
 import { KpiCard } from '@/components/ui/kpi-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -13,10 +14,12 @@ import type { Status } from '../extensoes/domain/types';
 import { usePermissoes } from '../extensoes/hooks/queries';
 import { inicioApi } from './api';
 import {
-  ehJanela, JANELAS, larguraDaBarra, mesCurto, nomeDoMes, resumirHistorico, textoDaJanela, totalDePedidos,
-  type ContagemPorStatus, type Janela, type MesDoHistorico,
+  ATALHOS, fraseDoPeriodo, larguraDaBarra, lerPeriodo, mesCurto, nomeDoMes, resumirHistorico, textoDoPeriodo, totalDePedidos,
+  type Atalho, type ContagemPorStatus, type MesDoHistorico, type Periodo,
 } from './domain';
 
+/** O texto do período sai em minúsculas ("hoje, 12/10") e aparece com a primeira letra maiúscula no cartão. */
+const PRIMEIRA_MAIUSCULA = '[&>p:last-child]:first-letter:uppercase';
 const CARTAO = 'grid min-w-0 content-start gap-4 rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-1)]';
 
 function Cartao({ titulo, periodo, acoes, children }: { titulo: string; periodo: string; acoes?: ReactNode; children: ReactNode }) {
@@ -116,23 +119,33 @@ function Historico({ meses }: { meses: MesDoHistorico[] }) {
 }
 
 // pedir ao @PhLima07: controle segmentado (o sistema de design ainda não tem).
-function SeletorDeJanela({ valor, aoMudar }: { valor: Janela; aoMudar: (j: Janela) => void }) {
+/** Período do resumo: atalhos (Hoje, Ontem, 7 dias, Este mês) ou um dia escolhido no calendário. */
+function SeletorDePeriodo({ periodo, hoje, aoMudar }: { periodo: Periodo; hoje: string; aoMudar: (mudanca: { periodo?: Atalho; dia?: string }) => void }) {
   return (
-    <div role="group" aria-label="Período do gráfico" className="inline-flex rounded-md border border-input p-0.5">
-      {JANELAS.map((j) => (
-        <button
-          key={j.valor}
-          type="button"
-          aria-pressed={j.valor === valor}
-          onClick={() => aoMudar(j.valor)}
-          className={cn(
-            'inline-flex min-h-11 items-center rounded-sm px-3 text-sm font-semibold outline-none focus-visible:ring-3 focus-visible:ring-ring md:min-h-9',
-            j.valor === valor ? 'bg-[var(--color-surface-muted)] text-foreground' : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          {j.rotulo}
-        </button>
-      ))}
+    <div role="group" aria-label="Período do resumo" className="flex flex-wrap items-end gap-2 max-md:w-full">
+      <div className="inline-flex flex-wrap rounded-md border border-input p-0.5 max-md:w-full">
+        {ATALHOS.map((a) => (
+          <button
+            key={a.valor}
+            type="button"
+            aria-pressed={periodo.tipo === a.valor}
+            onClick={() => aoMudar({ periodo: a.valor })}
+            className={cn(
+              'inline-flex min-h-11 items-center justify-center rounded-sm px-3 text-sm font-semibold whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:flex-1 max-md:px-2 md:min-h-9',
+              periodo.tipo === a.valor ? 'bg-[var(--color-surface-muted)] text-foreground' : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {a.rotulo}
+          </button>
+        ))}
+      </div>
+      <DateField
+        label="Escolher data"
+        className="w-44 max-md:w-full max-md:[&_input]:h-11"
+        max={hoje}
+        value={periodo.tipo === 'dia' ? periodo.de : ''}
+        onChange={(v) => { if (v) aoMudar({ dia: v }); }}
+      />
     </div>
   );
 }
@@ -140,23 +153,35 @@ function SeletorDeJanela({ valor, aoMudar }: { valor: Janela; aoMudar: (j: Janel
 export function InicioPage() {
   const permissoes = usePermissoes();
   const [params, setParams] = useSearchParams();
-  const bruto = params.get('periodo');
-  const janela: Janela = ehJanela(bruto) ? bruto : '7dias';
   const dia = hoje();
+  const periodo = lerPeriodo(params, dia);
+  const texto = textoDoPeriodo(periodo);
+  const chave = [periodo.de, periodo.ate];
 
-  const resumo = useQuery({ queryKey: ['inicio', 'resumo'], queryFn: inicioApi.resumo });
-  const porStatus = useQuery({ queryKey: ['inicio', 'status', janela], queryFn: () => inicioApi.pedidosPorStatus(janela) });
+  const resumo = useQuery({ queryKey: ['inicio', 'resumo', ...chave], queryFn: () => inicioApi.resumo(periodo) });
+  const porStatus = useQuery({ queryKey: ['inicio', 'status', ...chave], queryFn: () => inicioApi.pedidosPorStatus(periodo) });
   const historico = useQuery({ queryKey: ['inicio', 'historico'], queryFn: inicioApi.historico });
 
   const r = resumo.data;
   const carregando = resumo.isPending;
   const primeiroNome = permissoes.data?.usuario.nome.split(' ')[0];
-  const mes = r ? `em ${nomeDoMes(r.mes)}` : '';
-  const horas = (r?.minutosAprovadosNoMes ?? 0) / 60;
-  const periodoDaJanela = textoDaJanela(janela, dia);
+  const horas = (r?.minutosAprovados ?? 0) / 60;
+  // Presença: o número do dia, ou a média por dia útil quando o período tem vários dias.
+  const semExpediente = r !== undefined && r.presentes === null;
+  const periodoPresenca = semExpediente ? `${texto}: fim de semana, sem expediente` : r && r.diasUteis > 1 ? `média por dia útil, ${texto}` : texto;
+  const mudarPeriodo = (m: { periodo?: Atalho; dia?: string }) => {
+    const n = new URLSearchParams();
+    if (m.dia) n.set('dia', m.dia);
+    else if (m.periodo && m.periodo !== 'hoje') n.set('periodo', m.periodo);
+    setParams(n, { replace: true });
+  };
 
   return (
-    <Pagina titulo="Início" descricao={`Olá${primeiroNome ? `, ${primeiroNome}` : ''}. Este é o resumo de hoje, ${dia.slice(8, 10)}/${dia.slice(5, 7)}/${dia.slice(0, 4)}.`}>
+    <Pagina
+      titulo="Início"
+      descricao={`Olá${primeiroNome ? `, ${primeiroNome}` : ''}. Este é o resumo ${fraseDoPeriodo(periodo)}.`}
+      acoes={<SeletorDePeriodo periodo={periodo} hoje={dia} aoMudar={mudarPeriodo} />}
+    >
       {/* Enquanto carrega, o aviso já ocupa o seu lugar: o resto da tela não pula quando ele aparece. */}
       {permissoes.data?.podeAprovar && carregando && <Skeleton className="h-[4.75rem] max-md:h-[8.5rem]" />}
       {permissoes.data?.podeAprovar && r && r.pendentesParaMim > 0 && (
@@ -173,15 +198,15 @@ export function InicioPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <KpiCard label="Usuários cadastrados" value={r?.usuarios ?? 0} period="Situação atual" loading={carregando} />
-          <KpiCard label="Presentes" value={r?.presentes ?? 0} period="Agora" loading={carregando} />
-          <KpiCard label="Ausentes" value={r?.ausentes ?? 0} period="Agora" loading={carregando} />
+          <KpiCard className={PRIMEIRA_MAIUSCULA} label="Presentes" value={r?.presentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />
+          <KpiCard className={PRIMEIRA_MAIUSCULA} label="Ausentes" value={r?.ausentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />
           <KpiCard
-            className="[&>p:last-child]:first-letter:uppercase"
+            className={PRIMEIRA_MAIUSCULA}
             label="Horas de extensão aprovadas"
             value={horas}
             decimals={Number.isInteger(horas) ? 0 : 1}
             unit="h"
-            period={mes}
+            period={texto}
             loading={carregando}
           />
         </div>
@@ -190,12 +215,11 @@ export function InicioPage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Cartao
           titulo="Pedidos de extensão por status"
-          periodo={`Pedidos feitos ${periodoDaJanela}`}
-          acoes={<SeletorDeJanela valor={janela} aoMudar={(j) => setParams((p) => { const n = new URLSearchParams(p); n.set('periodo', j); return n; }, { replace: true })} />}
+          periodo={`Pedidos feitos ${texto}`}
         >
           <div className="min-h-[11.5rem]">
             <Bloco consulta={porStatus} rotulo="Carregando pedidos por status">
-              {(contagem) => <BarrasPorStatus contagem={contagem} periodo={periodoDaJanela} />}
+              {(contagem) => <BarrasPorStatus contagem={contagem} periodo={texto} />}
             </Bloco>
           </div>
           <Link to="/extensoes" className="w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">

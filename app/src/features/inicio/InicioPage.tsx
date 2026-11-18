@@ -1,10 +1,14 @@
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
+import { PencilIcon } from 'lucide-react';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router';
+import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { DateField } from '@/components/ui/date-field';
+import { EmptyState } from '@/components/ui/empty-state';
 import { KpiCard } from '@/components/ui/kpi-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 import { EstadoErro } from '../../componentes/EstadoErro';
 import { Pagina } from '../../componentes/Pagina';
@@ -13,6 +17,9 @@ import { formatarDuracao } from '../extensoes/domain/horas';
 import type { Status } from '../extensoes/domain/types';
 import { usePermissoes } from '../extensoes/hooks/queries';
 import { inicioApi } from './api';
+import { agruparParaExibir, BLOCOS_PADRAO, chaveDaPreferencia, infoDoBloco, lerIdRelatorio, sanitizarPreferencia } from './blocos';
+import { BlocoAusentes, BlocoFerias, BlocoForaDaJornada, BlocoIndicador, BlocoParados } from './BlocosNovos';
+import { PersonalizarInicio } from './PersonalizarInicio';
 import {
   ATALHOS, fraseDoPeriodo, larguraDaBarra, lerPeriodo, mesCurto, nomeDoMes, resumirHistorico, textoDoPeriodo, totalDePedidos,
   type Atalho, type ContagemPorStatus, type MesDoHistorico, type Periodo,
@@ -150,17 +157,54 @@ function SeletorDePeriodo({ periodo, hoje, aoMudar }: { periodo: Periodo; hoje: 
   );
 }
 
+/** Preferência de blocos de cada pessoa, guardada no navegador (no sistema real, vai para a API). */
+function usePreferencia(usuarioId: string | undefined, permitido: (id: string) => boolean) {
+  const chave = usuarioId ? chaveDaPreferencia(usuarioId) : null;
+  const ler = () => {
+    if (!chave) return BLOCOS_PADRAO.filter(permitido);
+    let salvo: string | null = null;
+    try {
+      salvo = window.localStorage.getItem(chave);
+    } catch {
+      salvo = null;
+    }
+    return sanitizarPreferencia(salvo, permitido);
+  };
+  const [estado, setEstado] = useState(() => ({ chave, ids: ler() }));
+  // Trocou de pessoa (ou as permissões chegaram): relê a preferência dela.
+  if (estado.chave !== chave) setEstado({ chave, ids: ler() });
+  const salvar = (ids: string[]) => {
+    if (chave) {
+      try {
+        window.localStorage.setItem(chave, JSON.stringify(ids));
+      } catch {
+        // sem localStorage (modo privado): vale só até recarregar
+      }
+    }
+    setEstado({ chave, ids });
+  };
+  return { ids: estado.ids, salvar };
+}
+
 export function InicioPage() {
   const permissoes = usePermissoes();
+  const toast = useToast();
   const [params, setParams] = useSearchParams();
+  const [personalizando, setPersonalizando] = useState(false);
   const dia = hoje();
   const periodo = lerPeriodo(params, dia);
   const texto = textoDoPeriodo(periodo);
   const chave = [periodo.de, periodo.ate];
 
-  const resumo = useQuery({ queryKey: ['inicio', 'resumo', ...chave], queryFn: () => inicioApi.resumo(periodo) });
-  const porStatus = useQuery({ queryKey: ['inicio', 'status', ...chave], queryFn: () => inicioApi.pedidosPorStatus(periodo) });
-  const historico = useQuery({ queryKey: ['inicio', 'historico'], queryFn: inicioApi.historico });
+  const podeAprovar = Boolean(permissoes.data?.podeAprovar);
+  const permitido = (id: string) => !infoDoBloco(id)?.soQuemAprova || podeAprovar;
+  const preferencia = usePreferencia(permissoes.data?.usuario.id, permitido);
+  const ids = preferencia.ids;
+  const usa = (...alvo: string[]) => alvo.some((id) => ids.includes(id));
+
+  const resumo = useQuery({ queryKey: ['inicio', 'resumo', ...chave], queryFn: () => inicioApi.resumo(periodo), enabled: usa('aviso', 'kpi-usuarios', 'kpi-presentes', 'kpi-ausentes', 'kpi-horas') });
+  const porStatus = useQuery({ queryKey: ['inicio', 'status', ...chave], queryFn: () => inicioApi.pedidosPorStatus(periodo), enabled: usa('status') });
+  const historico = useQuery({ queryKey: ['inicio', 'historico'], queryFn: inicioApi.historico, enabled: usa('historico') });
 
   const r = resumo.data;
   const carregando = resumo.isPending;
@@ -176,65 +220,121 @@ export function InicioPage() {
     setParams(n, { replace: true });
   };
 
+  const KPIS_DO_RESUMO = ['kpi-usuarios', 'kpi-presentes', 'kpi-ausentes', 'kpi-horas'];
+  const bloco = (id: string): ReactNode => {
+    switch (id) {
+      case 'aviso':
+        if (carregando) return <Skeleton key={id} className="h-[4.75rem] max-md:h-[8.5rem]" />;
+        if (!r || r.pendentesParaMim === 0) return null;
+        return (
+          <section key={id} aria-label="Para você resolver" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] p-4">
+            <p className="text-sm text-foreground">
+              <strong>{r.pendentesParaMim} {r.pendentesParaMim === 1 ? 'pedido de extensão espera' : 'pedidos de extensão esperam'}</strong> a sua aprovação.
+            </p>
+            <Link to="/extensoes/aprovar" className={cn(buttonVariants(), 'max-md:h-11 max-md:w-full')}>Ver pedidos</Link>
+          </section>
+        );
+      case 'kpi-usuarios':
+        return <KpiCard key={id} label="Usuários cadastrados" value={r?.usuarios ?? 0} period="Situação atual" loading={carregando} />;
+      case 'kpi-presentes':
+        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Presentes" value={r?.presentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
+      case 'kpi-ausentes':
+        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Ausentes" value={r?.ausentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
+      case 'kpi-horas':
+        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Horas de extensão aprovadas" value={horas} decimals={Number.isInteger(horas) ? 0 : 1} unit="h" period={texto} loading={carregando} />;
+      case 'status':
+        return (
+          <Cartao key={id} titulo="Pedidos de extensão por status" periodo={`Pedidos feitos ${texto}`}>
+            <div className="min-h-[11.5rem]">
+              <Bloco consulta={porStatus} rotulo="Carregando pedidos por status">
+                {(contagem) => <BarrasPorStatus contagem={contagem} periodo={texto} />}
+              </Bloco>
+            </div>
+            <Link to="/extensoes" className="w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">
+              Abrir extensões de jornada
+            </Link>
+          </Cartao>
+        );
+      case 'historico':
+        return (
+          <Cartao key={id} titulo="Horas de extensão aprovadas por mês" periodo="Últimos 6 meses">
+            <div className="min-h-[15.5rem]">
+              <Bloco consulta={historico} rotulo="Carregando histórico">
+                {(meses) => <Historico meses={meses} />}
+              </Bloco>
+            </div>
+          </Cartao>
+        );
+      case 'ausentes':
+        return <Cartao key={id} titulo="Quem mais esteve ausente" periodo={texto}><BlocoAusentes periodo={periodo} /></Cartao>;
+      case 'parados':
+        return <Cartao key={id} titulo="Pedidos parados" periodo="Esperando a sua decisão, os mais antigos primeiro"><BlocoParados /></Cartao>;
+      case 'fora-jornada':
+        return <Cartao key={id} titulo="Acessos fora da jornada" periodo={texto}><BlocoForaDaJornada periodo={periodo} /></Cartao>;
+      case 'ferias':
+        return <Cartao key={id} titulo="Próximas férias" periodo="Nos próximos 30 dias"><BlocoFerias /></Cartao>;
+      default: {
+        const rel = lerIdRelatorio(id);
+        return rel ? <BlocoIndicador key={id} slug={rel.slug} indice={rel.indice} periodo={periodo} /> : null;
+      }
+    }
+  };
+
+  const grupos = agruparParaExibir(ids);
+
   return (
     <Pagina
       titulo="Início"
       descricao={`Olá${primeiroNome ? `, ${primeiroNome}` : ''}. Este é o resumo ${fraseDoPeriodo(periodo)}.`}
-      acoes={<SeletorDePeriodo periodo={periodo} hoje={dia} aoMudar={mudarPeriodo} />}
-    >
-      {/* Enquanto carrega, o aviso já ocupa o seu lugar: o resto da tela não pula quando ele aparece. */}
-      {permissoes.data?.podeAprovar && carregando && <Skeleton className="h-[4.75rem] max-md:h-[8.5rem]" />}
-      {permissoes.data?.podeAprovar && r && r.pendentesParaMim > 0 && (
-        <section aria-label="Para você resolver" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] p-4">
-          <p className="text-sm text-foreground">
-            <strong>{r.pendentesParaMim} {r.pendentesParaMim === 1 ? 'pedido de extensão espera' : 'pedidos de extensão esperam'}</strong> a sua aprovação.
-          </p>
-          <Link to="/extensoes/aprovar" className={cn(buttonVariants(), 'max-md:h-11 max-md:w-full')}>Ver pedidos</Link>
-        </section>
-      )}
-
-      {resumo.isError ? (
-        <EstadoErro erro={resumo.error} aoTentar={() => void resumo.refetch()} />
-      ) : (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <KpiCard label="Usuários cadastrados" value={r?.usuarios ?? 0} period="Situação atual" loading={carregando} />
-          <KpiCard className={PRIMEIRA_MAIUSCULA} label="Presentes" value={r?.presentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />
-          <KpiCard className={PRIMEIRA_MAIUSCULA} label="Ausentes" value={r?.ausentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />
-          <KpiCard
-            className={PRIMEIRA_MAIUSCULA}
-            label="Horas de extensão aprovadas"
-            value={horas}
-            decimals={Number.isInteger(horas) ? 0 : 1}
-            unit="h"
-            period={texto}
-            loading={carregando}
-          />
+      acoes={(
+        <div className="flex flex-wrap items-end gap-2 max-md:w-full">
+          <SeletorDePeriodo periodo={periodo} hoje={dia} aoMudar={mudarPeriodo} />
+          <Button variant="secondary" size="icon" className="max-md:h-11 max-md:w-full" aria-label="Personalizar início" title="Personalizar início" onClick={() => setPersonalizando(true)}>
+            <PencilIcon aria-hidden="true" />
+          </Button>
         </div>
       )}
+    >
+      {ids.length === 0 && (
+        <EmptyState
+          title="Seu início está vazio"
+          description="Escolha os blocos que você quer ver aqui: indicadores, gráficos e qualquer número dos relatórios."
+          action={<Button className="max-md:h-11" onClick={() => setPersonalizando(true)}><PencilIcon aria-hidden="true" />Escolher blocos</Button>}
+        />
+      )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Cartao
-          titulo="Pedidos de extensão por status"
-          periodo={`Pedidos feitos ${texto}`}
-        >
-          <div className="min-h-[11.5rem]">
-            <Bloco consulta={porStatus} rotulo="Carregando pedidos por status">
-              {(contagem) => <BarrasPorStatus contagem={contagem} periodo={texto} />}
-            </Bloco>
-          </div>
-          <Link to="/extensoes" className="w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">
-            Abrir extensões de jornada
-          </Link>
-        </Cartao>
+      {grupos.map((g, i) => {
+        const chaveGrupo = `${g.tipo}-${i}-${g.ids.join(',')}`;
+        if (g.tipo === 'aviso') return <div key={chaveGrupo}>{g.ids.map(bloco)}</div>;
+        if (g.tipo === 'kpi') {
+          // Se o resumo falhou, um aviso só no lugar dos indicadores que dependem dele.
+          if (resumo.isError && g.ids.some((id) => KPIS_DO_RESUMO.includes(id))) {
+            return (
+              <div key={chaveGrupo} className="grid gap-4">
+                <EstadoErro erro={resumo.error} aoTentar={() => void resumo.refetch()} />
+                {g.ids.some((id) => !KPIS_DO_RESUMO.includes(id)) && (
+                  <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{g.ids.filter((id) => !KPIS_DO_RESUMO.includes(id)).map(bloco)}</div>
+                )}
+              </div>
+            );
+          }
+          return <div key={chaveGrupo} className="grid grid-cols-2 gap-4 lg:grid-cols-4">{g.ids.map(bloco)}</div>;
+        }
+        return <div key={chaveGrupo} className="grid gap-4 lg:grid-cols-2">{g.ids.map(bloco)}</div>;
+      })}
 
-        <Cartao titulo="Horas de extensão aprovadas por mês" periodo="Últimos 6 meses">
-          <div className="min-h-[15.5rem]">
-            <Bloco consulta={historico} rotulo="Carregando histórico">
-              {(meses) => <Historico meses={meses} />}
-            </Bloco>
-          </div>
-        </Cartao>
-      </div>
+      {personalizando && (
+        <PersonalizarInicio
+          atuais={ids}
+          permitido={permitido}
+          aoFechar={() => setPersonalizando(false)}
+          aoSalvar={(novos) => {
+            preferencia.salvar(novos);
+            setPersonalizando(false);
+            toast.success('Início personalizado.');
+          }}
+        />
+      )}
     </Pagina>
   );
 }

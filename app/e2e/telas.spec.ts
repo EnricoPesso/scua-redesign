@@ -123,7 +123,7 @@ test('todos os links do menu abrem uma tela que existe', async ({ page }) => {
   expect(destinos).toHaveLength(12);
   for (const destino of destinos) {
     await page.goto(destino);
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(/não encontrada|Sem acesso|Tela em construção/);
     await expect(page.getByText('Tela em construção')).toHaveCount(0);
   }

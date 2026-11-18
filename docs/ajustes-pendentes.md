@@ -40,7 +40,7 @@ Os números entre parênteses são os itens do bloco de notas.
 - [x] **8. Auditoria: painel com o panorama geral** (14)
   - Indicadores e gráficos **antes** das tabelas (ex.: alterações no período, por tipo de ação, quem mais alterou, área mais alterada, alterações por dia). As abas e tabelas atuais continuam abaixo.
 
-- [ ] **9. Início personalizável** (16)
+- [x] **9. Início personalizável** (16)
   - Ícone de caneta no Início para a pessoa escolher quais blocos aparecem no painel dela (e a ordem). Preferência guardada por pessoa.
   - Por último porque depende das etapas 6, 7 e 8.
 

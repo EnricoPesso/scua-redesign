@@ -89,11 +89,23 @@ export function telasPara(p: Permissoes): TelaBuscavel[] {
 
 const semAcento = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-/** Busca por título (prioridade), local e resumo, ignorando acentos e maiúsculas. */
+/**
+ * Busca ignorando acentos e maiúsculas. Ordem: título com uma palavra que começa pelo termo
+ * ("ip" acha "Último IP" antes de "Tipos de jornada"), depois título que contém, depois local e resumo.
+ */
 export function buscarTelas(telas: TelaBuscavel[], termo: string): TelaBuscavel[] {
   const t = semAcento(termo.trim());
   if (!t) return telas;
-  const noTitulo = telas.filter((x) => semAcento(x.titulo).includes(t));
-  const noResto = telas.filter((x) => !noTitulo.includes(x) && semAcento(`${x.onde} ${x.resumo ?? ''}`).includes(t));
-  return [...noTitulo, ...noResto];
+  const nota = (x: TelaBuscavel): number => {
+    const titulo = semAcento(x.titulo);
+    if (titulo.split(/\s+/).some((palavra) => palavra.startsWith(t)) || titulo.startsWith(t)) return 0;
+    if (titulo.includes(t)) return 1;
+    if (semAcento(`${x.onde} ${x.resumo ?? ''}`).includes(t)) return 2;
+    return 3;
+  };
+  return telas
+    .map((x, i) => ({ x, i, n: nota(x) }))
+    .filter((r) => r.n < 3)
+    .sort((a, b) => a.n - b.n || a.i - b.i)
+    .map((r) => r.x);
 }

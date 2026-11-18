@@ -116,6 +116,8 @@ test('o botão "Modo escuro" alterna o tema e a escolha vale depois de recarrega
 });
 
 test('todos os links do menu abrem uma tela que existe', async ({ page }) => {
+  // Abre as 12 telas em sequência: o limite padrão de 30 s é por teste, não por tela.
+  test.setTimeout(180_000);
   await page.goto('/inicio');
   const menu = page.getByRole('navigation', { name: 'Menu principal' }).first();
   await expect(menu.getByRole('link', { name: 'Sobre' })).toBeVisible();

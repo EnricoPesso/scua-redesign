@@ -5,6 +5,8 @@ const PORTA = 5190;
 // Ponta a ponta contra a API simulada (MSW no navegador). O estado do mock zera a cada carregamento
 // de página, então cada teste começa limpo.
 export default defineConfig({
+  // Os testes esperam até 30 s pela primeira carga de uma tela; o teste inteiro precisa de folga acima disso.
+  timeout: 60_000,
   testDir: './e2e',
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,

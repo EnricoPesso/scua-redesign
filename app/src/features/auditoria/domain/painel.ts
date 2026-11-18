@@ -15,14 +15,19 @@ export interface ResumoAuditoria {
   quemMaisAlterou: { pessoaId: string; nome: string; total: number }[];
   /** Um valor para cada dia do período (zero nos dias sem alteração). */
   porDia: { dia: string; total: number }[];
+  /** O período passou de MAX_DIAS e o gráfico mostra só os últimos dias. */
+  diasCortados: boolean;
 }
 
 const dois = (n: number) => String(n).padStart(2, '0');
-function proximoDia(dia: string): string {
+function somarDias(dia: string, n: number): string {
   const d = new Date(`${dia}T12:00:00`);
-  d.setDate(d.getDate() + 1);
+  d.setDate(d.getDate() + n);
   return `${d.getFullYear()}-${dois(d.getMonth() + 1)}-${dois(d.getDate())}`;
 }
+
+/** Máximo de colunas no gráfico por dia (~um trimestre). */
+export const MAX_DIAS = 92;
 
 /** Panorama das alterações já filtradas (de todas as áreas). Sem período, vai do primeiro ao último registro. */
 export function resumirAuditoria(registros: Registro[], de: string, ate: string): ResumoAuditoria {
@@ -42,11 +47,14 @@ export function resumirAuditoria(registros: Registro[], de: string, ate: string)
   const inicio = de || dias[0];
   const fim = ate || dias.at(-1);
   const porDia: { dia: string; total: number }[] = [];
+  let diasCortados = false;
   if (inicio && fim) {
     const contagem = new Map<string, number>();
     for (const d of dias) contagem.set(d, (contagem.get(d) ?? 0) + 1);
-    // Limite de segurança: no máximo ~um trimestre de colunas.
-    for (let d = inicio, n = 0; d <= fim && n < 92; d = proximoDia(d), n++) porDia.push({ dia: d, total: contagem.get(d) ?? 0 });
+    // Período longo: mostra os últimos MAX_DIAS dias (os mais recentes), não os primeiros.
+    const primeiroMostrado = somarDias(fim, -(MAX_DIAS - 1));
+    diasCortados = primeiroMostrado > inicio;
+    for (let d = diasCortados ? primeiroMostrado : inicio; d <= fim; d = somarDias(d, 1)) porDia.push({ dia: d, total: contagem.get(d) ?? 0 });
   }
 
   return {
@@ -59,5 +67,6 @@ export function resumirAuditoria(registros: Registro[], de: string, ate: string)
     areaMaisAlterada: maior && maior.total > 0 ? maior.rotulo : null,
     quemMaisAlterou,
     porDia,
+    diasCortados,
   };
 }

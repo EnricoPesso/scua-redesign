@@ -192,7 +192,7 @@ describe('Auditoria: painel com o panorama geral', () => {
   it('clicar numa área abre a aba dela', async () => {
     const { user } = renderApp('/auditoria');
     const painel = await screen.findByRole('region', { name: 'Panorama geral' }, { timeout: 20_000 });
-    await user.click(await within(painel).findByRole('button', { name: /^WhatsApp, \d+ alterações?$/ }));
+    await user.click(await within(painel).findByRole('button', { name: /^WhatsApp \d+ alterações?$/ }));
     await waitFor(() => expect(local()).toContain('/auditoria/whatsapp'));
   });
 

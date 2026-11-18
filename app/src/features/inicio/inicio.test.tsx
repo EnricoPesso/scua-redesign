@@ -95,7 +95,7 @@ describe('painel inicial: tela', () => {
     expect(within(lista).getByText('Pendentes').closest('li')).toHaveTextContent('5');
     // Ana tem 6h aprovadas de 06 a 08/10 (p-5): o mesmo número que a tela de Extensões mostra.
     const horas = await kpi('Horas de extensão aprovadas');
-    await waitFor(() => expect(horas).toHaveTextContent('6'));
+    await waitFor(() => expect(within(horas).getByText('6')).toBeInTheDocument());
     expect(horas).toHaveTextContent('de 06/10 a 12/10');
     expect(await kpi('Presentes')).toHaveTextContent(/média por dia útil/);
   });
@@ -110,7 +110,7 @@ describe('painel inicial: tela', () => {
     expect(within(screen.getByRole('group', { name: 'Período do resumo' })).getByRole('button', { name: 'Hoje' })).toHaveAttribute('aria-pressed', 'false');
     // 07/10 é um dos três dias do pedido aprovado da Ana (2h por dia).
     const horas = await kpi('Horas de extensão aprovadas');
-    await waitFor(() => expect(horas).toHaveTextContent('2'));
+    await waitFor(() => expect(within(horas).getByText('2')).toBeInTheDocument());
     expect(horas).toHaveTextContent('em 07/10/2026');
   });
 

@@ -52,6 +52,33 @@ describe('Início personalizável', () => {
     expect(cartao('Horas de extensão aprovadas por mês')).not.toBeInTheDocument();
   });
 
+  it('pelo teclado, o foco não se perde ao ligar, desligar, mover e adicionar', async () => {
+    const { user } = await abrirInicio();
+    const p = await abrirPersonalizar(user);
+    const status = p.getByRole('status');
+    // Desligar: o foco vai para o bloco seguinte da lista.
+    await user.click(p.getByRole('checkbox', { name: 'Presentes' }));
+    expect(document.activeElement).toBe(p.getByRole('checkbox', { name: 'Ausentes' }));
+    expect(status).toHaveTextContent('Presentes saiu do seu início.');
+    // Ligar um dos outros blocos: o foco vai para o próximo da lista "Outros blocos".
+    await user.click(p.getByRole('checkbox', { name: 'Pedidos parados' }));
+    expect(document.activeElement).toBe(p.getByRole('checkbox', { name: 'Acessos fora da jornada' }));
+    expect(status).toHaveTextContent('Pedidos parados entrou no fim do seu início.');
+    // Descer: o foco fica no mesmo botão; ao chegar no fim, passa para "Subir".
+    await user.click(p.getByRole('button', { name: 'Descer Horas de extensão por mês' }));
+    expect(document.activeElement).toBe(p.getByRole('button', { name: 'Subir Horas de extensão por mês' }));
+    expect(status).toHaveTextContent('Horas de extensão por mês está na posição 7 de 7.');
+    await user.click(p.getByRole('button', { name: 'Subir Usuários cadastrados' }));
+    expect(document.activeElement).toBe(p.getByRole('button', { name: 'Descer Usuários cadastrados' }));
+    // Adicionar indicador: o foco vai para o item novo.
+    await user.click(await p.findByRole('combobox', { name: 'Relatório' }));
+    await user.click(await screen.findByRole('option', { name: 'Tempo de bloqueio' }));
+    await user.click(await p.findByRole('combobox', { name: 'Indicador' }));
+    await user.click(await screen.findByRole('option', { name: 'Bloqueios liberados' }));
+    await user.click(p.getByRole('button', { name: 'Adicionar indicador' }));
+    expect(document.activeElement).toBe(p.getByRole('checkbox', { name: 'Tempo de bloqueio: Bloqueios liberados' }));
+  });
+
   it('"Restaurar padrão" volta ao painel original', async () => {
     window.localStorage.setItem('scua.inicio.u-carlos', JSON.stringify(['parados']));
     const { user } = await abrirInicio();
@@ -75,7 +102,10 @@ describe('Início personalizável', () => {
     await user.click(p.getByRole('button', { name: 'Salvar' }));
     const kpi = await screen.findByRole('group', { name: 'Bloqueios liberados' }, { timeout: 15_000 });
     await waitFor(() => expect(kpi).not.toHaveAttribute('aria-busy'));
-    expect(kpi).toHaveTextContent(/\d/);
+    // Mesmo número que o relatório "Tempo de bloqueio" mostra para hoje.
+    const { inicioApi } = await import('./api');
+    const esperado = await inicioApi.indicadorDeRelatorio('tempo-de-bloqueio', 0, { de: '2026-10-12', ate: '2026-10-12', tipo: 'hoje' });
+    expect(within(kpi).getByText(String(esperado?.valor))).toBeInTheDocument();
     expect(kpi).toHaveTextContent(/hoje, 12\/10/i);
   });
 

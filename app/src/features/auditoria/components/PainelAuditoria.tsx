@@ -3,7 +3,7 @@ import { KpiCard } from '@/components/ui/kpi-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { Aba } from '../domain/auditoria';
-import type { ResumoAuditoria } from '../domain/painel';
+import { MAX_DIAS, type ResumoAuditoria } from '../domain/painel';
 
 const CARTAO = 'grid min-w-0 content-start gap-4 rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-1)]';
 const ddmm = (dia: string) => `${dia.slice(8, 10)}/${dia.slice(5, 7)}`;
@@ -31,11 +31,12 @@ function Barras({ rotulo, itens }: { rotulo: string; itens: { chave: string; nom
       {itens.map((i) => {
         const conteudo = (
           <>
-            <span className="truncate text-left text-foreground">{i.nome}</span>
+            <span className="truncate text-left text-foreground">{i.nome}</span>{' '}
             <span aria-hidden="true" className="h-3 rounded-sm bg-[var(--color-neutral-bg)]">
               <span className="block h-full rounded-sm bg-[var(--color-brand)]" style={{ width: `${largura(i.total, maior)}%` }} />
             </span>
-            <span className="text-right font-semibold tabular-nums text-foreground">{i.total}</span>
+            {/* Nome lido = texto visível + unidade ("Parâmetros 25 alterações"), sem aria-label que divirja do que se vê. */}
+            <span className="text-right font-semibold tabular-nums text-foreground">{i.total}{' '}<span className="sr-only">{i.total === 1 ? 'alteração' : 'alterações'}</span></span>
           </>
         );
         return (
@@ -43,7 +44,6 @@ function Barras({ rotulo, itens }: { rotulo: string; itens: { chave: string; nom
             {i.aoClicar ? (
               <button
                 type="button"
-                aria-label={`${i.nome}, ${plural(i.total)}`}
                 onClick={i.aoClicar}
                 className={cn(grade, 'min-h-11 w-full rounded-md px-1 outline-none hover:bg-[var(--color-row-hover)] focus-visible:ring-3 focus-visible:ring-ring md:min-h-9')}
               >
@@ -60,15 +60,16 @@ function Barras({ rotulo, itens }: { rotulo: string; itens: { chave: string; nom
 }
 
 /** Colunas por dia. Cada coluna tem o texto completo para leitor de tela e na dica; o eixo mostra só algumas datas. */
-function PorDia({ dias }: { dias: ResumoAuditoria['porDia'] }) {
+function PorDia({ dias, cortado }: { dias: ResumoAuditoria['porDia']; cortado: boolean }) {
   const maior = Math.max(0, ...dias.map((d) => d.total));
   if (maior === 0) {
-    return <p className="rounded-md border border-dashed border-input px-4 py-8 text-center text-sm text-muted-foreground">Nenhuma alteração nesse período.</p>;
+    return <p className="rounded-md border border-dashed border-input px-4 py-8 text-center text-sm text-muted-foreground">{cortado ? `Nenhuma alteração nos últimos ${MAX_DIAS} dias do período.` : 'Nenhuma alteração nesse período.'}</p>;
   }
   const passo = Math.max(1, Math.ceil(dias.length / 6));
   return (
     <div className="grid gap-2">
       <p className="text-sm text-muted-foreground">Dia com mais alterações: <strong className="text-foreground">{plural(maior)}</strong></p>
+      {cortado && <p className="text-xs text-muted-foreground">Período longo: mostrando os últimos {MAX_DIAS} dias.</p>}
       <ol aria-label="Alterações por dia" className="grid h-36 grid-flow-col auto-cols-fr items-end gap-0.5 border-b border-[var(--color-line)]">
         {dias.map((d) => (
           <li key={d.dia} title={`${ddmm(d.dia)}: ${plural(d.total)}`} className="flex h-full flex-col justify-end">
@@ -108,7 +109,7 @@ export function PainelAuditoria({ resumo, carregando, periodo, aoAbrirArea }: {
       ) : (
         <div className="grid gap-4 lg:grid-cols-3">
           <Cartao titulo="Alterações por dia">
-            <PorDia dias={r.porDia} />
+            <PorDia dias={r.porDia} cortado={r.diasCortados} />
           </Cartao>
           <Cartao titulo="Por área">
             {r.areaMaisAlterada && <p className="text-sm text-muted-foreground">Mais alterada: <strong className="text-foreground">{r.areaMaisAlterada}</strong>. Clique numa área para ver a lista.</p>}

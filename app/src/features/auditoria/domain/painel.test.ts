@@ -36,6 +36,15 @@ describe('painel da auditoria', () => {
 
   it('sem período definido, usa do primeiro ao último registro; sem registros, tudo zerado', () => {
     expect(resumirAuditoria(registros, '', '').porDia).toHaveLength(3);
+  });
+
+  it('período maior que 92 dias: mostra os últimos 92 dias (onde estão as alterações) e avisa o corte', () => {
+    const p = resumirAuditoria(registros, '2026-01-01', '2026-10-12');
+    expect(p.porDia).toHaveLength(92);
+    expect(p.porDia.at(-1)).toEqual({ dia: '2026-10-12', total: 2 });
+    expect(p.porDia.reduce((s, d) => s + d.total, 0)).toBe(4);
+    expect(p.diasCortados).toBe(true);
+    expect(resumirAuditoria(registros, '2026-10-10', '2026-10-12').diasCortados).toBe(false);
     const vazio = resumirAuditoria([], '', '');
     expect(vazio).toMatchObject({ total: 0, pessoas: 0, areaMaisAlterada: null, porDia: [], quemMaisAlterou: [] });
   });

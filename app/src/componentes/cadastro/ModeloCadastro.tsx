@@ -241,13 +241,14 @@ function CartoesCadastro<T extends ComId>({ config, itens, carregando, busca, ao
       <ul aria-label={config.titulo} className="grid gap-3">
         {mostrados.map((item) => (
           <li key={item.id} className="grid gap-3 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-1)]">
-            <p className="text-base font-semibold break-words text-foreground">{valor(item, principal)}</p>
+            {/* As colunas podem trazer larguras mínimas pensadas para a tabela: no cartão, tudo se ajusta à largura. */}
+            <p className="min-w-0 text-base font-semibold break-words text-foreground [&_*]:min-w-0! [&_*]:max-w-full! [&_*]:whitespace-normal!">{valor(item, principal)}</p>
             {demais.length > 0 && (
               <dl className="grid gap-1.5 text-sm">
                 {demais.map((c) => (
                   <div key={c.key} className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-2">
                     <dt className="text-muted-foreground">{c.header}</dt>
-                    <dd className="min-w-0 break-words text-foreground">{valor(item, c)}</dd>
+                    <dd className="min-w-0 break-words text-foreground [&_*]:min-w-0! [&_*]:max-w-full! [&_*]:whitespace-normal!">{valor(item, c)}</dd>
                   </div>
                 ))}
               </dl>

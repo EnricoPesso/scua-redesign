@@ -2,11 +2,13 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import { defineConfig } from 'vitest/config'
+import { assistentePlugin } from './src/features/assistente/servidor/plugin.ts'
 
 // O sistema de design fica em ../design-system (fora de app/).
 // Os componentes dele importam "@/lib/utils", então "@" aponta para lá.
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  // assistentePlugin: intermediário do assistente de IA (só no servidor de desenvolvimento; lê SCUA_IA_* do .env.local).
+  plugins: [react(), tailwindcss(), assistentePlugin()],
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(import.meta.dirname, '../design-system/src') },

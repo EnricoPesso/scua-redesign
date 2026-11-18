@@ -1,5 +1,5 @@
-import type { Acao, Mensagem, NomeFerramenta, Provedor } from '../contrato';
-import { FERRAMENTAS } from '../ferramentas';
+import type { Acao, Mensagem, NomeFerramenta, Provedor } from '../contrato.ts';
+import { FERRAMENTAS } from '../ferramentas.ts';
 
 /**
  * Tradução do pedido do assistente para a API de cada provedor, e da resposta de volta.

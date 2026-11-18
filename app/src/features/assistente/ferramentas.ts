@@ -1,4 +1,4 @@
-import type { NomeFerramenta } from './contrato';
+import type { NomeFerramenta } from './contrato.ts';
 
 /** As ações que o robô pode pedir. Os parâmetros são JSON Schema, aceito pelos três provedores. */
 export const FERRAMENTAS: Record<NomeFerramenta, { descricao: string; parametros: Record<string, unknown> }> = {

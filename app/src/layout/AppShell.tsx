@@ -70,12 +70,15 @@ const MenuCarregando = () => (
   </div>
 );
 
+// Usa <main> para a página ter uma região principal também enquanto a tela carrega.
 const TelaCarregando = () => (
-  <div role="status" aria-label="Carregando tela" className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-8 sm:px-6">
-    <Skeleton className="h-8 w-64" />
-    <Skeleton className="h-24" />
-    <Skeleton className="h-64" />
-  </div>
+  <main aria-busy="true" className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-8 sm:px-6">
+    <div role="status" aria-label="Carregando tela" className="grid gap-4">
+      <Skeleton className="h-8 w-64" />
+      <Skeleton className="h-24" />
+      <Skeleton className="h-64" />
+    </div>
+  </main>
 );
 
 /** Casca do app: menu lateral (recolhível no desktop, gaveta no celular e no tablet), cabeçalho e a tela atual. */

@@ -156,7 +156,9 @@ export function InicioPage() {
   const periodoDaJanela = textoDaJanela(janela, dia);
 
   return (
-    <Pagina titulo="Início" descricao={primeiroNome ? `Olá, ${primeiroNome}. Este é o resumo de hoje, ${dia.slice(8, 10)}/${dia.slice(5, 7)}/${dia.slice(0, 4)}.` : undefined}>
+    <Pagina titulo="Início" descricao={`Olá${primeiroNome ? `, ${primeiroNome}` : ''}. Este é o resumo de hoje, ${dia.slice(8, 10)}/${dia.slice(5, 7)}/${dia.slice(0, 4)}.`}>
+      {/* Enquanto carrega, o aviso já ocupa o seu lugar: o resto da tela não pula quando ele aparece. */}
+      {permissoes.data?.podeAprovar && carregando && <Skeleton className="h-[4.75rem] max-md:h-[8.5rem]" />}
       {permissoes.data?.podeAprovar && r && r.pendentesParaMim > 0 && (
         <section aria-label="Para você resolver" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] p-4">
           <p className="text-sm text-foreground">
@@ -191,18 +193,22 @@ export function InicioPage() {
           periodo={`Pedidos feitos ${periodoDaJanela}`}
           acoes={<SeletorDeJanela valor={janela} aoMudar={(j) => setParams((p) => { const n = new URLSearchParams(p); n.set('periodo', j); return n; }, { replace: true })} />}
         >
-          <Bloco consulta={porStatus} rotulo="Carregando pedidos por status">
-            {(contagem) => <BarrasPorStatus contagem={contagem} periodo={periodoDaJanela} />}
-          </Bloco>
+          <div className="min-h-[11.5rem]">
+            <Bloco consulta={porStatus} rotulo="Carregando pedidos por status">
+              {(contagem) => <BarrasPorStatus contagem={contagem} periodo={periodoDaJanela} />}
+            </Bloco>
+          </div>
           <Link to="/extensoes" className="w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">
             Abrir extensões de jornada
           </Link>
         </Cartao>
 
         <Cartao titulo="Horas de extensão aprovadas por mês" periodo="Últimos 6 meses">
-          <Bloco consulta={historico} rotulo="Carregando histórico">
-            {(meses) => <Historico meses={meses} />}
-          </Bloco>
+          <div className="min-h-[15.5rem]">
+            <Bloco consulta={historico} rotulo="Carregando histórico">
+              {(meses) => <Historico meses={meses} />}
+            </Bloco>
+          </div>
         </Cartao>
       </div>
     </Pagina>

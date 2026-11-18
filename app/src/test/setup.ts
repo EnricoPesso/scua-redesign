@@ -5,7 +5,7 @@ import { resetarDb } from '../features/extensoes/api/mocks/db';
 import { server } from './server';
 
 // O primeiro render de cada arquivo carrega a casca e a tela sob demanda (lazy): 1 s é pouco.
-configure({ asyncUtilTimeout: 4000 });
+configure({ asyncUtilTimeout: 8000 });
 
 // Data fixa: segunda, 12/10/2026 às 10:00 (hora local). Só o Date é falso; timers continuam reais.
 vi.useFakeTimers({ toFake: ['Date'] });

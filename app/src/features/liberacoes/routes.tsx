@@ -1,5 +1,6 @@
-import { EmConstrucao } from '../../componentes/EmConstrucao';
+import { ModeloCadastro } from '../../componentes/cadastro/ModeloCadastro';
+import { configLiberacoes } from './config';
 
 export default function Rotas() {
-  return <EmConstrucao titulo="Liberações por diretoria" />;
+  return <ModeloCadastro config={configLiberacoes} />;
 }

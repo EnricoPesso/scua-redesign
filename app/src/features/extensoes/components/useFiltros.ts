@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 import { hojeLocal, periodoDoMes } from '../domain/formatacao';
 import type { Aba, Filtros, FiltrosSemPagina, Status } from '../domain/types';
@@ -44,18 +44,24 @@ export function useFiltros(aba: Aba) {
   };
   const ativos = CHAVES_FILTRO.filter((c) => params.has(c)).length;
 
+  // Guarda os parâmetros mais recentes fora do render: duas mudanças seguidas (antes de a tela
+  // redesenhar) partem sempre do valor já atualizado, e uma não desfaz a outra.
+  const recentes = useRef(params);
+  useEffect(() => {
+    recentes.current = params;
+  }, [params]);
+
   const atualizar = useCallback((mudancas: Partial<Record<ChaveFiltro, string>>) => {
-    setParams((atual) => {
-      const novo = new URLSearchParams(atual);
-      for (const [chave, valor] of Object.entries(mudancas)) {
-        if (valor === undefined) continue;
-        // "De"/"Até" vazios são escolha do usuário (sem limite), então ficam na URL.
-        if (valor === '' && chave !== 'de' && chave !== 'ate') novo.delete(chave);
-        else novo.set(chave, valor);
-      }
-      if (!('pagina' in mudancas)) novo.delete('pagina');
-      return novo;
-    }, { replace: true });
+    const novo = new URLSearchParams(recentes.current);
+    for (const [chave, valor] of Object.entries(mudancas)) {
+      if (valor === undefined) continue;
+      // "De"/"Até" vazios são escolha do usuário (sem limite), então ficam na URL.
+      if (valor === '' && chave !== 'de' && chave !== 'ate') novo.delete(chave);
+      else novo.set(chave, valor);
+    }
+    if (!('pagina' in mudancas)) novo.delete('pagina');
+    recentes.current = novo;
+    setParams(novo, { replace: true });
   }, [setParams]);
 
   const limpar = useCallback(() => setParams(new URLSearchParams(), { replace: true }), [setParams]);

@@ -1,5 +1,6 @@
-import { EmConstrucao } from '../../componentes/EmConstrucao';
+import { ModeloCadastro } from '../../componentes/cadastro/ModeloCadastro';
+import { configPausas } from './config';
 
 export default function Rotas() {
-  return <EmConstrucao titulo="Pausas" />;
+  return <ModeloCadastro config={configPausas} />;
 }

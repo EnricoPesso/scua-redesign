@@ -155,23 +155,25 @@ test('7: pedido decidido em outro canal mostra o conflito e os botões desativad
 });
 
 test('8: os contadores mudam com o período e o rótulo mostra o período', async ({ page }) => {
-  await page.goto('/extensoes/todos?como=renata');
+  // Os dados de exemplo acompanham a data de hoje: um período amplo tem pedidos, janeiro de 2020 não tem.
+  await page.goto(`/extensoes/todos?como=renata&de=${diaDaqui(-60)}&ate=${diaDaqui(30)}`);
   const pendentes = page.getByRole('group').filter({ hasText: 'Em aprovação' });
-  await expect(pendentes).toContainText(/no mês/i);
-  await expect(pendentes).toContainText('0');
-  await page.getByLabel('De', { exact: true }).fill('2026-10-01');
-  await page.getByLabel('Até', { exact: true }).fill('2026-10-31');
-  await expect(pendentes).toContainText(/em outubro\/2026/i);
-  await expect(pendentes).not.toContainText(/^Em aprovação0/);
-  await expect(pendentes.locator('p').nth(1)).not.toHaveText('0');
+  await expect(pendentes).toContainText(new RegExp(`de ${ddmm(diaDaqui(-60))} a ${ddmm(diaDaqui(30))}`, 'i'));
+  await expect(pendentes.locator('p').nth(1)).toHaveText(/^66?$/); // o número aparece duas vezes: animado e para leitor de tela
+  await page.getByLabel('De', { exact: true }).fill('2020-01-01');
+  await expect(page).toHaveURL(/de=2020-01-01/);
+  await page.getByLabel('Até', { exact: true }).fill('2020-01-31');
+  await expect(pendentes).toContainText(/em janeiro\/2020/i);
+  await expect(pendentes.locator('p').nth(1)).toHaveText(/^00?$/);
 });
 
 test('9: cada aba vazia tem sua mensagem e filtro sem resultado oferece "Limpar filtros"', async ({ page }) => {
-  await page.goto('/extensoes/meus?como=joao');
+  // Olga é gestora e nunca pediu extensão para ela mesma.
+  await page.goto('/extensoes/meus?como=olga');
   await expect(page.getByText('Você ainda não pediu nenhuma extensão.')).toBeVisible();
 
-  await page.goto('/extensoes/todos?como=renata');
-  await expect(page.getByText('Nenhum pedido no mês.')).toBeVisible();
+  await page.goto('/extensoes/todos?como=renata&de=2020-01-01&ate=2020-01-31');
+  await expect(page.getByText('Nenhum pedido em janeiro/2020 com esses filtros.')).toBeVisible();
 
   await page.goto('/extensoes/aprovar?como=olga');
   await expect(page.getByRole('link', { name: 'Xavier Pinto' })).toBeVisible();

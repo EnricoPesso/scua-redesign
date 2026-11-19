@@ -26,6 +26,8 @@ export interface AlvoFormulario {
   /** 'jornada' ou 'cadastro:<chave>'. */
   id: string;
   titulo: string;
+  /** O formulário altera um registro que já existe (não é de criação). */
+  editando?: boolean;
   campos: CampoAlvo[];
   valores: Record<string, unknown>;
 }

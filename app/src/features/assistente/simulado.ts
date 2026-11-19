@@ -173,16 +173,19 @@ function melhorPorTitulo<T extends { titulo: string }>(itens: T[], texto: string
 }
 
 /**
- * Qual cadastro a pessoa quer criar: o que tem a palavra principal do título citada primeiro no pedido.
- * "cria uma jornada … tipo Comercial" é uma Jornada de trabalho, não um Tipo de jornada.
+ * Qual cadastro a pessoa quer criar: o que tem uma palavra do título citada primeiro no pedido.
+ * No empate, ganha aquele em que a palavra citada é a principal (a primeira) do título:
+ * "cria uma jornada … tipo Comercial" é uma Jornada de trabalho, não um Tipo de jornada;
+ * "cria uma pausa" é um Perfil de pausas.
  */
 function formularioPedido<T extends { titulo: string }>(itens: T[], texto: string): T | undefined {
-  let melhor: { item: T; posicao: number } | undefined;
+  let melhor: { item: T; posicao: number; ordem: number } | undefined;
   for (const item of itens) {
-    const principal = significativas(item.titulo)[0];
-    if (!principal) continue;
-    const posicao = texto.search(new RegExp(String.raw`\b${principal.replace(/s$/, '')}s?\b`));
-    if (posicao >= 0 && (!melhor || posicao < melhor.posicao)) melhor = { item, posicao };
+    significativas(item.titulo).forEach((palavra, ordem) => {
+      const posicao = texto.search(new RegExp(String.raw`\b${palavra.replace(/s$/, '')}s?\b`));
+      if (posicao < 0) return;
+      if (!melhor || posicao < melhor.posicao || (posicao === melhor.posicao && ordem < melhor.ordem)) melhor = { item, posicao, ordem };
+    });
   }
   return melhor?.item;
 }
@@ -226,6 +229,12 @@ export function responderSimulado(pedido: PedidoAssistente): RespostaAssistente 
   const pode = (f: (typeof ferramentas)[number]) => ferramentas.includes(f);
   const resposta = (t: string, acoes: Acao[] = []): RespostaAssistente => ({ texto: t, acoes, simulado: true });
   const alvo = contexto.alvo;
+
+  // 0. Formulário de edição aberto e a pessoa pede para criar um registro novo: abre o de criação.
+  if (alvo?.tipo === 'formulario' && alvo.editando && PEDE_CADASTRO.test(texto) && pode('abrir_formulario')) {
+    const formulario = formularioPedido(contexto.formularios, texto);
+    if (formulario) return resposta('', [{ tipo: 'abrir_formulario', formulario: formulario.id }]);
+  }
 
   // 1. Formulário aberto: tenta preencher.
   if (alvo?.tipo === 'formulario' && pode('preencher_formulario')) {

@@ -103,6 +103,11 @@ describe('responderSimulado', () => {
     expect(responderSimulado(pedido('adiciona um grupo novo', { formularios })).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'cadastro:grupos' }]);
   });
 
+  it('acha o cadastro por qualquer palavra do título ("cria uma pausa" é um Perfil de pausas)', () => {
+    const formularios = [{ id: 'jornada', titulo: 'Jornada de trabalho' }, { id: 'cadastro:pausas', titulo: 'Perfil de pausas' }];
+    expect(responderSimulado(pedido('cria uma pausa nome: Lanche', { formularios })).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'cadastro:pausas' }]);
+  });
+
   it('quem não pode cadastrar recebe a explicação, sem ação', () => {
     const r = responderSimulado(pedido('cria uma jornada seg a sex 8 às 17', { formularios: [] }, ['navegar']));
     expect(r.acoes).toEqual([]);

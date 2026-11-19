@@ -100,7 +100,7 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
 
   // O assistente de IA enxerga este formulário: preenche os campos e, com aprovação automática, salva.
   useAlvoDoAssistente({
-    alvo: { tipo: 'formulario', id: 'jornada', titulo: atual ? `Jornada ${atual.identificador}` : 'Nova jornada de trabalho', campos: CAMPOS_DA_JORNADA, valores: { ...dados } },
+    alvo: { tipo: 'formulario', id: 'jornada', titulo: atual ? `Editar jornada ${atual.identificador}` : 'Nova jornada de trabalho', editando: Boolean(atual), campos: CAMPOS_DA_JORNADA, valores: { ...dados } },
     aplicar: (campos) => {
       const r = aplicarNaJornada(dadosRef.current, campos);
       setDados(() => r.dados);

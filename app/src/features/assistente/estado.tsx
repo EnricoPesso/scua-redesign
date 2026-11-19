@@ -49,6 +49,7 @@ const ContextoRegistro = createContext<Registrador | null>(null);
 export const AJUSTES = { prazoDoPendenteMs: 8000 };
 
 const SEM_ACESSO = 'Não posso fazer isso com o seu acesso.';
+const FORMULARIO_MUDOU = 'O formulário mudou enquanto eu respondia, então não preenchi nada. Peça de novo.';
 const PENDENTE_FALHOU = 'Abri a tela, mas não consegui preencher. Peça de novo com o formulário aberto.';
 const TEXTO_DO_ERRO: Record<string, string> = {
   'chave-recusada': 'A chave da IA foi recusada. Avise o administrador.',
@@ -83,6 +84,8 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
   const registro = useRef<{ dono: object; registro: RegistroAlvo } | null>(null);
   const conversaRef = useRef<MensagemDaConversa[]>([]);
   const ocupado = useRef(false);
+  // Muda quando a conversa é limpa ou a pessoa troca: resposta de um pedido anterior é descartada.
+  const geracao = useRef(0);
   const ultimoTexto = useRef('');
   const pendente = useRef<{ formulario: string; mensagens: Mensagem[]; relogio: ReturnType<typeof setTimeout> } | null>(null);
   const rota = useRef(local.pathname + local.search);
@@ -100,6 +103,7 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
 
   const limpar = useCallback(() => {
     cancelarPendente();
+    geracao.current += 1;
     conversaRef.current = [];
     setConversa([]);
   }, [cancelarPendente]);
@@ -115,6 +119,9 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
   /** Pergunta à IA com as mensagens dadas e aplica o que voltar. `repetido`: segunda volta de um pedido pendente. */
   const perguntarEAplicar = useCallback(async (mensagens: Mensagem[], repetido: boolean) => {
     if (!permissoes) return;
+    const minhaGeracao = geracao.current;
+    // O formulário (ou relatório) da hora do pedido. A resposta só vale para ele.
+    const dono = registro.current?.dono ?? null;
     const atual = registro.current?.registro ?? null;
     const alvo = atual?.alvo ?? null;
     // Na segunda volta o formulário já está aberto: não oferece abrir de novo (evita ficar em círculo).
@@ -133,19 +140,23 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
     };
 
     const resposta = await perguntar(pedido);
+    // A conversa foi limpa ou a pessoa trocou enquanto a IA respondia: a resposta não vale mais.
+    if (geracao.current !== minhaGeracao) return;
     setSimulado(resposta.simulado === true);
-    const { validas, recusadas } = conferirAcoes(resposta.acoes, { permissoes, alvo });
+    const { validas, recusadas } = conferirAcoes(resposta.acoes, { permissoes, alvo, ferramentas });
     const partes: string[] = resposta.texto ? [resposta.texto] : [];
 
     for (const acao of validas as Acao[]) {
       if (acao.tipo === 'preencher') {
         if (!atual?.aplicar) { partes.push(SEM_ACESSO); continue; }
+        // A pessoa fechou ou trocou de formulário durante a espera: não preenche (nem salva) outro no lugar.
+        if (registro.current?.dono !== dono) { partes.push(FORMULARIO_MUDOU); continue; }
         const resultado = atual.aplicar(acao.campos);
         const descricao = descrever(resultado);
         if (descricao) partes.push(descricao);
         if (resultado.aplicados.length === 0) continue;
         // A função de salvar é lida de novo: a tela se registra outra vez a cada mudança.
-        const salvar = registro.current?.registro.salvar;
+        const salvar = registro.current?.dono === dono ? registro.current.registro.salvar : undefined;
         if (automatica && podeAutomatica && salvar) {
           const salvo = await salvar();
           partes.push(salvo.mensagem);
@@ -164,7 +175,8 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
         if (!formulario) continue;
         cancelarPendente();
         // O formulário pedido já é o que está na tela: não há o que abrir.
-        if (alvo?.tipo === 'formulario' && alvo.id === formulario.id) { partes.push('O formulário já está aberto. Diga os valores que eu preencho.'); continue; }
+        // (Um formulário de edição não conta: criar é outro formulário.)
+        if (alvo?.tipo === 'formulario' && alvo.id === formulario.id && !alvo.editando) { partes.push('O formulário já está aberto. Diga os valores que eu preencho.'); continue; }
         const relogio = setTimeout(() => {
           if (pendente.current?.formulario !== formulario.id) return;
           pendente.current = null;
@@ -223,7 +235,8 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
       if (!novo) { if (registro.current?.dono === dono) registro.current = null; }
       else registro.current = { dono, registro: novo };
       const atual = registro.current?.registro.alvo ?? null;
-      setIdDoAlvo(atual ? (atual.tipo === 'formulario' ? atual.id : `relatorio:${atual.titulo}`) : null);
+      // A edição ganha um sufixo: um pedido pendente de criação só continua num formulário de criação.
+      setIdDoAlvo(atual ? (atual.tipo === 'formulario' ? `${atual.id}${atual.editando ? '#editar' : ''}` : `relatorio:${atual.titulo}`) : null);
       setTipoDoAlvo(atual?.tipo ?? null);
     },
     remover(dono) {
@@ -255,7 +268,8 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
     ativo: config.ativo && Boolean(permissoes),
     aberto,
     abrir: () => setAberto(true),
-    fechar: () => setAberto(false),
+    // Fechar a conversa desiste do pedido que esperava um formulário abrir.
+    fechar: () => { cancelarPendente(); setAberto(false); },
     conversa,
     pensando,
     simulado,
@@ -266,7 +280,7 @@ export function AssistenteProvider({ children }: { children: ReactNode }) {
     automatica: automatica && podeAutomatica,
     podeAutomatica,
     definirAutomatica,
-  }), [config.ativo, permissoes, aberto, conversa, pensando, simulado, tipoDoAlvo, enviar, tentarDeNovo, limpar, automatica, podeAutomatica, definirAutomatica]);
+  }), [config.ativo, permissoes, aberto, conversa, pensando, simulado, tipoDoAlvo, enviar, tentarDeNovo, limpar, automatica, podeAutomatica, definirAutomatica, cancelarPendente]);
 
   return (
     <ContextoRegistro.Provider value={registrador}>

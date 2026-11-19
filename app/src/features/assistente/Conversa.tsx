@@ -1,11 +1,11 @@
-import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { SendIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import { useAssistente } from './estado';
 
-const AVISO = 'Respostas geradas por IA. Confira antes de salvar. O conteúdo da conversa e os dados da tela aberta são enviados ao provedor de IA configurado.';
+export const AVISO = 'Respostas geradas por IA. Confira antes de salvar. O conteúdo da conversa e os dados da tela aberta são enviados ao provedor de IA configurado.';
 
 /**
  * A conversa com o assistente: avisos, histórico, sugestões e campo de mensagem.
@@ -33,7 +33,6 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
     setTexto('');
     void a.enviar(mensagem);
   };
-  const aoEnviar = (e: FormEvent) => { e.preventDefault(); enviar(texto); };
   const aoTeclar = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); enviar(texto); }
   };
@@ -71,7 +70,7 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
 
       {a.pensando && <p role="status" className="text-sm text-muted-foreground">Pensando…</p>}
       {ultima?.erro && !a.pensando && (
-        <Button variant="secondary" className="w-fit" onClick={() => void a.tentarDeNovo()}>Tentar de novo</Button>
+        <Button type="button" variant="secondary" className="w-fit max-md:h-11" onClick={() => void a.tentarDeNovo()}>Tentar de novo</Button>
       )}
 
       {a.conversa.length === 0 && !a.pensando && sugestoes.length > 0 && (
@@ -90,7 +89,9 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
         </ul>
       )}
 
-      <form onSubmit={aoEnviar} className="flex items-end gap-2">
+      {/* Não é um <form>: a conversa também aparece dentro dos formulários, e um formulário dentro de outro
+          é inválido (o envio da mensagem acabaria enviando o formulário de fora). */}
+      <div role="group" aria-label="Enviar mensagem" className="flex items-end gap-2">
         <div className="grid min-w-0 flex-1 gap-1">
           <label htmlFor={idCampo} className="sr-only">Mensagem para o assistente</label>
           <textarea
@@ -107,14 +108,14 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
           />
           <span id={idDica} className="sr-only">Enter envia. Shift e Enter quebram a linha.</span>
         </div>
-        <Button type="submit" size="icon" aria-label="Enviar" disabled={!texto.trim() || a.pensando} className="max-md:size-11">
+        <Button type="button" size="icon" aria-label="Enviar" disabled={!texto.trim() || a.pensando} onClick={() => enviar(texto)} className="max-md:size-11">
           <SendIcon aria-hidden="true" />
         </Button>
-      </form>
+      </div>
 
       {a.podeAutomatica && (
         <div className="grid gap-0.5 border-t border-[var(--color-line)] pt-2">
-          <Toggle label="Aprovação automática" checked={a.automatica} onCheckedChange={a.definirAutomatica} />
+          <Toggle label="Aprovação automática" checked={a.automatica} onCheckedChange={a.definirAutomatica} className="max-md:min-h-11" />
           <p className="text-xs text-muted-foreground">O assistente salva sozinho depois de preencher. Nunca exclui nada.</p>
         </div>
       )}

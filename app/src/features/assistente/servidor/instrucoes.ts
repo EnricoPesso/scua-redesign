@@ -44,7 +44,8 @@ function descreverAlvo(alvo: Alvo): string {
       ].filter(Boolean).join('; ');
       return `- chave "${c.chave}" · ${c.rotulo} · tipo ${c.tipo}${extras ? ` · ${extras}` : ''}`;
     }).join('\n');
-    return `Formulário aberto: ${alvo.titulo} (id ${alvo.id}).\nCampos:\n${campos}\nValores atuais:\n<dados>\n${JSON.stringify(alvo.valores)}\n</dados>`;
+    const edicao = alvo.editando ? ' Ele altera um registro que já existe: se a pessoa pedir para criar um registro novo, use abrir_formulario em vez de preencher este.' : '';
+    return `Formulário aberto: ${alvo.titulo} (id ${alvo.id}).${edicao}\nCampos:\n${campos}\nValores atuais:\n<dados>\n${JSON.stringify(alvo.valores)}\n</dados>`;
   }
   const filtros = Object.entries(alvo.filtros).map(([k, v]) => `${k}: ${v}`).join('; ') || 'nenhum';
   const indicadores = alvo.indicadores.map((i) => `- ${i.rotulo}: ${i.valor}`).join('\n') || '- (nenhum)';

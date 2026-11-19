@@ -11,8 +11,8 @@ import { caminhoInterno } from './rotas';
 
 export interface FormularioAbrivel { id: string; titulo: string; rota: string; permissao: Permissao }
 
-/** Configurações que são só de editar (não têm "novo"). */
-const SEM_CRIAR = new Set(['parametros', 'mensagens', 'notificacoes']);
+/** Configurações que são só de editar ou não são cadastro (não têm "novo"). */
+const SEM_CRIAR = new Set(['parametros', 'mensagens', 'notificacoes', 'assistente-ia']);
 
 /** Cadastros que o robô pode abrir para criar. O id é o mesmo do alvo que o formulário registra. */
 export const FORMULARIOS: FormularioAbrivel[] = [
@@ -75,11 +75,17 @@ export function ferramentasPara(p: Permissoes, alvo: Alvo | null): NomeFerrament
 }
 
 /** Confere cada ação devolvida pela IA contra as permissões e a tela aberta. O que não passa é recusado. */
-export function conferirAcoes(acoes: Acao[], ctx: { permissoes: Permissoes; alvo: Alvo | null }): { validas: Acao[]; recusadas: string[] } {
+const FERRAMENTA_DA_ACAO: Record<Acao['tipo'], NomeFerramenta> = { preencher: 'preencher_formulario', navegar: 'navegar', abrir_formulario: 'abrir_formulario' };
+
+/** `ferramentas`: as que foram oferecidas neste pedido. Ação de ferramenta não oferecida é recusada. */
+export function conferirAcoes(acoes: Acao[], ctx: { permissoes: Permissoes; alvo: Alvo | null; ferramentas?: NomeFerramenta[] }): { validas: Acao[]; recusadas: string[] } {
   const validas: Acao[] = [];
   const recusadas: string[] = [];
   for (const a of acoes) {
-    if (a?.tipo === 'preencher' && ctx.alvo?.tipo === 'formulario' && typeof a.campos === 'object' && a.campos !== null) {
+    const oferecida = !ctx.ferramentas || (typeof a?.tipo === 'string' && Object.hasOwn(FERRAMENTA_DA_ACAO, a.tipo) && ctx.ferramentas.includes(FERRAMENTA_DA_ACAO[a.tipo]));
+    if (!oferecida) {
+      recusadas.push(String((a as { tipo?: unknown } | null)?.tipo ?? 'desconhecida'));
+    } else if (a?.tipo === 'preencher' && ctx.alvo?.tipo === 'formulario' && typeof a.campos === 'object' && a.campos !== null) {
       const chaves = new Set(ctx.alvo.campos.map((c) => c.chave));
       const campos = Object.fromEntries(Object.entries(a.campos).filter(([k]) => chaves.has(k)));
       if (Object.keys(campos).length > 0) validas.push({ tipo: 'preencher', campos });

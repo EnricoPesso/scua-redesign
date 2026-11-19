@@ -51,6 +51,19 @@ describe('Jornada: preencher com o assistente', () => {
     expect(await existe('TESTE-7H')).toBe(false);
   });
 
+  it('o botão Enviar da conversa não envia o formulário de fora (não há formulário dentro de formulário)', async () => {
+    const { user } = await abrirNova();
+    const painel = screen.getByRole('region', { name: 'Assistente Scua' });
+    await user.click(within(painel).getByRole('button', { name: 'Preencher com IA' }));
+    expect(document.querySelector('form form')).toBeNull();
+    await user.type(within(painel).getByRole('textbox', { name: 'Mensagem para o assistente' }), 'nome TESTE-9H');
+    await user.click(within(painel).getByRole('button', { name: 'Enviar' }));
+    await waitFor(() => expect(identificador()).toHaveValue('TESTE-9H'));
+    // Se o formulário de fora tivesse sido enviado, os campos obrigatórios vazios estariam marcados com erro.
+    expect(screen.getByRole('textbox', { name: /Descrição/ })).not.toHaveAttribute('aria-invalid', 'true');
+    expect(await existe('TESTE-9H')).toBe(false);
+  });
+
   it('mexer num campo tira o destaque só dele', async () => {
     const { user } = await abrirNova();
     await pedir(user, 'seg a sex, 7h às 16h, almoço 11 às 12, nome TESTE-7H');

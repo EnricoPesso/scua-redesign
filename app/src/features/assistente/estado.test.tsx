@@ -1,5 +1,5 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Provedores } from '../../app/Provedores';
 import { criarQueryClient } from '../../app/queryClient';
@@ -20,15 +20,29 @@ const aplicar = vi.fn((campos: Record<string, unknown>): ResultadoAplicar => ({ 
 const salvar = vi.fn(async () => ({ ok: true, mensagem: 'Salvei perfil de pausas Café.' }));
 
 let assistente: ReturnType<typeof useAssistente>;
+let navegar: ReturnType<typeof useNavigate>;
+
+/** Cada formulário é um componente próprio: trocar de rota desmonta um e monta outro, como nas telas de verdade. */
+function Registra({ alvo }: { alvo: AlvoFormulario | null }) {
+  useAlvoDoAssistente(alvo ? { alvo, aplicar, salvar } : null);
+  return null;
+}
 
 /** Tela de mentira: registra o alvo conforme a rota. */
 function Tela({ alvoFixo }: { alvoFixo?: AlvoFormulario | null }) {
   assistente = useAssistente();
   const { pathname, search } = useLocation();
-  const alvo = alvoFixo !== undefined ? alvoFixo : pathname === '/jornadas/nova' ? jornada : pathname === '/pausas' && search === '?novo=1' ? pausa : null;
-  useAlvoDoAssistente(alvo ? { alvo, aplicar, salvar } : null);
+  navegar = useNavigate();
+  const porRota = pathname === '/jornadas/nova' ? jornada
+    : pathname === '/pausas' && search === '?novo=1' ? pausa
+    : pathname === '/pausas' && search === '?editar=1' ? { ...pausa, titulo: 'Editar perfil de pausas Café', editando: true }
+    // Tela "errada": no endereço de criar localidade aparece o formulário de jornada.
+    : pathname === '/configuracoes/localidades-por-ip' ? jornada
+    : null;
+  const alvo = alvoFixo !== undefined ? alvoFixo : porRota;
   return (
     <>
+      <Registra key={pathname + search} alvo={alvo} />
       <output data-testid="local">{pathname + search}</output>
       <ol aria-label="conversa">{assistente.conversa.map((m, i) => <li key={i} data-erro={m.erro ? 'sim' : undefined}>{m.texto}</li>)}</ol>
     </>
@@ -151,12 +165,59 @@ describe('assistente: conversa e ações', () => {
   });
 
   it('se outro formulário aparece no lugar do esperado, o pendente é cancelado sem preencher', async () => {
-    vi.spyOn(api, 'perguntar').mockResolvedValue({ texto: '', acoes: [{ tipo: 'abrir_formulario', formulario: 'cadastro:pausas' }] });
-    // A tela de mentira registra "jornada" em /jornadas/nova; o pendente espera "cadastro:pausas" em /pausas?novo=1.
-    await montar('/jornadas/nova', null);
-    await enviar('cria uma pausa');
-    await waitFor(() => expect(local()).toBe('/pausas?novo=1'));
+    vi.spyOn(api, 'perguntar').mockResolvedValue({ texto: '', acoes: [{ tipo: 'abrir_formulario', formulario: 'cadastro:localidades-por-ip' }] });
+    await montar('/inicio');
+    await enviar('cria uma localidade');
+    await waitFor(() => expect(local()).toBe('/configuracoes/localidades-por-ip?novo=1'));
+    // O prazo do pendente é de 8 s: o aviso só chega a tempo porque apareceu um formulário diferente do esperado.
+    await waitFor(() => expect(ultima()).toHaveTextContent('Abri a tela, mas não consegui preencher.'));
+    expect(aplicar).not.toHaveBeenCalled();
     expect(api.perguntar).toHaveBeenCalledTimes(1);
+  });
+
+  it('resposta que chega depois de a pessoa trocar de formulário não preenche nem salva o outro', async () => {
+    salvarAutomatica('u-carlos', true);
+    let responder!: (r: Awaited<ReturnType<typeof api.perguntar>>) => void;
+    vi.spyOn(api, 'perguntar').mockReturnValue(new Promise((ok) => { responder = ok; }));
+    await montar('/pausas?novo=1');
+    let envio!: Promise<void>;
+    act(() => { envio = assistente.enviar('nome: Café'); });
+    // Enquanto a IA responde, a pessoa fecha a pausa e abre uma jornada nova.
+    await act(async () => { await navegar('/jornadas/nova'); });
+    await act(async () => { responder({ texto: '', acoes: [{ tipo: 'preencher', campos: { nome: 'Café' } }] }); await envio; });
+    expect(aplicar).not.toHaveBeenCalled();
+    expect(salvar).not.toHaveBeenCalled();
+    expect(ultima()).toHaveTextContent('O formulário mudou enquanto eu respondia');
+  });
+
+  it('resposta que chega depois de limpar a conversa é descartada', async () => {
+    let responder!: (r: Awaited<ReturnType<typeof api.perguntar>>) => void;
+    vi.spyOn(api, 'perguntar').mockReturnValue(new Promise((ok) => { responder = ok; }));
+    await montar('/pausas?novo=1');
+    let envio!: Promise<void>;
+    act(() => { envio = assistente.enviar('nome: Café'); });
+    act(() => assistente.limpar());
+    await act(async () => { responder({ texto: '', acoes: [{ tipo: 'preencher', campos: { nome: 'Café' } }] }); await envio; });
+    expect(aplicar).not.toHaveBeenCalled();
+    expect(assistente.conversa).toEqual([]);
+  });
+
+  it('com um formulário de edição aberto, pedir para criar abre o formulário de criação em vez de alterar o registro', async () => {
+    await montar('/pausas?editar=1');
+    await enviar('cria uma pausa nome: Lanche');
+    await waitFor(() => expect(local()).toBe('/pausas?novo=1'));
+    await waitFor(() => expect(aplicar).toHaveBeenCalledTimes(1));
+    expect(aplicar).toHaveBeenCalledWith({ nome: 'Lanche' });
+    await waitFor(() => expect(ultima()).toHaveTextContent('Confira e clique em Salvar.'));
+  });
+
+  it('ação de uma ferramenta que não foi oferecida é recusada', async () => {
+    // Sem formulário aberto, "preencher" não é oferecida.
+    vi.spyOn(api, 'perguntar').mockResolvedValue({ texto: '', acoes: [{ tipo: 'preencher', campos: { nome: 'Café' } }] });
+    await montar('/inicio');
+    await enviar('nome: Café');
+    expect(aplicar).not.toHaveBeenCalled();
+    expect(ultima()).toHaveTextContent('Não posso fazer isso com o seu acesso.');
   });
 
   it('erro da IA vira aviso com texto humano; tentar de novo repete o pedido', async () => {

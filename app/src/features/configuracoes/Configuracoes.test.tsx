@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { definirFalhaDeRede } from '../../mock/rede';
 import { renderApp } from '../../test/render';
-import { AREAS, CONFIGURACOES } from './catalogo';
+import { AREAS, CONFIGURACOES, TELAS_PROPRIAS } from './catalogo';
 import { dominios } from './cadastros/dominios';
 import { feriados } from './cadastros/feriados';
 import { grupos } from './cadastros/grupos';
@@ -22,7 +22,7 @@ afterEach(() => {
 const dialogo = () => screen.findByRole('dialog');
 
 describe('Página de entrada', () => {
-  it('mostra as 3 áreas e os 12 links', async () => {
+  it('mostra as 3 áreas e os 13 links', async () => {
     renderApp('/configuracoes');
     expect(await screen.findByRole('heading', { level: 1, name: 'Configurações' })).toBeInTheDocument();
     for (const a of AREAS) expect(screen.getByRole('heading', { level: 2, name: a.titulo })).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('Página de entrada', () => {
       const link = screen.getByRole('link', { name: `${c.titulo}${c.resumo}` });
       expect(link).toHaveAttribute('href', `/configuracoes/${c.slug}`);
     }
-    expect(CONFIGURACOES).toHaveLength(12);
+    expect(CONFIGURACOES).toHaveLength(13);
   });
 
   it('slug desconhecido mostra "não encontrada"', async () => {
@@ -39,7 +39,7 @@ describe('Página de entrada', () => {
   });
 });
 
-describe.each(CONFIGURACOES)('Tela $titulo', ({ slug, titulo, area }) => {
+describe.each(CONFIGURACOES.filter((c) => !TELAS_PROPRIAS.has(c.slug)))('Tela $titulo', ({ slug, titulo, area }) => {
   it('abre com o título do catálogo, trilha e linhas, sem código técnico', async () => {
     renderApp(`/configuracoes/${slug}`);
     expect(await screen.findByRole('heading', { level: 1, name: titulo })).toBeInTheDocument();

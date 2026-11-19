@@ -2,6 +2,7 @@ import { Fragment, type ReactElement } from 'react';
 import { Link, Route, Routes, useParams } from 'react-router';
 import { ModeloCadastro } from '../../componentes/cadastro/ModeloCadastro';
 import { Pagina } from '../../componentes/Pagina';
+import { ConfigAssistentePage } from '../assistente/ConfigAssistentePage';
 import { NaoEncontrada } from '../../layout/ErroGlobal';
 import { AREAS, CONFIGURACOES } from './catalogo';
 import { configDominios } from './cadastros/dominios';
@@ -30,6 +31,7 @@ const TELAS: Record<string, ReactElement> = {
   grupos: <ModeloCadastro config={configGrupos} />,
   'localidades-por-ip': <ModeloCadastro config={configLocalidadesPorIp} />,
   parametros: <ModeloCadastro config={configParametros} />,
+  'assistente-ia': <ConfigAssistentePage />,
 };
 
 function PaginaInicial() {

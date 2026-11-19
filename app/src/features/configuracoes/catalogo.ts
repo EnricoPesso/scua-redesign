@@ -36,6 +36,10 @@ export const CONFIGURACOES: ItemConfiguracao[] = [
   { slug: 'grupos', titulo: 'Grupos', area: 'sistema', resumo: 'Grupos de usuários e o limite mensal de extensão de cada um.' },
   { slug: 'localidades-por-ip', titulo: 'Localidades por IP', area: 'sistema', resumo: 'De qual localidade é cada faixa de endereços IP.' },
   { slug: 'parametros', titulo: 'Parâmetros', area: 'sistema', resumo: 'Ajustes gerais de funcionamento do sistema.' },
+  { slug: 'assistente-ia', titulo: 'Assistente de IA', area: 'sistema', resumo: 'Liga ou desliga o assistente e define de quem é a chave de acesso à IA.' },
 ];
+
+/** Telas que não são um cadastro em tabela (têm página própria). */
+export const TELAS_PROPRIAS = new Set(['assistente-ia']);
 
 export const configuracaoPorSlug = (slug: string | undefined): ItemConfiguracao | undefined => CONFIGURACOES.find((c) => c.slug === slug);

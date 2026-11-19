@@ -1,4 +1,4 @@
-import type { MotivoDeErro, PedidoAssistente, RespostaAssistente } from './contrato';
+import type { MotivoDeErro, PedidoAssistente, Provedor, RespostaAssistente } from './contrato';
 import { responderSimulado } from './simulado';
 
 /** Erro que a janela do assistente sabe explicar para a pessoa. */
@@ -67,4 +67,20 @@ export async function perguntarNoServidor(pedido: PedidoAssistente, buscar: type
 export async function perguntar(pedido: PedidoAssistente, signal?: AbortSignal): Promise<RespostaAssistente> {
   if (forcarSimulado() || !temServidor()) return responderSimulado(pedido);
   return (await perguntarNoServidor(pedido, fetch, signal)) ?? responderSimulado(pedido);
+}
+
+/**
+ * Situação da conexão com a IA, para a tela de Configurações. Sem servidor (testes e pacote publicado),
+ * não pede nada à rede: é modo demonstração. Qualquer falha também vira modo demonstração.
+ */
+export async function consultarEstado(signal?: AbortSignal): Promise<{ ativo: boolean; provedor: Provedor | null }> {
+  if (forcarSimulado() || !temServidor()) return { ativo: false, provedor: null };
+  try {
+    const r = await fetch('/api/assistente/estado', { signal });
+    if (!r.ok) return { ativo: false, provedor: null };
+    const { ativo, provedor } = (await r.json()) as { ativo?: boolean; provedor?: Provedor | null };
+    return ativo ? { ativo: true, provedor: provedor ?? null } : { ativo: false, provedor: null };
+  } catch {
+    return { ativo: false, provedor: null };
+  }
 }

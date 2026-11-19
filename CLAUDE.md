@@ -85,6 +85,7 @@ Uma tela ou componente **só está pronto** quando passar em **todos** os itens 
 - [ ] Contraste dos tokens: `npm run contrast` (todos os pares aprovados).
 - [ ] Testes automatizados passam: `npm test`.
 - [ ] Na pasta `app/`: `npm run build`, `npm run lint`, `npx tsc -b`, `npm test` e `npm run e2e` (Playwright contra a API simulada; `PW_CANAL=chrome` usa o Chrome instalado).
+- [ ] Assistente de IA: a chave fica só em `app/.env.local`, nas variáveis `SCUA_IA_PROVEDOR`, `SCUA_IA_CHAVE`, `SCUA_IA_MODELO` e `SCUA_IA_MODELO_ANALISE` (modelo em `app/.env.example`), **sem o prefixo `VITE_`**. Nunca no git, no navegador ou em log. Os testes sempre usam o modo simulado e não chamam a rede.
 - [ ] `code-review` rodado, sem nenhum achado crítico em aberto.
 
 ### 3.6 Como reportar

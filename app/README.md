@@ -48,9 +48,18 @@ Todas as telas do redesign estão no app, cada uma com endereço próprio:
 | Dia a dia | `/inicio` (painel), `/extensoes` (pedir, aprovar, lote), `/ausencias` (linha do tempo e tabela) |
 | Pessoas e jornadas | `/usuarios` (lista + painel com Dados, Feriados, Substituto, Exceções, Férias), `/jornadas`, `/pausas`, `/liberacoes-por-diretoria` |
 | Análise | `/relatorios` (entrada por assunto) e `/relatorios/<slug>`: 17 relatórios no modelo único |
-| Administração | `/configuracoes` e `/configuracoes/<slug>` (12 cadastros no modelo único), `/carga-de-dados`, `/auditoria`, `/sobre` |
+| Administração | `/configuracoes` e `/configuracoes/<slug>` (12 cadastros no modelo único e Assistente de IA), `/carga-de-dados`, `/auditoria`, `/sobre` |
 
 O menu mostra só o que o perfil pode usar (`?como=ana` vê só Extensões; `?como=olga` vê o dia a dia e os relatórios; `?como=renata` também os cadastros de pessoas; o padrão, Carlos, vê tudo). **Ctrl K** abre a busca de telas, que acha qualquer relatório ou configuração pelo nome.
+
+## Assistente de IA
+
+Uma bolha no canto de todas as telas abre o assistente. Ele preenche formulários (Jornadas e os cadastros do modelo único), analisa o relatório aberto, tira dúvidas e leva até a tela pedida, sempre com as permissões de quem está logado. Ele não exclui nada e não aprova nem reprova pedidos.
+
+- **Sem chave** (o padrão), funciona em modo demonstração, com respostas simuladas.
+- **Com chave**: copie `.env.example` para `.env.local` e preencha `SCUA_IA_CHAVE` (e, se quiser, `SCUA_IA_PROVEDOR`, `SCUA_IA_MODELO` e `SCUA_IA_MODELO_ANALISE`). A chave só é lida pelo servidor de desenvolvimento; nunca vai para o navegador nem para o git.
+- **Testes** (Vitest e Playwright) usam sempre o modo simulado e não chamam a rede.
+- O contrato para o servidor real está em [`docs/contrato-assistente.md`](../docs/contrato-assistente.md). O código fica em `src/features/assistente/`.
 
 ## Organização
 

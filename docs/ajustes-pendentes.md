@@ -51,6 +51,20 @@ Os números entre parênteses são os itens do bloco de notas.
 
 Sem alteração: Relatórios (11) e Carga de dados (13).
 
+## Assistente de IA (entregue em 2026-11-19)
+
+Plano: `docs/superpowers/plans/2026-11-18-assistente-ia.md`. Contrato para o servidor: `docs/contrato-assistente.md`.
+
+- [x] Bolha em todas as telas e conversa dentro dos formulários.
+- [x] Preenche a Jornada de trabalho e os cadastros do modelo único (Pausas, Liberações por diretoria e Configurações), destacando o que preencheu. Só salva sozinho com a aprovação automática ligada.
+- [x] Analisa o relatório aberto (indicadores e até 60 linhas).
+- [x] Leva a pessoa até a tela pedida, só entre as que ela pode abrir.
+- [x] Auditoria: gravações feitas com o assistente aparecem com a etiqueta "Assistente" (Jornadas, Parâmetros e Liberações).
+- [x] Configurações › Assistente de IA (só administração).
+- [ ] **Teste ao vivo com uma chave real**: ainda não feito. Colocar a chave em `app/.env.local` (modelo em `app/.env.example`) e repetir os roteiros. Até lá, tudo foi testado só no modo demonstração.
+
 ## Aguardando a Scua
 
 Perguntas 52 a 55 de `perguntas-para-scua.md` (bloqueio da estação, liberação automática ao aprovar, hora extra paga, "Libera regra"). As respostas podem mudar textos da Extensão de jornada, de Jornadas e de Usuários.
+
+Perguntas 56 a 60 (assistente de IA): preço, LGPD, onde a chave fica, marcação "via assistente" na API de auditoria e limites de uso.

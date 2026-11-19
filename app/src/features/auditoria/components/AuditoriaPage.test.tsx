@@ -147,7 +147,7 @@ describe('Auditoria', () => {
     expect(cliques).toEqual(['auditoria-jornadas-2026-10-12.csv']);
     const csv = await criar.mock.calls[0][0].text();
     const linhas = csv.replace('﻿', '').split('\r\n');
-    expect(linhas[0]).toBe('Item alterado;Ação;Valor anterior;Valor novo;Quem alterou;Data e hora');
+    expect(linhas[0]).toBe('Item alterado;Ação;Valor anterior;Valor novo;Quem alterou;Via assistente;Data e hora');
     expect(linhas.length).toBeGreaterThan(1);
     for (const l of linhas.slice(1)) expect(l).toContain('Ana Souza');
     expect(await screen.findByText(/registros? exportados? em auditoria-jornadas-2026-10-12\.csv/)).toBeInTheDocument();

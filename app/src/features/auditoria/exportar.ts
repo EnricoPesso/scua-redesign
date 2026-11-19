@@ -9,5 +9,6 @@ export const COLUNAS_PLANILHA: ColunaPlanilha<Registro>[] = [
       { header: 'Valor anterior', texto: (r) => r.anterior ?? '' },
       { header: 'Valor novo', texto: (r) => r.novo ?? '' },
       { header: 'Quem alterou', texto: (r) => nomeDe(r.pessoaId) },
+      { header: 'Via assistente', texto: (r) => (r.viaAssistente ? 'Sim' : 'Não') },
       { header: 'Data e hora', texto: (r) => formatarDataHora(r.quando) },
 ];

@@ -1,3 +1,4 @@
+import { registrosExtras } from '../../mock/auditoriaExtra';
 import { quando } from '../../mock/datas';
 import { PESSOAS_DIRETORIO } from '../../mock/diretorio';
 import { rede } from '../../mock/rede';
@@ -83,13 +84,16 @@ function gerar(aba: Aba): Registro[] {
   });
 }
 
+/** Os registros de exemplo mais os criados durante o uso (gravações feitas com o assistente). */
+const comExtras = (aba: Aba): Registro[] => [...registrosExtras().filter((r) => r.aba === aba), ...gerar(aba)];
+
 export const auditoriaApi = {
   listar(aba: Aba, filtro: FiltroRegistros): Promise<Registro[]> {
-    return rede(() => filtrarRegistros(gerar(aba), filtro));
+    return rede(() => filtrarRegistros(comExtras(aba), filtro));
   },
   /** Registros de todas as áreas com os mesmos filtros (para o painel com o panorama geral). */
   todas(filtro: FiltroRegistros): Promise<Registro[]> {
-    return rede(() => filtrarRegistros(ABAS.flatMap((a) => gerar(a)), filtro));
+    return rede(() => filtrarRegistros(ABAS.flatMap((a) => comExtras(a)), filtro));
   },
 };
 

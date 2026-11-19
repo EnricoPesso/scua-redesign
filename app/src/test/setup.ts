@@ -3,6 +3,7 @@ import { cleanup, configure } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { resetarDb } from '../features/extensoes/api/mocks/db';
 import { resetarConfigAssistente } from '../features/assistente/preferencias';
+import { resetarAuditoriaExtra } from '../mock/auditoriaExtra';
 import { resetarGrupos } from '../mock/grupos';
 import { server } from './server';
 
@@ -74,5 +75,6 @@ afterEach(() => {
   resetarGrupos();
   resetarDb();
   resetarConfigAssistente();
+  resetarAuditoriaExtra();
 });
 afterAll(() => server.close());

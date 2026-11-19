@@ -19,6 +19,8 @@ export interface Registro {
   anterior: string | null;
   novo: string | null;
   pessoaId: string;
+  /** A gravação foi feita com o assistente de IA, a pedido desta pessoa. */
+  viaAssistente?: boolean;
   /** YYYY-MM-DDTHH:MM:00, hora local. */
   quando: string;
 }

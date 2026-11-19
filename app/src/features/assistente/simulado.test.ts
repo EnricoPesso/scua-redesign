@@ -96,6 +96,13 @@ describe('responderSimulado', () => {
     expect(responderSimulado(pedido('cadastra uma pausa nome: Lanche')).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'cadastro:pausas' }]);
   });
 
+  it('escolhe o cadastro pela primeira coisa citada, não pela quantidade de palavras em comum', () => {
+    const formularios = [{ id: 'cadastro:tipos-de-jornada', titulo: 'Tipos de jornada' }, { id: 'jornada', titulo: 'Jornada de trabalho' }, { id: 'cadastro:grupos', titulo: 'Grupos' }];
+    expect(responderSimulado(pedido('cria uma jornada seg a sex, 8h às 17h, nome COM-8H, tipo Comercial', { formularios })).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'jornada' }]);
+    expect(responderSimulado(pedido('cria um tipo de jornada chamado Noturno', { formularios })).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'cadastro:tipos-de-jornada' }]);
+    expect(responderSimulado(pedido('adiciona um grupo novo', { formularios })).acoes).toEqual([{ tipo: 'abrir_formulario', formulario: 'cadastro:grupos' }]);
+  });
+
   it('quem não pode cadastrar recebe a explicação, sem ação', () => {
     const r = responderSimulado(pedido('cria uma jornada seg a sex 8 às 17', { formularios: [] }, ['navegar']));
     expect(r.acoes).toEqual([]);

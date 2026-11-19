@@ -1,5 +1,8 @@
 import { ErroDeValidacao } from '../../mock/colecao';
+import { registrarAuditoria } from '../../mock/auditoriaExtra';
 import { rede } from '../../mock/rede';
+import { usuarioAtual } from '../extensoes/api/mocks/db';
+import { resumirHorario } from './domain/horario';
 import { validarJornada, temErros } from './domain/validacao';
 import { DIAS, type DadosJornada, type HorarioDia, type Jornada, type Semana } from './domain/tipos';
 
@@ -40,7 +43,7 @@ export function listarJornadas(): Promise<Jornada[]> {
 }
 
 /** Cria (id nulo) ou edita. Marcar como padrão tira o padrão das outras. */
-export function salvarJornada(id: string | null, dados: DadosJornada): Promise<Jornada> {
+export function salvarJornada(id: string | null, dados: DadosJornada, opcoes: { viaAssistente?: boolean } = {}): Promise<Jornada> {
   return rede(() => {
     const todas = carregar();
     if (temErros(validarJornada(dados, todas, id ?? undefined))) throw new ErroDeValidacao('Corrija os campos destacados e tente de novo.');
@@ -55,6 +58,15 @@ export function salvarJornada(id: string | null, dados: DadosJornada): Promise<J
     }
     const base = id === null ? [...todas, salva] : todas.map((j) => (j.id === id ? salva : j));
     guardadas = salva.padrao ? base.map((j) => (j.id === salva.id ? j : { ...j, padrao: false })) : base;
+    // Auditoria: por enquanto só as gravações feitas com o assistente de IA são registradas (ver mock/auditoriaExtra.ts).
+    if (opcoes.viaAssistente) {
+      const antes = id === null ? null : todas.find((j) => j.id === id);
+      registrarAuditoria({
+        aba: 'jornadas', item: salva.identificador, acao: id === null ? 'Criou' : 'Alterou',
+        anterior: antes ? resumirHorario(antes.semana) : null, novo: resumirHorario(salva.semana),
+        pessoaId: usuarioAtual().id, viaAssistente: true,
+      });
+    }
     return salva;
   });
 }

@@ -7,6 +7,9 @@ import { Select } from '@/components/ui/select';
 import { Toggle } from '@/components/ui/toggle';
 import { useToast } from '@/components/ui/use-toast';
 import { mensagemDeErro } from '../../../lib/mensagens';
+import { AssistenteNoFormulario } from '../../assistente/Bolha';
+import { useAlvoDoAssistente } from '../../assistente/estado';
+import { aplicarNaJornada, CAMPOS_DA_JORNADA } from '../assistente';
 import { salvarJornada } from '../api';
 import { cargaSemanal, copiarSegundaParaDiasUteis, resumirHorario } from '../domain/horario';
 import { TIPOS_DE_JORNADA, type DadosJornada, type Dia, type HorarioDia, type Jornada } from '../domain/tipos';
@@ -15,6 +18,8 @@ import { CHAVE_JORNADAS, useFocarAviso } from './apoio';
 import { GradeSemana } from './GradeSemana';
 
 const OPCOES_TIPO = TIPOS_DE_JORNADA.map((t) => ({ value: t, label: t }));
+/** Destaque dos campos preenchidos pelo assistente, até a pessoa mexer neles. */
+const DESTAQUE = 'rounded-md data-[ia]:outline-2 data-[ia]:outline-offset-4 data-[ia]:outline-[var(--color-brand)]';
 const AVISO = 'rounded-md bg-[var(--color-danger-bg)] p-3 text-sm font-semibold text-[var(--color-danger-text)] outline-none focus-visible:ring-3 focus-visible:ring-ring';
 
 const vazia = (): DadosJornada => {
@@ -32,19 +37,36 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
   const area = useRef<HTMLFormElement>(null);
   const client = useQueryClient();
   const toast = useToast();
-  const [dados, setDados] = useState<DadosJornada>(() => {
+  const [dados, setDadosDoEstado] = useState<DadosJornada>(() => {
     if (!atual) return vazia();
     const { id, ...resto } = atual;
     void id;
     return structuredClone(resto);
   });
+  // Os dados mais recentes também ficam numa ref: o assistente preenche e pode salvar em seguida,
+  // antes de a tela desenhar de novo.
+  const dadosRef = useRef(dados);
+  const setDados = (mudar: (d: DadosJornada) => DadosJornada) => {
+    dadosRef.current = mudar(dadosRef.current);
+    setDadosDoEstado(dadosRef.current);
+  };
+  // Campos preenchidos pelo assistente e ainda não mexidos pela pessoa ('identificador', 'semana.seg'…).
+  const [daIA, setDaIA] = useState<ReadonlySet<string>>(new Set());
+  const daIARef = useRef(daIA);
+  const definirDaIA = (novo: ReadonlySet<string>) => { daIARef.current = novo; setDaIA(novo); };
+  const desmarcar = (chave: string) => {
+    if (!daIARef.current.has(chave)) return;
+    const novo = new Set(daIARef.current);
+    novo.delete(chave);
+    definirDaIA(novo);
+  };
   const [erros, setErros] = useState<ErrosJornada>({ dias: {} });
   const [falha, setFalha] = useState<string | null>(null);
   const refFalha = useFocarAviso<HTMLParagraphElement>(falha);
   const refSemana = useRef<HTMLParagraphElement>(null);
 
   const salvar = useMutation({
-    mutationFn: (d: DadosJornada) => salvarJornada(atual?.id ?? null, d),
+    mutationFn: (v: { dados: DadosJornada; viaAssistente: boolean }) => salvarJornada(atual?.id ?? null, v.dados, { viaAssistente: v.viaAssistente }),
     onSuccess: (salva) => {
       toast.success(`Jornada ${salva.identificador} ${atual ? 'atualizada' : 'adicionada'}.`);
       void client.invalidateQueries({ queryKey: CHAVE_JORNADAS });
@@ -59,20 +81,50 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
   const mudar = <K extends keyof DadosJornada>(chave: K, valor: DadosJornada[K]) => {
     setDados((d) => ({ ...d, [chave]: valor }));
     setErros((e) => ({ ...e, [chave]: undefined }));
+    desmarcar(chave);
   };
   const mudarDia = (dia: Dia, mudancas: Partial<HorarioDia>) => {
     setDados((d) => ({ ...d, semana: { ...d.semana, [dia]: { ...d.semana[dia], ...mudancas } } }));
     setErros((e) => ({ ...e, semana: undefined, dias: { ...e.dias, [dia]: undefined } }));
+    desmarcar(`semana.${dia}`);
   };
+
+  /** Valida os dados atuais e mostra os erros. Devolve true se pode salvar. */
+  const validar = (): boolean => {
+    const novos = validarJornada(dadosRef.current, todas, atual?.id);
+    // Remove dias sem erro para o objeto ficar enxuto.
+    novos.dias = Object.fromEntries(Object.entries(novos.dias).filter(([, v]) => v && Object.keys(v).length > 0));
+    setErros(novos);
+    return !temErros(novos);
+  };
+
+  // O assistente de IA enxerga este formulário: preenche os campos e, com aprovação automática, salva.
+  useAlvoDoAssistente({
+    alvo: { tipo: 'formulario', id: 'jornada', titulo: atual ? `Jornada ${atual.identificador}` : 'Nova jornada de trabalho', campos: CAMPOS_DA_JORNADA, valores: { ...dados } },
+    aplicar: (campos) => {
+      const r = aplicarNaJornada(dadosRef.current, campos);
+      setDados(() => r.dados);
+      definirDaIA(new Set([...daIARef.current, ...r.chaves]));
+      setErros({ dias: {} });
+      return r.resultado;
+    },
+    salvar: async () => {
+      if (salvar.isPending) return { ok: false, mensagem: 'Já estou salvando.' };
+      if (!validar()) return { ok: false, mensagem: 'Não salvei: há campos para corrigir no formulário.' };
+      setFalha(null);
+      try {
+        const salva = await salvar.mutateAsync({ dados: dadosRef.current, viaAssistente: true });
+        return { ok: true, mensagem: `Salvei a jornada ${salva.identificador}.` };
+      } catch {
+        return { ok: false, mensagem: 'Não salvei: o sistema recusou. Veja o aviso no formulário.' };
+      }
+    },
+  });
 
   const enviar = (e: FormEvent) => {
     e.preventDefault();
     if (salvar.isPending) return;
-    const novos = validarJornada(dados, todas, atual?.id);
-    // Remove dias sem erro para o objeto ficar enxuto.
-    novos.dias = Object.fromEntries(Object.entries(novos.dias).filter(([, v]) => v && Object.keys(v).length > 0));
-    setErros(novos);
-    if (temErros(novos)) {
+    if (!validar()) {
       // Espera a tela marcar os campos como inválidos antes de procurar o primeiro.
       setTimeout(() => {
         const primeiro = area.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
@@ -82,7 +134,8 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
       return;
     }
     setFalha(null);
-    salvar.mutate(dados);
+    // Se ainda há campos preenchidos pelo assistente e não mexidos, a gravação conta como feita com ele.
+    salvar.mutate({ dados: dadosRef.current, viaAssistente: daIARef.current.size > 0 });
   };
 
   const outroPadrao = todas.find((j) => j.padrao && j.id !== atual?.id);
@@ -103,17 +156,29 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
     >
       <form id={idForm} ref={area} noValidate onSubmit={enviar} className="grid gap-5">
         {falha && <p ref={refFalha} tabIndex={-1} role="alert" className={AVISO}>{falha}</p>}
+        <AssistenteNoFormulario exemplo={'Ex.: "seg a sex, 8h às 17h, almoço 12 às 13, nome ADM-8H"'} />
+        {daIA.size > 0 && (
+          <p role="status" className="rounded-md border border-[var(--color-brand)] bg-[var(--color-surface-muted)] p-3 text-sm font-semibold text-foreground">
+            Preenchido pelo assistente. Confira antes de salvar.
+          </p>
+        )}
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Identificador *" hint="Código curto e único, como ADM-8H." error={erros.identificador}
-            inputProps={{ value: dados.identificador, maxLength: 20, onValueChange: (v: string) => mudar('identificador', v), className: 'max-md:h-11' }} />
-          <Select label="Tipo *" placeholder="Selecione" options={OPCOES_TIPO} value={dados.tipo || null} error={erros.tipo}
-            onValueChange={(v) => mudar('tipo', v ?? '')} className="max-md:[&_[role=combobox]]:h-11" />
+          <div data-ia={daIA.has('identificador') || undefined} className={DESTAQUE}>
+            <Field label="Identificador *" hint="Código curto e único, como ADM-8H." error={erros.identificador}
+              inputProps={{ value: dados.identificador, maxLength: 20, onValueChange: (v: string) => mudar('identificador', v), className: 'max-md:h-11' }} />
+          </div>
+          <div data-ia={daIA.has('tipo') || undefined} className={DESTAQUE}>
+            <Select label="Tipo *" placeholder="Selecione" options={OPCOES_TIPO} value={dados.tipo || null} error={erros.tipo}
+              onValueChange={(v) => mudar('tipo', v ?? '')} className="max-md:[&_[role=combobox]]:h-11" />
+          </div>
         </div>
-        <Field label="Descrição *" error={erros.descricao}
-          inputProps={{ value: dados.descricao, maxLength: 80, onValueChange: (v: string) => mudar('descricao', v), className: 'max-md:h-11' }} />
+        <div data-ia={daIA.has('descricao') || undefined} className={DESTAQUE}>
+          <Field label="Descrição *" error={erros.descricao}
+            inputProps={{ value: dados.descricao, maxLength: 80, onValueChange: (v: string) => mudar('descricao', v), className: 'max-md:h-11' }} />
+        </div>
 
-        <fieldset className="grid gap-3">
+        <fieldset data-ia={['ativa', 'padrao', 'liberaRegra', 'informativa'].some((c) => daIA.has(c)) || undefined} className={`grid gap-3 ${DESTAQUE}`}>
           <legend className="mb-1 text-sm font-bold text-foreground">Opções</legend>
           <Opcao rotulo="Ativa" dica="Só jornadas ativas podem ser atribuídas às pessoas." marcado={dados.ativa} aoMudar={(c) => mudar('ativa', c)} />
           <div className="grid gap-1">
@@ -130,7 +195,7 @@ export function FormularioJornada({ atual, todas, aoFechar }: { atual?: Jornada;
           <Opcao rotulo="Informativa" dica="Só registra os horários, sem bloquear a estação fora do expediente." marcado={dados.informativa} aoMudar={(c) => mudar('informativa', c)} />
         </fieldset>
 
-        <section aria-labelledby={`${idForm}-semana`} className="grid gap-3">
+        <section aria-labelledby={`${idForm}-semana`} data-ia={[...daIA].some((c) => c.startsWith('semana.')) || undefined} className={`grid gap-3 ${DESTAQUE}`}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 id={`${idForm}-semana`} className="text-sm font-bold text-foreground">Horários da semana</h3>
             <Button type="button" variant="secondary" className="max-md:h-11" onClick={() => setDados((d) => ({ ...d, semana: copiarSegundaParaDiasUteis(d.semana) }))}>

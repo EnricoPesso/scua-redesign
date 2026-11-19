@@ -42,7 +42,7 @@ export function TabelaRegistros({ registros }: { registros: Registro[] }) {
               <th scope="row" className="px-4 py-3 font-semibold text-foreground">{r.item}</th>
               <td className="px-4 py-3"><SeloAcao acao={r.acao} /></td>
               <td className="px-4 py-3"><Mudanca anterior={r.anterior} novo={r.novo} /></td>
-              <td className="px-4 py-3 whitespace-nowrap">{nomeDe(r.pessoaId)}</td>
+              <td className="px-4 py-3 whitespace-nowrap">{nomeDe(r.pessoaId)}{r.viaAssistente && <ViaAssistente />}</td>
               <td className="px-4 py-3 whitespace-nowrap tabular-nums">{formatarDataHora(r.quando)}</td>
             </tr>
           ))}
@@ -64,10 +64,15 @@ export function CartoesRegistros({ registros }: { registros: Registro[] }) {
           </div>
           <p><Mudanca anterior={r.anterior} novo={r.novo} /></p>
           <p className="text-xs text-muted-foreground">
-            {nomeDe(r.pessoaId)} · <span className="tabular-nums">{formatarDataHora(r.quando)}</span>
+            {nomeDe(r.pessoaId)}{r.viaAssistente && <ViaAssistente />} · <span className="tabular-nums">{formatarDataHora(r.quando)}</span>
           </p>
         </li>
       ))}
     </ul>
   );
+}
+
+/** Marca das gravações feitas com o assistente de IA, a pedido da pessoa ao lado. */
+function ViaAssistente() {
+  return <Badge status="neutral" className="ml-2 align-middle">Assistente</Badge>;
 }

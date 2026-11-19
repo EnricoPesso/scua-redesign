@@ -172,6 +172,21 @@ function melhorPorTitulo<T extends { titulo: string }>(itens: T[], texto: string
   return melhor?.item;
 }
 
+/**
+ * Qual cadastro a pessoa quer criar: o que tem a palavra principal do título citada primeiro no pedido.
+ * "cria uma jornada … tipo Comercial" é uma Jornada de trabalho, não um Tipo de jornada.
+ */
+function formularioPedido<T extends { titulo: string }>(itens: T[], texto: string): T | undefined {
+  let melhor: { item: T; posicao: number } | undefined;
+  for (const item of itens) {
+    const principal = significativas(item.titulo)[0];
+    if (!principal) continue;
+    const posicao = texto.search(new RegExp(String.raw`\b${principal.replace(/s$/, '')}s?\b`));
+    if (posicao >= 0 && (!melhor || posicao < melhor.posicao)) melhor = { item, posicao };
+  }
+  return melhor?.item;
+}
+
 function diaAnterior(dia: string): string {
   const d = new Date(`${dia}T12:00:00`);
   d.setDate(d.getDate() - 1);
@@ -220,7 +235,7 @@ export function responderSimulado(pedido: PedidoAssistente): RespostaAssistente 
 
   // 2. Pedido de cadastro sem o formulário aberto: abre o formulário.
   if (PEDE_CADASTRO.test(texto) && alvo?.tipo !== 'formulario') {
-    const formulario = melhorPorTitulo(contexto.formularios, texto);
+    const formulario = formularioPedido(contexto.formularios, texto);
     if (formulario && pode('abrir_formulario')) return resposta('', [{ tipo: 'abrir_formulario', formulario: formulario.id }]);
     if (!pode('abrir_formulario')) return resposta('Você não tem acesso para criar esse cadastro.');
   }

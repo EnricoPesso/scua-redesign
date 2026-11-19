@@ -13,6 +13,8 @@ Equipe: [@EnricoPesso](https://github.com/EnricoPesso), [@bpaolucci](https://git
 
 Na prática, as revisões ficam assim: Pedro revisa o bpaolucci · Miguel revisa o Enrico · Enrico revisa o Miguel · bpaolucci revisa o Pedro.
 
+> **Situação em 17/11/2026:** os itens marcados com [x] estão implementados no `app/` (branch local `redesign/completo`, ainda sem PR nem revisão cruzada), com dados simulados onde não há contrato de API. Continuam em aberto as decisões que dependem da Scua: stack do front-end (pergunta 35), 3 telas prioritárias (pergunta 42) e as fusões de relatórios (perguntas 46, 47 e 49). Veja [`app/README.md`](app/README.md).
+
 Material de base (leia antes de começar):
 - [`analise-sistema/progresso.md`](analise-sistema/progresso.md): todas as telas atuais, rotas e os **24 problemas de UX** encontrados (citados abaixo como #1, #2…).
 - [`perguntas-para-scua.md`](perguntas-para-scua.md): perguntas enviadas à Scua. As respostas podem mudar prioridades.
@@ -23,10 +25,10 @@ Material de base (leia antes de começar):
 ## Fase 0 — Decisões em conjunto (todos, antes de codar)
 
 - [ ] **Stack do front-end**: continuar em Angular (o sistema atual usa Angular) ou outra? Depende da resposta da Scua (pergunta 35).
-- [ ] **Arquitetura de informação**: o novo menu agrupado por tarefa, liderado pela Pessoa 2.
-- [ ] **Glossário**: um termo por conceito ("Estação" ou "Máquina", "Extensão de jornada" ou "Hora extra", "Batidas de ponto" ou "REP").
+- [x] **Arquitetura de informação**: o novo menu agrupado por tarefa, liderado pela Pessoa 2.
+- [x] **Glossário**: um termo por conceito ("Estação" ou "Máquina", "Extensão de jornada" ou "Hora extra", "Batidas de ponto" ou "REP").
 - [ ] **3 telas prioritárias** para o primeiro protótipo (pergunta 42 para a Scua).
-- [ ] Criar o projeto base (build, lint, typecheck) e preencher os comandos na seção 3.5 do `CLAUDE.md`.
+- [x] Criar o projeto base (build, lint, typecheck) e preencher os comandos na seção 3.5 do `CLAUDE.md`.
 
 ---
 
@@ -35,9 +37,9 @@ Material de base (leia antes de começar):
 **Por que vem primeiro:** todo mundo depende dos tokens e componentes. Enquanto eles não ficam prontos, as outras pessoas trabalham em wireframes.
 
 **Entregas**
-- [ ] Tokens: cores (laranja Scua ~`#E96B0A`, creme `#FBE9DA`, cinza quente `#F4F2EF`, cores de status), tipografia, espaçamento, raio, sombra, modo claro/escuro (se a Scua quiser).
-- [ ] Componentes: botão (primário, secundário, perigo, só ícone), campo, select, multi-select, data, checkbox/toggle, badge de status, card de KPI, **tabela com paginação**, painel lateral (drawer), modal de confirmação, toast, estado vazio, estado de erro, skeleton de carregamento.
-- [ ] Página de documentação dos componentes (Storybook ou página simples) com todos os estados: padrão, hover, foco, desabilitado, carregando, vazio e erro.
+- [x] Tokens: cores (laranja Scua ~`#E96B0A`, creme `#FBE9DA`, cinza quente `#F4F2EF`, cores de status), tipografia, espaçamento, raio, sombra, modo claro/escuro (se a Scua quiser).
+- [x] Componentes: botão (primário, secundário, perigo, só ícone), campo, select, multi-select, data, checkbox/toggle, badge de status, card de KPI, **tabela com paginação**, painel lateral (drawer), modal de confirmação, toast, estado vazio, estado de erro, skeleton de carregamento.
+- [x] Página de documentação dos componentes (Storybook ou página simples) com todos os estados: padrão, hover, foco, desabilitado, carregando, vazio e erro.
 
 **Problemas da análise que resolve:** #3 e #7 (paginação), #9 (identidade), #10 e #16 (botões e rótulos), #19 (ação de excluir com confirmação).
 
@@ -48,12 +50,12 @@ Material de base (leia antes de começar):
 ## Pessoa 2 — Navegação, layout e Dashboard (@Chokokito)
 
 **Entregas**
-- [ ] **Novo menu**: hoje são 13 itens + 18 relatórios + 13 de administração, tudo solto. Agrupar por tarefa e por perfil (gestor, RH, admin).
-- [ ] Layout geral: barra lateral recolhível, cabeçalho, busca, breadcrumb, versão mobile/tablet.
-- [ ] Cada tela com **endereço próprio** (link que abre em nova aba). Hoje o menu não tem `href`.
-- [ ] Tratamento de erro global: nada de mensagem técnica crua para o usuário.
-- [ ] **Dashboard** (`#/dashboard`): KPIs, gráfico de status com estado vazio, histórico de HE, com o período sempre visível.
-- [ ] Telas: Gráfico de Ausência (`#/gantt`), Logs (`#/logs`), Sobre (`#/logon-about`).
+- [x] **Novo menu**: hoje são 13 itens + 18 relatórios + 13 de administração, tudo solto. Agrupar por tarefa e por perfil (gestor, RH, admin).
+- [x] Layout geral: barra lateral recolhível, cabeçalho, busca, breadcrumb, versão mobile/tablet.
+- [x] Cada tela com **endereço próprio** (link que abre em nova aba). Hoje o menu não tem `href`.
+- [x] Tratamento de erro global: nada de mensagem técnica crua para o usuário.
+- [x] **Dashboard** (`#/dashboard`): KPIs, gráfico de status com estado vazio, histórico de HE, com o período sempre visível.
+- [x] Telas: Gráfico de Ausência (`#/gantt`), Logs (`#/logs`), Sobre (`#/logon-about`).
 
 **Problemas da análise que resolve:** #1 (`[object ProgressEvent]`), #4 (gráfico vazio), #5 (período do Dashboard ≠ Extensão), #6 e #11 (nome do menu ≠ título), #15 (menu Estações vazio), #20 (menu longo).
 
@@ -66,10 +68,10 @@ Material de base (leia antes de começar):
 As telas mais usadas no dia a dia. É o coração do produto.
 
 **Entregas**
-- [ ] **Usuários** (`#/users`): lista, busca, filtros e painel de detalhe com as abas Usuário, Feriados, Substituto, Exceção e Férias.
-- [ ] **Jornada de trabalho** (`#/workhours`): lista e cadastro de jornadas. Investigar o erro que às vezes impede a tela de abrir.
-- [ ] **Extensão de jornada** (`#/overtime`): pedir, aprovar e reprovar, com contadores e filtros. Fluxo ponta a ponta pensado também para o **celular do gestor**.
-- [ ] Telas ligadas: Pausas (`#/breaks`), Liberações por Diretoria (`#/releaseboard`), Carga de Dados (`#/load`), com feedback claro quando a carga falha.
+- [x] **Usuários** (`#/users`): lista, busca, filtros e painel de detalhe com as abas Usuário, Feriados, Substituto, Exceção e Férias.
+- [x] **Jornada de trabalho** (`#/workhours`): lista e cadastro de jornadas. Investigar o erro que às vezes impede a tela de abrir.
+- [x] **Extensão de jornada** (`#/overtime`): pedir, aprovar e reprovar, com contadores e filtros. Fluxo ponta a ponta pensado também para o **celular do gestor**.
+- [x] Telas ligadas: Pausas (`#/breaks`), Liberações por Diretoria (`#/releaseboard`), Carga de Dados (`#/load`), com feedback claro quando a carga falha.
 
 **Problemas da análise que resolve:** #2 (Jornada não abre), #3 (paginação de Usuários), #5 (contador de aprovadas), #18 (erros de console nessas telas, incluindo `administraTelaLiberacaoDiretoria`).
 
@@ -80,10 +82,10 @@ As telas mais usadas no dia a dia. É o coração do produto.
 ## Pessoa 4 — Relatórios e Administração (@bpaolucci)
 
 **Entregas**
-- [ ] **Um modelo único de relatório**: filtros → KPIs → tabela → exportar. Partir dos relatórios novos (Tentativas fora da jornada, Produtividade, Acompanhamento de Jornada), que já são o melhor padrão do sistema.
-- [ ] Aplicar o modelo aos **18 relatórios**. Antes, propor quais juntar ou remover (pergunta 18 para a Scua).
-- [ ] **Administração**: Domínio, Tipo de jornada, Parâmetros, Mensagens, Mensagens por tempo, Justificativas, Feriados, Templates WhatsApp, Grupos, Notificações, Localidade por IP, Notificações de Recorrência. Um padrão único de lista e formulário.
-- [ ] Traduzir códigos técnicos (`EVT_*`, SID) para texto amigável e revisar todos os textos (acentos, erros, inglês misturado).
+- [x] **Um modelo único de relatório**: filtros → KPIs → tabela → exportar. Partir dos relatórios novos (Tentativas fora da jornada, Produtividade, Acompanhamento de Jornada), que já são o melhor padrão do sistema.
+- [x] Aplicar o modelo aos **18 relatórios**. Antes, propor quais juntar ou remover (pergunta 18 para a Scua).
+- [x] **Administração**: Domínio, Tipo de jornada, Parâmetros, Mensagens, Mensagens por tempo, Justificativas, Feriados, Templates WhatsApp, Grupos, Notificações, Localidade por IP, Notificações de Recorrência. Um padrão único de lista e formulário.
+- [x] Traduzir códigos técnicos (`EVT_*`, SID) para texto amigável e revisar todos os textos (acentos, erros, inglês misturado).
 
 **Problemas da análise que resolve:** #6 e #11 (títulos dos relatórios), #8 e #17 (padrões diferentes), #12 (códigos crus), #13 (textos), #14 (descrições de notificação invertidas: avisar a Scua).
 

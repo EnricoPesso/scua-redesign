@@ -6,10 +6,24 @@ type Status = "carregando" | "erro" | "pronto"
 
 // Filtros em edição (rascunho) x aplicados: a busca só roda ao clicar em Filtrar.
 // Cada busca cancela a anterior, então uma resposta lenta nunca sobrescreve uma mais nova.
-export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string) {
+type Opcoes = {
+  valoresIniciais?: ValoresFiltro
+  aoAplicar?: (aplicados: ValoresFiltro, padrao: boolean) => void
+}
+
+export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string, opcoes: Opcoes = {}) {
   const [padrao, setPadrao] = useState(() => valoresPadrao(config.filtros, hoje))
-  const [rascunho, setRascunho] = useState<ValoresFiltro>(padrao)
-  const [aplicados, setAplicados] = useState<ValoresFiltro>(padrao)
+  // Só as chaves que o relatório conhece entram: um parâmetro estranho na URL é ignorado.
+  const [iniciais] = useState<ValoresFiltro>(() => {
+    const v = { ...padrao }
+    for (const chave of Object.keys(padrao)) {
+      const dado = opcoes.valoresIniciais?.[chave]
+      if (dado !== undefined && Array.isArray(dado) === Array.isArray(padrao[chave])) v[chave] = dado
+    }
+    return v
+  })
+  const [rascunho, setRascunho] = useState<ValoresFiltro>(iniciais)
+  const [aplicados, setAplicados] = useState<ValoresFiltro>(iniciais)
   // Cada Filtrar/Limpar/Tentar de novo incrementa: a busca roda mesmo com filtros iguais.
   const [busca, setBusca] = useState(0)
   const [status, setStatus] = useState<Status>("carregando")
@@ -48,7 +62,13 @@ export function useModeloRelatorio<T>(config: ConfigRelatorio<T>, hoje: string) 
     return () => controle.abort()
   }, [aplicados, busca])
 
+  const aoAplicarRef = useRef(opcoes.aoAplicar)
+  useEffect(() => {
+    aoAplicarRef.current = opcoes.aoAplicar
+  })
+
   function aplicar(v: ValoresFiltro) {
+    aoAplicarRef.current?.(v, JSON.stringify(v) === JSON.stringify(padrao))
     setRascunho(v)
     setAplicados(v)
     setStatus("carregando")

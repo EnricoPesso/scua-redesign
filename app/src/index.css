@@ -1,0 +1,27 @@
+@import "../../design-system/src/index.css";
+@source "../../design-system/src/components";
+@source "../../design-system/src/modelos";
+@source "./";
+
+#root { min-height: 100vh; }
+
+/*
+ * Celular: todo controle tem pelo menos 44px de área de toque (critério de pronto).
+ * O alvo padrão do sistema de design é 40px; esta regra sobe para 44px em telas pequenas, inclusive
+ * dentro dos componentes dele (paginação da tabela, botões de diálogo, campos).
+ * pedir ao @PhLima07: alvo de 44px no celular direto nos componentes.
+ */
+@media (max-width: 767px) {
+  :where(button, select, [role="combobox"], input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"])):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"], [data-alvo-livre]) {
+    min-height: 2.75rem;
+  }
+  /* [data-alvo-livre]: marcas de gráfico (ex.: barras da linha do tempo), que têm o tamanho do dado. */
+  :where(button):not([role="checkbox"], [role="switch"], [role="radio"], [role="option"], [role="tab"], [data-alvo-livre]) {
+    min-width: 2.75rem;
+  }
+}
+
+/* Com a bolha do assistente no canto inferior direito, os avisos (toasts) sobem para ficar acima dela. */
+:root:has([data-assistente]) {
+  --toaster-bottom: 5.5rem;
+}

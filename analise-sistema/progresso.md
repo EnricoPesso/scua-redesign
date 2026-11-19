@@ -69,6 +69,9 @@ Home · Usuários · Jornada de trabalho · Extensão de jornada · Relatórios 
 | 2026-10-29 | Início do modelo único de relatório (filtros → KPIs → tabela → exportar) | branch `p4/modelo-relatorio` |
 | 2026-10-29 | 3 protótipos do modelo de relatório (A barra no topo, B filtros na lateral, C resposta primeiro). **Escolhido: A**. Lighthouse Acessibilidade 100 (mobile) | `design-system/prototipos.html` (A virou o componente `ModeloRelatorio`) |
 
+| 2026-11-17 | Extensão de jornada completa (formulário, detalhe e decisão, lote, ponta a ponta) | `app/src/features/extensoes/` |
+| 2026-11-17 | App completo: casca com menu por perfil e busca de telas, painel inicial, Ausências, Usuários, Jornadas, Pausas, Liberações por diretoria, 17 relatórios, 12 configurações, Carga de dados, Auditoria e Sobre. Dados simulados onde ainda não há contrato de API | `app/` (branch local `redesign/completo`) · [`app/README.md`](../app/README.md) |
+
 **Pendências da P4 (relatórios):** formato do arquivo exportado; colunas de Produtividade e Acompanhamento de Jornada com dados; confirmar as fusões ⚠️ com dados reais; combinar Horas extras com o @EnricoPesso (P3). Depende das perguntas 18, 29 e 46–51.
 
 ## Problemas de UX já encontrados

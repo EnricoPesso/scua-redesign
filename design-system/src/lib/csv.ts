@@ -1,7 +1,7 @@
 // CSV para o "Exportar" dos relatórios. Separador ";" e BOM porque o Excel em pt-BR
 // abre assim sem quebrar colunas nem acentos.
 
-type ColunaCsv<T> = { header: string; texto: (row: T) => string }
+export type ColunaCsv<T> = { header: string; texto: (row: T) => string }
 
 const SEPARADOR = ";"
 const BOM = "﻿"
@@ -22,4 +22,3 @@ export function gerarCsv<T>(colunas: ColunaCsv<T>[], rows: T[]): string {
   return BOM + linhas.map((l) => l.join(SEPARADOR)).join("\r\n")
 }
 
-export type { ColunaCsv }

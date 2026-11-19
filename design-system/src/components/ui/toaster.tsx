@@ -31,7 +31,7 @@ function ToastList() {
     <ToastPrimitive.Portal>
       <ToastPrimitive.Viewport
         data-slot="toast-viewport"
-        className="fixed right-4 bottom-4 z-[60] flex w-[calc(100%-2rem)] flex-col gap-2 outline-none sm:w-96"
+        className="fixed right-4 bottom-[var(--toaster-bottom,1rem)] z-[60] flex w-[calc(100%-2rem)] flex-col gap-2 outline-none sm:w-96"
       >
         {toasts.map((toast) => {
           const style = toastStyles[toast.type as ToastType] ?? toastStyles.info

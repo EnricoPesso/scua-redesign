@@ -96,3 +96,22 @@ Contexto: [`analise-sistema/inventario-relatorios.md`](analise-sistema/inventari
 49. O relatório **Horas extras** tem alguma diferença em relação à tela **Extensão de jornada** (registros antigos, outros status)? Se não tiver, pode virar só um botão "Exportar" naquela tela?
 50. Em **Jornada e Controle**, de onde vem o "último evento de controle"? No demo ele aparece vazio para um usuário que tem evento em 05/10 no relatório Usuários x Última data de controle.
 51. A estação DEMO-WS05 aparece com a versão do agente **em branco** em Estações e como **"Não instalado"** em Estações inativas. Qual dos dois está certo? Versão em branco significa que o agente não está instalado?
+
+## 11. Bloqueio da estação e extensão de jornada (adicionadas em 2026-11-18)
+
+Contexto: o redesign da tela de Extensão de jornada parte de que o Scua Logon bloqueia o computador fora da jornada e de que a extensão aprovada libera esse acesso. O sistema atual indica isso (relatórios de bloqueio, tempo de bloqueio e tentativas fora da jornada), mas nada foi confirmado com vocês.
+
+52. ⭐ O bloqueio da estação fora da jornada vale para todo mundo ou depende da jornada? O que muda numa jornada marcada como **"Informativa"**: ela só registra os horários, sem bloquear?
+53. ⭐ Quando o gestor aprova uma extensão de jornada, o computador da pessoa é **liberado automaticamente** naqueles dias e horários, ou alguém precisa liberar de outro jeito?
+54. ⭐ A extensão aprovada vira **hora extra paga** na folha, ou serve só para liberar o acesso ao computador? Isso define se o sistema deve falar em "hora extra" ou só em "extensão de jornada".
+55. O que a opção **"Libera regra"** faz? Ela aparece no cadastro da jornada e nas permissões do usuário. O que a pessoa (ou a jornada) com essa opção consegue fazer?
+
+## 12. Assistente de IA (adicionadas em 2026-11-19)
+
+Contexto: o redesign traz um assistente de IA em todas as telas. Ele preenche formulários, analisa o relatório aberto, tira dúvidas e leva a pessoa até a tela pedida, sempre com as permissões de quem está logado. O contrato para o servidor está em [`docs/contrato-assistente.md`](docs/contrato-assistente.md).
+
+56. ⭐ **Preço:** quanto custa para o cliente usar a chave da Scua? É por uso, por pacote ou incluso no plano?
+57. ⭐ **Dados pessoais (LGPD):** a Scua aceita enviar nomes, horários e ausências de funcionários para um provedor de IA externo? O contrato com os clientes precisa citar isso? Existe provedor exigido ou proibido?
+58. **Onde a chave fica:** o servidor da Scua vai guardar a chave de cada cliente? Com que criptografia?
+59. **Auditoria:** a API real aceita a marcação "via assistente" nos registros?
+60. **Limites:** precisa de limite de uso por empresa ou por pessoa, para controlar o custo?

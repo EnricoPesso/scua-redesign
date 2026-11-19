@@ -56,7 +56,7 @@
   --leading-tight: 1.2;
 }
 
-/* Variáveis do shadcn apontam para os semânticos Scua. Sem modo escuro (fora do escopo). */
+/* Variáveis do shadcn apontam para os semânticos Scua: o tema escuro (:root.dark em tokens.css) vale aqui sem repetir nada. */
 :root {
   --background: var(--color-bg);
   --foreground: var(--color-text);
@@ -66,16 +66,24 @@
   --popover-foreground: var(--color-text);
   --primary: var(--color-brand);
   --primary-foreground: var(--color-on-brand);
-  --secondary: var(--scua-orange-100);
+  --secondary: var(--color-accent-bg);
   --secondary-foreground: var(--color-text);
-  --muted: var(--scua-gray-100);
+  --muted: var(--color-neutral-bg);
   --muted-foreground: var(--color-text-muted);
-  --accent: var(--scua-orange-100);
+  --accent: var(--color-accent-bg);
   --accent-foreground: var(--color-text);
   --destructive: var(--color-danger);
   --border: var(--color-line);
   --input: var(--color-line-strong);
   --ring: var(--color-focus);
+}
+
+/* Controles nativos (calendário, rolagem, rádio) acompanham o tema. */
+:root {
+  color-scheme: light;
+}
+:root.dark {
+  color-scheme: dark;
 }
 
 @layer base {

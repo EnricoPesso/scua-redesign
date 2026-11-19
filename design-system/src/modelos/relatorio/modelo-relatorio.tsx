@@ -1,11 +1,11 @@
-import type { ReactNode } from "react"
+import { useEffect, useRef, type ReactNode } from "react"
 import { DownloadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
 import { ErrorState } from "@/components/ui/error-state"
 import { KpiCard } from "@/components/ui/kpi-card"
 import { useToast } from "@/components/ui/use-toast"
-import { gerarCsv } from "@/lib/csv"
+import { exportarPlanilha } from "@/components/exportar-planilha"
 import { formatNumber } from "@/lib/format-number"
 import { formatarDataBr, hojeIso, nomeArquivo, periodoDe } from "@/lib/relatorio"
 import { Filtros } from "./filtros"
@@ -16,12 +16,28 @@ type ModeloRelatorioProps<T> = {
   config: ConfigRelatorio<T>
   // Data de referência do período padrão. Fixa em protótipo e teste; hoje no sistema real.
   hoje?: string
+  // Trilha própria do app (ex.: com links do roteador, sem recarregar a página). Substitui a trilha padrão.
+  trilha?: ReactNode
+  // Filtros com que o relatório abre (ex.: lidos da URL); o que faltar usa o padrão.
+  valoresIniciais?: ValoresFiltro
+  // Avisa a cada Filtrar/Limpar, para o app guardar os filtros aplicados (ex.: na URL). `padrao` = sem filtro próprio.
+  aoAplicar?: (aplicados: ValoresFiltro, padrao: boolean) => void
+  // Avisa quando os dados mudam (carregando, erro, pronto), para o app saber o que está na tela (ex.: o assistente).
+  aoCarregar?: (dados: { aplicados: ValoresFiltro; rows: T[]; status: "carregando" | "erro" | "pronto" }) => void
 }
 
 // Modelo único de relatório (variante A, escolhida em 2026-10-29):
 // cabeçalho com Exportar → faixa de filtros → KPIs → tabela.
-export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: ModeloRelatorioProps<T>) {
-  const r = useModeloRelatorio(config, hoje)
+export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha, valoresIniciais, aoAplicar, aoCarregar }: ModeloRelatorioProps<T>) {
+  const r = useModeloRelatorio(config, hoje, { valoresIniciais, aoAplicar })
+  // Quem recebe o aviso fica numa ref: uma função nova a cada render não dispara o efeito.
+  const aoCarregarRef = useRef(aoCarregar)
+  useEffect(() => {
+    aoCarregarRef.current = aoCarregar
+  })
+  useEffect(() => {
+    aoCarregarRef.current?.({ aplicados: r.aplicados, rows: r.rows, status: r.status })
+  }, [r.aplicados, r.rows, r.status])
   const carregando = r.status === "carregando"
   const erro = r.status === "erro"
   const periodo = textoPeriodo(r.aplicados)
@@ -30,7 +46,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
     <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <Trilha grupo={config.grupo} href={config.linkRelatorios} />
+          {trilha ?? <Trilha grupo={config.grupo} href={config.linkRelatorios} />}
           <h1 className="font-heading text-xl font-bold text-foreground">{config.titulo}</h1>
         </div>
         <BotaoExportar colunas={config.colunas} rows={r.rows} arquivo={nomeArquivo(config.arquivo, r.aplicados)} disabled={r.status !== "pronto" || r.rows.length === 0} />
@@ -47,7 +63,7 @@ export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso() }: 
         <Filtros filtros={config.filtros} valores={r.rascunho} onChange={r.setRascunho} erroPeriodo={r.erroPeriodo} />
         <div className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="ghost" onClick={r.limpar}>
-            Limpar
+            Limpar filtros
           </Button>
           <Button type="submit" loading={carregando} disabled={Boolean(r.erroPeriodo)}>
             Filtrar
@@ -134,26 +150,17 @@ function Vazio({ mensagem, podeLimpar, limpar }: { mensagem: string; podeLimpar:
 function BotaoExportar<T>({ colunas, rows, arquivo, disabled }: { colunas: ColunaRelatorio<T>[]; rows: T[]; arquivo: string; disabled: boolean }) {
   const toast = useToast()
   function exportar() {
-    const csv = gerarCsv(
-      colunas.map((c) => ({ header: c.header, texto: c.texto ?? ((row: T) => String(row[c.key as keyof T] ?? "")) })),
-      rows,
-    )
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }))
-    // Safari e Firefox só baixam com o link no DOM e a URL ainda válida durante o clique.
-    const a = document.createElement("a")
-    a.href = url
-    a.download = arquivo
-    a.hidden = true
-    document.body.append(a)
-    a.click()
-    a.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
-    toast.success(`${formatNumber(rows.length)} ${rows.length === 1 ? "registro exportado" : "registros exportados"} em ${arquivo}`)
+    const nome = exportarPlanilha({
+      arquivo,
+      colunas: colunas.map((c) => ({ header: c.header, texto: c.texto ?? ((row: T) => String(row[c.key as keyof T] ?? "")) })),
+      linhas: rows,
+    })
+    toast.success(`${formatNumber(rows.length)} ${rows.length === 1 ? "registro exportado" : "registros exportados"} em ${nome}`)
   }
   return (
     <Button variant="secondary" disabled={disabled} onClick={exportar}>
       <DownloadIcon aria-hidden="true" />
-      Exportar CSV
+      Exportar para Excel
     </Button>
   )
 }

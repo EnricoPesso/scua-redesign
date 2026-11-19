@@ -32,6 +32,22 @@
   --scua-blue-300: #7fb2ee;
   --scua-blue-700: #1a569e;
 
+  /* Primitivos do tema escuro: cinzas quentes (mesma família do gray) e fundos de status escuros */
+  --scua-night-950: #141110;
+  --scua-night-900: #1d1916;
+  --scua-night-850: #27221e;
+  --scua-night-700: #3d3530;
+  --scua-night-500: #7f756c;
+  --scua-night-300: #b8afa6;
+  --scua-orange-900: #36241a;
+  --scua-green-900: #11301c;
+  --scua-green-300: #86dba0;
+  --scua-red-900: #3f1511;
+  --scua-red-300: #ff9c92;
+  --scua-yellow-900: #3b2f06;
+  --scua-yellow-300: #f3d06b;
+  --scua-blue-900: #0f2846;
+
   /* Camada 2: semânticos */
   --color-bg: var(--scua-gray-50);
   --color-surface: var(--scua-gray-0);
@@ -44,6 +60,8 @@
   --color-brand-text: var(--scua-orange-600);
   --color-brand-hover: var(--scua-orange-400);
   --color-row-hover: var(--scua-gray-50);
+  /* Fundo de destaque suave (botão secundário no hover, item ativo) */
+  --color-accent-bg: var(--scua-orange-100);
   --color-on-brand: var(--scua-gray-900); /* branco sobre #E96B0A dá 3,2:1 e reprova AA */
   --color-focus: var(--scua-gray-900);
   --color-backdrop: rgb(31 26 23 / 0.5);
@@ -85,6 +103,48 @@
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --dur-fast: 120ms;
   --dur: 200ms;
+}
+
+/* Tema escuro: a classe .dark no <html> troca só os semânticos; os componentes não mudam.
+   Os mesmos pares de contraste do tema claro são conferidos aqui (npm run contrast). */
+:root.dark {
+  --color-bg: var(--scua-night-950);
+  --color-surface: var(--scua-night-900);
+  --color-surface-muted: var(--scua-orange-900);
+  --color-text: var(--scua-gray-50);
+  --color-text-muted: var(--scua-night-300);
+  --color-line: var(--scua-night-700);
+  --color-line-strong: var(--scua-night-500);
+  --color-brand: var(--scua-orange-400);
+  --color-brand-text: var(--scua-orange-400);
+  --color-brand-hover: var(--scua-orange-200);
+  --color-row-hover: var(--scua-night-850);
+  --color-accent-bg: var(--scua-orange-900);
+  --color-on-brand: var(--scua-gray-900);
+  --color-focus: var(--scua-gray-50);
+  --color-backdrop: rgb(0 0 0 / 0.6);
+  --color-danger: var(--scua-red-400);
+  --color-danger-hover: var(--scua-red-300);
+  --color-on-danger: var(--scua-gray-900);
+  --color-danger-text: var(--scua-red-300);
+
+  --color-success-bg: var(--scua-green-900);
+  --color-success-text: var(--scua-green-300);
+  --color-warning-bg: var(--scua-yellow-900);
+  --color-warning-text: var(--scua-yellow-300);
+  --color-danger-bg: var(--scua-red-900);
+  --color-info-bg: var(--scua-blue-900);
+  --color-info-text: var(--scua-blue-300);
+  --color-neutral-bg: var(--scua-night-700);
+  --color-neutral-text: var(--scua-gray-100);
+
+  /* Toast e dicas: um degrau mais claro que a superfície, para não sumirem no fundo escuro */
+  --color-toast-bg: var(--scua-night-700);
+  --color-toast-text: var(--scua-gray-50);
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 4px 14px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 16px 40px rgb(0 0 0 / 0.55);
 }
 
 @media (prefers-reduced-motion: reduce) {

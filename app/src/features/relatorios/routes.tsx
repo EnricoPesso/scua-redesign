@@ -1,4 +1,4 @@
-import { Suspense, lazy, useMemo, useState, type ComponentType, type ReactNode } from 'react';
+import { Suspense, lazy, useCallback, useMemo, useState, type ComponentType, type ReactNode } from 'react';
 import { Link, Route, Routes, useParams, useSearchParams } from 'react-router';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -6,8 +6,10 @@ import { Field } from '@/components/ui/field';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ModeloRelatorio, type ConfigRelatorio, type ValoresFiltro } from '@/modelos/relatorio';
 import { cn } from '@/lib/utils';
+import { useAlvoDoAssistente } from '../assistente/estado';
 import { NaoEncontrada } from '../../layout/ErroGlobal';
 import { Pagina, Trilha, useTituloDaAba } from '../../componentes/Pagina';
+import { alvoDoRelatorio } from './assistente';
 import { CARREGADORES } from './carregadores';
 import { filtrarRelatorios } from './busca';
 import { TEMAS, relatorioPorSlug, temaDe, type ItemRelatorio } from './catalogo';
@@ -106,11 +108,19 @@ function RelatorioNaUrl<T extends object>({ config, trilha }: { config: ConfigRe
     }
     return v;
   });
+  // O assistente de IA enxerga o relatório aberto, mas só quando os dados já chegaram (não carregando, não com erro).
+  const [dados, setDados] = useState<{ aplicados: ValoresFiltro; rows: T[] } | null>(null);
+  const aoCarregar = useCallback((d: { aplicados: ValoresFiltro; rows: T[]; status: 'carregando' | 'erro' | 'pronto' }) => {
+    setDados(d.status === 'pronto' ? { aplicados: d.aplicados, rows: d.rows } : null);
+  }, []);
+  const alvo = useMemo(() => (dados ? alvoDoRelatorio(config, dados.aplicados, dados.rows) : null), [config, dados]);
+  useAlvoDoAssistente(alvo ? { alvo } : null);
   return (
     <ModeloRelatorio
       config={config}
       trilha={trilha}
       valoresIniciais={iniciais}
+      aoCarregar={aoCarregar}
       aoAplicar={(aplicados, padrao) => {
         const novo = new URLSearchParams();
         if (!padrao) {

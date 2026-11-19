@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import { useEffect, useRef, type ReactNode } from "react"
 import { DownloadIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/ui/data-table"
@@ -22,12 +22,22 @@ type ModeloRelatorioProps<T> = {
   valoresIniciais?: ValoresFiltro
   // Avisa a cada Filtrar/Limpar, para o app guardar os filtros aplicados (ex.: na URL). `padrao` = sem filtro próprio.
   aoAplicar?: (aplicados: ValoresFiltro, padrao: boolean) => void
+  // Avisa quando os dados mudam (carregando, erro, pronto), para o app saber o que está na tela (ex.: o assistente).
+  aoCarregar?: (dados: { aplicados: ValoresFiltro; rows: T[]; status: "carregando" | "erro" | "pronto" }) => void
 }
 
 // Modelo único de relatório (variante A, escolhida em 2026-10-29):
 // cabeçalho com Exportar → faixa de filtros → KPIs → tabela.
-export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha, valoresIniciais, aoAplicar }: ModeloRelatorioProps<T>) {
+export function ModeloRelatorio<T extends object>({ config, hoje = hojeIso(), trilha, valoresIniciais, aoAplicar, aoCarregar }: ModeloRelatorioProps<T>) {
   const r = useModeloRelatorio(config, hoje, { valoresIniciais, aoAplicar })
+  // Quem recebe o aviso fica numa ref: uma função nova a cada render não dispara o efeito.
+  const aoCarregarRef = useRef(aoCarregar)
+  useEffect(() => {
+    aoCarregarRef.current = aoCarregar
+  })
+  useEffect(() => {
+    aoCarregarRef.current?.({ aplicados: r.aplicados, rows: r.rows, status: r.status })
+  }, [r.aplicados, r.rows, r.status])
   const carregando = r.status === "carregando"
   const erro = r.status === "erro"
   const periodo = textoPeriodo(r.aplicados)

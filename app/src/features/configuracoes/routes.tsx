@@ -39,17 +39,17 @@ function PaginaInicial() {
     <Pagina titulo="Configurações" descricao="Ajustes de jornada, mensagens e funcionamento do sistema.">
       <div className="flex flex-col gap-8">
         {AREAS.map((area) => (
-          <section key={area.id} aria-labelledby={`area-${area.id}`} className="flex flex-col gap-3">
-            <h2 id={`area-${area.id}`} className="font-heading text-base font-bold text-foreground">{area.titulo}</h2>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <section key={area.id} aria-labelledby={`area-${area.id}`} className="flex flex-col gap-4 border-t border-[var(--color-line)] pt-5">
+            <h2 id={`area-${area.id}`} className="font-heading text-base font-semibold tracking-tight text-foreground">{area.titulo}</h2>
+            <ul className="grid gap-x-6 gap-y-1 sm:grid-cols-2">
               {CONFIGURACOES.filter((c) => c.area === area.id).map((c) => (
-                <li key={c.slug}>
+                <li key={c.slug} className="border-b border-[var(--color-line)]/60 last:border-b-0 sm:[&:nth-last-child(2):nth-child(odd)]:border-b-0">
                   <Link
                     to={`/configuracoes/${c.slug}`}
-                    className="flex h-full min-h-11 flex-col gap-1 rounded-lg border border-border bg-card p-4 outline-none hover:bg-[var(--color-row-hover)] focus-visible:ring-3 focus-visible:ring-ring"
+                    className="group -mx-2 flex h-full min-h-11 flex-col justify-center gap-0.5 rounded-lg px-2 py-3 transition-colors duration-[var(--dur-fast)] outline-none hover:bg-[var(--color-row-hover)] focus-visible:ring-3 focus-visible:ring-ring"
                   >
-                    <span className="font-semibold text-[var(--color-brand-text)]">{c.titulo}</span>
-                    <span className="text-sm text-muted-foreground">{c.resumo}</span>
+                    <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-[var(--color-brand-text)]">{c.titulo}</span>
+                    <span className="text-xs leading-relaxed text-muted-foreground">{c.resumo}</span>
                   </Link>
                 </li>
               ))}

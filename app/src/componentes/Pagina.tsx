@@ -44,14 +44,14 @@ export function Pagina({ titulo, trilha = [], descricao, acoes, children, classN
 }) {
   useTituloDaAba(titulo);
   return (
-    <main className={cn('mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8', className)}>
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
+    <main className={cn('mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-8 px-4 pt-6 pb-12 sm:px-8 lg:pt-8 lg:pb-16', className)}>
+      <header className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex min-w-0 flex-col gap-1.5">
           <Trilha passos={trilha} />
-          <h1 className="font-heading text-xl font-bold text-foreground">{titulo}</h1>
-          {descricao && <p className="max-w-2xl text-sm text-muted-foreground">{descricao}</p>}
+          <h1 className="font-heading text-xl font-bold tracking-tight text-foreground sm:text-2xl">{titulo}</h1>
+          {descricao && <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{descricao}</p>}
         </div>
-        {acoes && <div className="flex flex-wrap gap-2 max-md:w-full max-md:flex-col max-md:[&>*]:w-full max-md:[&>a]:h-11 max-md:[&>button]:h-11">{acoes}</div>}
+        {acoes && <div className="flex flex-wrap items-end gap-2.5 max-md:w-full max-md:flex-col max-md:[&>*]:w-full max-md:[&>a]:h-11 max-md:[&>button]:h-11">{acoes}</div>}
       </header>
       {children}
     </main>

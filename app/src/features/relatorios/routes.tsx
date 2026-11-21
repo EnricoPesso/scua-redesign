@@ -51,25 +51,25 @@ function Entrada() {
           }
         />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
           {TEMAS.map((tema) => {
             const itens = achados.filter((r) => r.tema === tema.id);
             if (itens.length === 0) return null;
             return (
-              <section key={tema.id} aria-labelledby={`tema-${tema.id}`} className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-1)] sm:p-5">
-                <div className="flex flex-col gap-0.5">
-                  <h2 id={`tema-${tema.id}`} className="font-heading text-base font-bold text-foreground">{tema.titulo}</h2>
-                  <p className="text-sm text-muted-foreground">{tema.pergunta}</p>
+              <section key={tema.id} aria-labelledby={`tema-${tema.id}`} className="flex flex-col gap-4 border-t border-[var(--color-line)] pt-5">
+                <div className="flex flex-col gap-1">
+                  <h2 id={`tema-${tema.id}`} className="font-heading text-base font-semibold tracking-tight text-foreground">{tema.titulo}</h2>
+                  <p className="text-xs text-muted-foreground">{tema.pergunta}</p>
                 </div>
-                <ul className="flex flex-col gap-1">
+                <ul className="divide-y divide-[var(--color-line)]/60">
                   {itens.map((r) => (
                     <li key={r.slug}>
                       <Link
                         to={`/relatorios/${r.slug}`}
-                        className="flex min-h-11 flex-col justify-center rounded-md px-3 py-2 outline-none hover:bg-[var(--color-row-hover)] focus-visible:ring-3 focus-visible:ring-ring"
+                        className="group -mx-2 flex min-h-11 flex-col justify-center gap-0.5 rounded-lg px-2 py-2.5 transition-colors duration-[var(--dur-fast)] outline-none hover:bg-[var(--color-row-hover)] focus-visible:ring-3 focus-visible:ring-ring"
                       >
-                        <span className="text-sm font-semibold text-[var(--color-brand-text)]">{r.titulo}</span>
-                        <span className="text-sm text-muted-foreground">{r.resumo}</span>
+                        <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-[var(--color-brand-text)]">{r.titulo}</span>
+                        <span className="text-xs leading-relaxed text-muted-foreground">{r.resumo}</span>
                       </Link>
                     </li>
                   ))}

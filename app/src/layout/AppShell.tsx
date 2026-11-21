@@ -43,10 +43,10 @@ function Marca({ curta = false }: { curta?: boolean }) {
 
 function Navegacao({ grupos, recolhido = false, aoNavegar }: { grupos: GrupoMenu[]; recolhido?: boolean; aoNavegar?: () => void }) {
   return (
-    <nav aria-label="Menu principal" className="grid gap-5">
+    <nav aria-label="Menu principal" className="grid gap-6">
       {grupos.map((g) => (
         <div key={g.titulo} className="grid gap-1">
-          <h2 className={cn('px-3 text-xs font-bold tracking-wide text-muted-foreground uppercase', recolhido && 'sr-only')}>{g.titulo}</h2>
+          <h2 className={cn('px-3 pb-0.5 text-xs font-medium text-muted-foreground/80', recolhido && 'sr-only')}>{g.titulo}</h2>
           <ul className="grid gap-0.5">
             {g.itens.map((i) => (
               <li key={i.para}>
@@ -55,15 +55,19 @@ function Navegacao({ grupos, recolhido = false, aoNavegar }: { grupos: GrupoMenu
                   onClick={aoNavegar}
                   title={recolhido ? i.rotulo : undefined}
                   className={({ isActive }) => cn(
-                    'flex min-h-11 items-center gap-3 rounded-md border-l-4 px-3 text-sm font-semibold outline-none focus-visible:ring-3 focus-visible:ring-ring lg:min-h-10',
+                    'group flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm transition-colors duration-[var(--dur-fast)] outline-none focus-visible:ring-3 focus-visible:ring-ring lg:min-h-9',
                     recolhido && 'justify-center px-0',
                     isActive
-                      ? 'border-[var(--color-brand)] bg-[var(--color-surface-muted)] text-foreground'
-                      : 'border-transparent text-muted-foreground hover:bg-[var(--color-row-hover)] hover:text-foreground',
+                      ? 'bg-[var(--color-surface-muted)] font-semibold text-foreground'
+                      : 'font-medium text-muted-foreground hover:bg-[var(--color-row-hover)] hover:text-foreground',
                   )}
                 >
-                  <i.icone aria-hidden="true" className="size-5 shrink-0" />
-                  <span className={cn(recolhido && 'sr-only')}>{i.rotulo}</span>
+                  {({ isActive }) => (
+                    <>
+                      <i.icone aria-hidden="true" className={cn('size-[1.125rem] shrink-0 transition-colors', isActive ? 'text-[var(--color-brand)]' : 'text-muted-foreground/80 group-hover:text-foreground')} />
+                      <span className={cn(recolhido && 'sr-only')}>{i.rotulo}</span>
+                    </>
+                  )}
                 </NavLink>
               </li>
             ))}
@@ -142,13 +146,13 @@ export function AppShell() {
       </a>
 
       {/* Menu fixo: só no desktop. */}
-      <aside className={cn('sticky top-0 hidden h-screen shrink-0 flex-col gap-4 overflow-y-auto border-r border-[var(--color-line)] bg-[var(--color-surface)] p-3 lg:flex', recolhido ? 'w-[4.5rem]' : 'w-64')}>
-        <div className={cn('flex min-h-10 items-center px-2', recolhido && 'justify-center px-0')}><Marca curta={recolhido} /></div>
+      <aside className={cn('sticky top-0 hidden h-screen shrink-0 flex-col gap-5 overflow-y-auto rounded-r-2xl border-r border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-5 lg:flex', recolhido ? 'w-[4.5rem]' : 'w-64')}>
+        <div className={cn('flex min-h-10 items-center px-2.5', recolhido && 'justify-center px-0')}><Marca curta={recolhido} /></div>
         <div className="flex-1">{permissoes.isPending ? <MenuCarregando /> : <Navegacao grupos={grupos} recolhido={recolhido} />}</div>
         <Button
           variant="ghost"
           size={recolhido ? 'icon' : 'default'}
-          className={cn(!recolhido && 'justify-start', recolhido && 'mx-auto')}
+          className={cn('rounded-xl text-muted-foreground hover:text-foreground', !recolhido && 'justify-start', recolhido && 'mx-auto')}
           aria-expanded={!recolhido}
           aria-label={recolhido ? 'Expandir menu' : undefined}
           onClick={alternarRecolhido}
@@ -162,32 +166,40 @@ export function AppShell() {
         ref={gaveta}
         aria-label="Menu"
         onClick={(e) => { if (e.target === e.currentTarget) e.currentTarget.close(); }}
-        className="m-0 h-dvh max-h-none w-[min(20rem,85vw)] max-w-none border-r border-[var(--color-line)] bg-[var(--color-surface)] p-0 text-foreground backdrop:bg-[var(--color-backdrop)] lg:hidden"
+        className="m-0 h-dvh max-h-none w-[min(20rem,85vw)] max-w-none rounded-r-2xl border-r border-[var(--color-line)] bg-[var(--color-surface)] p-0 text-foreground backdrop:bg-[var(--color-backdrop)] lg:hidden"
       >
-        <div className="flex h-full flex-col gap-4 overflow-y-auto p-3">
+        <div className="flex h-full flex-col gap-5 overflow-y-auto p-4">
           <div className="flex items-center justify-between gap-2 px-2">
             <Marca />
-            <Button variant="ghost" size="icon" className="size-11" aria-label="Fechar menu" onClick={() => gaveta.current?.close()}><XIcon aria-hidden="true" /></Button>
+            <Button variant="ghost" size="icon" className="size-11 rounded-xl" aria-label="Fechar menu" onClick={() => gaveta.current?.close()}><XIcon aria-hidden="true" /></Button>
           </div>
           {permissoes.isPending ? <MenuCarregando /> : <Navegacao grupos={grupos} aoNavegar={() => gaveta.current?.close()} />}
         </div>
       </dialog>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex min-h-14 items-center gap-2 border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 sm:px-6">
-          <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Abrir menu" onClick={() => gaveta.current?.showModal()}><MenuIcon aria-hidden="true" /></Button>
-          <span className="lg:hidden"><Marca curta /></span>
+        <header className="mx-auto flex w-full max-w-7xl items-center gap-3 px-4 pt-4 pb-1 sm:px-8">
+          <div className="flex items-center gap-2 lg:hidden">
+            <Button variant="ghost" size="icon" className="size-11" aria-label="Abrir menu" onClick={() => gaveta.current?.showModal()}><MenuIcon aria-hidden="true" /></Button>
+            <Marca curta />
+          </div>
           <button
             type="button"
             onClick={() => setBuscaAberta(true)}
-            className="ml-auto inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-md border border-input bg-card px-3 text-sm text-muted-foreground outline-none hover:border-foreground focus-visible:ring-3 focus-visible:ring-ring sm:ml-0 sm:w-72 sm:justify-start lg:h-10"
+            className="ml-auto inline-flex h-11 min-w-11 items-center justify-center gap-2.5 rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] px-4 text-sm text-muted-foreground transition-colors duration-[var(--dur-fast)] outline-none hover:border-[var(--color-line-strong)] hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring sm:ml-0 sm:w-80 sm:justify-start lg:h-10"
           >
-            <SearchIcon aria-hidden="true" className="size-4 shrink-0" />
-            <span className="max-sm:sr-only">Buscar tela</span>
-            <kbd className="ml-auto hidden rounded border border-[var(--color-line)] px-1.5 text-xs sm:inline">Ctrl K</kbd>
+            <SearchIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+            <span className="max-sm:sr-only">Buscar tela...</span>
           </button>
-          <span className="ml-auto max-sm:ml-0"><BotaoTema /></span>
-          {permissoes.data && <Usuario permissoes={permissoes.data} />}
+          <div className="ml-auto flex items-center gap-1.5 max-sm:ml-0">
+            <BotaoTema />
+            {permissoes.data && (
+              <>
+                <span aria-hidden="true" className="mx-1 hidden h-4 w-px bg-[var(--color-line)] sm:block" />
+                <Usuario permissoes={permissoes.data} />
+              </>
+            )}
+          </div>
         </header>
 
         <div id="conteudo" ref={conteudo} tabIndex={-1} className="min-w-0 flex-1 outline-none">
@@ -231,13 +243,13 @@ function Usuario({ permissoes }: { permissoes: Permissoes }) {
   const { nome } = permissoes.usuario;
   const iniciais = nome.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5 pl-1">
       <span className="grid text-right leading-tight max-sm:hidden">
-        <span className="text-sm font-semibold text-foreground">{nome}</span>
+        <span className="text-sm font-medium text-foreground">{nome}</span>
         <span className="text-xs text-muted-foreground">{papelDe(permissoes)}</span>
       </span>
       <span className="sr-only sm:hidden">{nome}, {papelDe(permissoes)}</span>
-      <span aria-hidden="true" className="grid size-9 place-items-center rounded-full bg-[var(--color-surface-muted)] text-sm font-bold text-foreground">
+      <span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-[var(--color-surface-muted)] text-xs font-semibold text-foreground">
         {iniciais}
       </span>
     </div>

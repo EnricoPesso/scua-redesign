@@ -27,17 +27,18 @@ import {
 
 /** O texto do período sai em minúsculas ("hoje, 12/10") e aparece com a primeira letra maiúscula no cartão. */
 const PRIMEIRA_MAIUSCULA = '[&>p:last-child]:first-letter:uppercase';
-const CARTAO = 'grid min-w-0 content-start gap-4 rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-1)]';
+const KPI_SUPERFICIE = 'rounded-none border-0 bg-transparent px-5 py-4 shadow-none';
+const CARTAO = 'grid min-w-0 content-start gap-5 border-t border-[var(--color-line)] pt-6';
 
 function Cartao({ titulo, periodo, acoes, children }: { titulo: string; periodo: string; acoes?: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
     <section aria-labelledby={id} className={CARTAO}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-0.5">
-          <h2 id={id} className="text-base font-bold text-foreground">{titulo}</h2>
+        <div className="grid gap-1">
+          <h2 id={id} className="text-base font-semibold tracking-tight text-foreground">{titulo}</h2>
           {/* O período fica sempre à vista: o sistema atual mostrava números sem dizer de quando eram. */}
-          <p className="text-sm text-muted-foreground first-letter:uppercase">{periodo}</p>
+          <p className="text-xs text-muted-foreground first-letter:uppercase">{periodo}</p>
         </div>
         {acoes}
       </div>
@@ -47,7 +48,7 @@ function Cartao({ titulo, periodo, acoes, children }: { titulo: string; periodo:
 }
 
 function Vazio({ children }: { children: ReactNode }) {
-  return <p className="rounded-md border border-dashed border-input px-4 py-8 text-center text-sm text-muted-foreground">{children}</p>;
+  return <p className="py-6 text-sm text-muted-foreground">{children}</p>;
 }
 
 const Carregando = ({ rotulo }: { rotulo: string }) => (
@@ -67,10 +68,10 @@ function Bloco<T>({ consulta, rotulo, children }: { consulta: UseQueryResult<T>;
 
 // Status é "estado": cor reservada + rótulo em texto + valor escrito, nunca só a cor.
 const STATUS: { chave: Status; rotulo: string; cor: string }[] = [
-  { chave: 'pendente', rotulo: 'Pendentes', cor: 'bg-[var(--color-warning-text)]' },
-  { chave: 'aprovado', rotulo: 'Aprovados', cor: 'bg-[var(--color-success-text)]' },
-  { chave: 'reprovado', rotulo: 'Reprovados', cor: 'bg-[var(--color-danger)]' },
-  { chave: 'cancelado', rotulo: 'Cancelados', cor: 'bg-[var(--color-line-strong)]' },
+  { chave: 'pendente', rotulo: 'Pendentes', cor: 'bg-[#d97706] dark:bg-[var(--color-warning-text)]' },
+  { chave: 'aprovado', rotulo: 'Aprovados', cor: 'bg-[#16a34a] dark:bg-[var(--color-success-text)]' },
+  { chave: 'reprovado', rotulo: 'Reprovados', cor: 'bg-[#dc2626] dark:bg-[var(--color-danger)]' },
+  { chave: 'cancelado', rotulo: 'Cancelados', cor: 'bg-[#94a3b8] dark:bg-[var(--color-line-strong)]' },
 ];
 
 function BarrasPorStatus({ contagem, periodo }: { contagem: ContagemPorStatus; periodo: string }) {
@@ -129,8 +130,8 @@ function Historico({ meses }: { meses: MesDoHistorico[] }) {
 /** Período do resumo: atalhos (Hoje, Ontem, 7 dias, Este mês) ou um dia escolhido no calendário. */
 function SeletorDePeriodo({ periodo, hoje, aoMudar }: { periodo: Periodo; hoje: string; aoMudar: (mudanca: { periodo?: Atalho; dia?: string }) => void }) {
   return (
-    <div role="group" aria-label="Período do resumo" className="flex flex-wrap items-end gap-2 max-md:w-full">
-      <div className="inline-flex flex-wrap rounded-md border border-input p-0.5 max-md:w-full">
+    <div role="group" aria-label="Período do resumo" className="flex flex-wrap items-end gap-2.5 max-md:w-full">
+      <div className="inline-flex flex-wrap rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5 max-md:w-full">
         {ATALHOS.map((a) => (
           <button
             key={a.valor}
@@ -138,8 +139,8 @@ function SeletorDePeriodo({ periodo, hoje, aoMudar }: { periodo: Periodo; hoje: 
             aria-pressed={periodo.tipo === a.valor}
             onClick={() => aoMudar({ periodo: a.valor })}
             className={cn(
-              'inline-flex min-h-11 items-center justify-center rounded-sm px-3 text-sm font-semibold whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:flex-1 max-md:px-2 md:min-h-9',
-              periodo.tipo === a.valor ? 'bg-[var(--color-surface-muted)] text-foreground' : 'text-muted-foreground hover:text-foreground',
+              'inline-flex min-h-11 items-center justify-center rounded-sm px-3 text-sm whitespace-nowrap transition-colors duration-[var(--dur-fast)] outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:flex-1 max-md:px-2 md:min-h-8',
+              periodo.tipo === a.valor ? 'bg-[var(--color-surface-muted)] font-semibold text-foreground' : 'font-medium text-muted-foreground hover:text-foreground',
             )}
           >
             {a.rotulo}
@@ -224,10 +225,10 @@ export function InicioPage() {
   const bloco = (id: string): ReactNode => {
     switch (id) {
       case 'aviso':
-        if (carregando) return <Skeleton key={id} className="h-[4.75rem] max-md:h-[8.5rem]" />;
+        if (carregando) return <Skeleton key={id} className="h-[4.25rem] rounded-md max-md:h-[8rem]" />;
         if (!r || r.pendentesParaMim === 0) return null;
         return (
-          <section key={id} aria-label="Para você resolver" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-muted)] p-4">
+          <section key={id} aria-label="Para você resolver" className="flex flex-wrap items-center justify-between gap-4 border-l-2 border-[var(--color-brand)] bg-[var(--color-surface)] px-5 py-3.5">
             <p className="text-sm text-foreground">
               <strong>{r.pendentesParaMim} {r.pendentesParaMim === 1 ? 'pedido de extensão espera' : 'pedidos de extensão esperam'}</strong> a sua aprovação.
             </p>
@@ -235,13 +236,13 @@ export function InicioPage() {
           </section>
         );
       case 'kpi-usuarios':
-        return <KpiCard key={id} label="Usuários cadastrados" value={r?.usuarios ?? 0} period="Situação atual" loading={carregando} />;
+        return <KpiCard key={id} className={KPI_SUPERFICIE} label="Usuários cadastrados" value={r?.usuarios ?? 0} period="Situação atual" loading={carregando} />;
       case 'kpi-presentes':
-        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Presentes" value={r?.presentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
+        return <KpiCard key={id} className={cn(KPI_SUPERFICIE, PRIMEIRA_MAIUSCULA)} label="Presentes" value={r?.presentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
       case 'kpi-ausentes':
-        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Ausentes" value={r?.ausentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
+        return <KpiCard key={id} className={cn(KPI_SUPERFICIE, PRIMEIRA_MAIUSCULA)} label="Ausentes" value={r?.ausentes ?? 0} period={periodoPresenca} loading={carregando} empty={semExpediente} />;
       case 'kpi-horas':
-        return <KpiCard key={id} className={PRIMEIRA_MAIUSCULA} label="Horas de extensão aprovadas" value={horas} decimals={Number.isInteger(horas) ? 0 : 1} unit="h" period={texto} loading={carregando} />;
+        return <KpiCard key={id} className={cn(KPI_SUPERFICIE, PRIMEIRA_MAIUSCULA)} label="Horas de extensão aprovadas" value={horas} decimals={Number.isInteger(horas) ? 0 : 1} unit="h" period={texto} loading={carregando} />;
       case 'status':
         return (
           <Cartao key={id} titulo="Pedidos de extensão por status" periodo={`Pedidos feitos ${texto}`}>
@@ -250,7 +251,7 @@ export function InicioPage() {
                 {(contagem) => <BarrasPorStatus contagem={contagem} periodo={texto} />}
               </Bloco>
             </div>
-            <Link to="/extensoes" className="w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">
+            <Link to="/extensoes" className="w-fit rounded-sm text-sm font-medium text-muted-foreground underline-offset-4 outline-none transition-colors hover:text-[var(--color-brand-text)] hover:underline focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center">
               Abrir extensões de jornada
             </Link>
           </Cartao>
@@ -313,14 +314,14 @@ export function InicioPage() {
               <div key={chaveGrupo} className="grid gap-4">
                 <EstadoErro erro={resumo.error} aoTentar={() => void resumo.refetch()} />
                 {g.ids.some((id) => !KPIS_DO_RESUMO.includes(id)) && (
-                  <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{g.ids.filter((id) => !KPIS_DO_RESUMO.includes(id)).map(bloco)}</div>
+                  <div className="grid grid-cols-2 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)] bg-[var(--color-surface)] sm:divide-y-0 sm:divide-x lg:grid-cols-4">{g.ids.filter((id) => !KPIS_DO_RESUMO.includes(id)).map(bloco)}</div>
                 )}
               </div>
             );
           }
-          return <div key={chaveGrupo} className="grid grid-cols-2 gap-4 lg:grid-cols-4">{g.ids.map(bloco)}</div>;
+          return <div key={chaveGrupo} className="grid grid-cols-2 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)] bg-[var(--color-surface)] sm:divide-y-0 sm:divide-x lg:grid-cols-4">{g.ids.map(bloco)}</div>;
         }
-        return <div key={chaveGrupo} className="grid gap-4 lg:grid-cols-2">{g.ids.map(bloco)}</div>;
+        return <div key={chaveGrupo} className="grid gap-x-10 gap-y-8 lg:grid-cols-2">{g.ids.map(bloco)}</div>;
       })}
 
       {personalizando && (

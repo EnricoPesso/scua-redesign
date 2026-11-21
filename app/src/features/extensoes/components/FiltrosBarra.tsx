@@ -51,7 +51,7 @@ export function FiltrosBarra({ aba, filtros, ativos, atualizar, limpar }: Props)
       <Button variant="secondary" className="justify-self-start max-md:h-11 md:hidden" aria-expanded={aberto} aria-controls={idPainel} onClick={() => setAberto((a) => !a)}>
         Filtros{ativos > 0 ? ` (${ativos})` : ''}
       </Button>
-      <div id={idPainel} className={cn('grid gap-3 md:flex md:flex-wrap md:items-end', !aberto && 'max-md:hidden')}>
+      <div id={idPainel} className={cn('grid gap-3 pb-1 md:flex md:flex-wrap md:items-end', !aberto && 'max-md:hidden')}>
         <DateField label="De" className={CAMPO} value={filtros.de} onChange={(v) => atualizar({ de: v })} />
         <DateField label="Até" className={CAMPO} value={filtros.ate} onChange={(v) => atualizar({ ate: v })} />
         {aba !== 'aprovar' && (

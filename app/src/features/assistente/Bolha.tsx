@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
-import { BotIcon, Trash2Icon, XIcon } from 'lucide-react';
+import { MessageCircleIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Conversa } from './Conversa';
 import { useAssistente } from './estado';
@@ -30,10 +30,10 @@ export function Bolha() {
           role="dialog"
           aria-label="Assistente Scua"
           onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); a.fechar(); } }}
-          className="fixed right-4 bottom-20 z-40 flex max-h-[min(38rem,calc(100dvh-6rem))] w-96 flex-col gap-3 rounded-xl border border-[var(--color-line-strong)] bg-popover p-4 text-popover-foreground shadow-[var(--shadow-3)] max-md:inset-0 max-md:max-h-none max-md:w-auto max-md:rounded-none max-md:border-0"
+          className="fixed right-5 bottom-20 z-40 flex max-h-[min(38rem,calc(100dvh-6rem))] w-96 flex-col gap-3 rounded-2xl bg-popover p-5 text-popover-foreground shadow-[var(--shadow-3)] ring-1 ring-[var(--color-line)] max-md:inset-0 max-md:max-h-none max-md:w-auto max-md:rounded-none max-md:ring-0"
         >
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-base font-bold text-foreground"><BotIcon aria-hidden="true" className="size-5 text-[var(--color-brand-text)]" />Assistente Scua</h2>
+          <div className="flex items-center justify-between gap-2 pb-1">
+            <h2 className="flex items-center gap-2 text-base font-semibold text-foreground"><MessageCircleIcon aria-hidden="true" className="size-4 text-[var(--color-brand)]" />Assistente Scua</h2>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" aria-label="Limpar conversa" title="Limpar conversa" onClick={a.limpar} disabled={a.conversa.length === 0}><Trash2Icon aria-hidden="true" /></Button>
               <Button variant="ghost" size="icon" aria-label="Fechar assistente" title="Fechar" onClick={a.fechar}><XIcon aria-hidden="true" /></Button>
@@ -50,9 +50,10 @@ export function Bolha() {
         aria-expanded={a.aberto}
         title="Assistente Scua"
         onClick={() => (a.aberto ? a.fechar() : a.abrir())}
-        className={`fixed right-4 bottom-4 z-40 inline-flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-3)] outline-none transition-transform duration-[var(--dur-fast)] hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${a.aberto ? 'max-md:hidden' : ''}`}
+        className={`fixed right-5 bottom-5 z-40 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--color-brand)] px-4 text-sm font-semibold text-[var(--color-on-brand)] shadow-[var(--shadow-2)] outline-none transition-colors duration-[var(--dur-fast)] hover:bg-[var(--color-brand-hover)] focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background max-md:size-12 max-md:px-0 ${a.aberto ? 'max-md:hidden' : ''}`}
       >
-        <BotIcon aria-hidden="true" className="size-7" />
+        <MessageCircleIcon aria-hidden="true" className="size-4 shrink-0" />
+        <span className="max-md:sr-only">Assistente</span>
       </button>
     </>
   );
@@ -76,7 +77,7 @@ export function AssistenteNoFormulario({ exemplo }: { exemplo: string }) {
         aria-controls={idPainel}
         onClick={() => (a.aberto ? a.fechar() : a.abrir())}
       >
-        <BotIcon aria-hidden="true" />Preencher com IA
+        <MessageCircleIcon aria-hidden="true" />Preencher com IA
       </Button>
       {a.aberto && (
         <div id={idPainel} className="grid gap-2">

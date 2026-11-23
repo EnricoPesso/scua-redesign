@@ -7,12 +7,13 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
 
 ## Onde paramos (atualizado em 2026-11-23)
 
-- **Branch atual:** `abismo/pilares`, criada em 23/11 a partir de `redesign/completo`. **Nada commitado ainda**: falta o ok do responsável depois de ver no navegador.
+- **Branch atual:** `abismo/pilares`. Os 5 pilares foram commitados em 23/11 (`c7437e5`), só local: sem push, PR nem merge. A `main` remota tem um commit do Miguel (`690f777`, paleta e layout novos) que **ainda não foi juntado**: há conflito em `AppShell.tsx`, `Pagina.tsx`, `Bolha.tsx` e `InicioPage.tsx`.
 - **App (`app/`):** redesign completo do Scua Logon em React + Vite com API simulada (MSW). Áreas em `app/src/features/`: assistente, auditoria, ausências, carga, configurações, dossie, extensões, início, jornadas, liberações, meus-dados, passivo, pausas, previsao, relatórios, sobre e usuários.
 - **Sistema de design (`design-system/`):** tokens Scua, componentes e página de documentação.
 - **Última entrega (23/11, sem commit):** os 5 pilares do "Abismo competitivo": Previsão de jornada (`/previsao`, com semáforo no pedido de extensão), Radar de passivo em R$ (`/radar-de-passivo`), Dossiê do colaborador (`/dossie`), Assistente proativo (resumo do dia numa caixa do cabeçalho e na conversa, aprovação em lote com confirmação) e Meus dados (`/meus-dados`).
 - **Verificação em 23/11:** unitários 1039/1039, e2e 215/215, typecheck, lint e build sem erros, Lighthouse de acessibilidade 100 em Radar, Previsão, Dossiê e Meus dados. Não medido: Lighthouse de performance, Core Web Vitals, e os comandos do `design-system/` (que não foi alterado).
-- **Próximo passo:** ok do responsável no navegador → commit local → entrega das 16h de 23/11 (como será enviada ainda não foi dito).
+- **Entrega de 23/11 (16h):** dois ZIPs na raiz do projeto, fora do git: `Apresentacao_Final_Scua.zip` (slides com o sistema ao vivo, no modelo da apresentação da Bulbe) e `Sistema_Scua_Logon.zip` (código-fonte). A pasta `Apresentacao_Final_Scua/` é a origem do primeiro.
+- **Próximo passo:** juntar a `main` (visual do Miguel) com `abismo/pilares`, resolver os 4 conflitos e rodar os testes de novo. Depois, unificar a conta do limite mensal.
 - **Pendências abertas:**
   - Perguntas 61–67 para a Scua (ponto oficial ou complementar, custo-hora, o que o agente coleta, minutos evitados, aprovação pelo assistente, integridade no servidor). A lista do que o Scua NÃO registra em Meus dados é premissa do protótipo.
   - **Achado da revisão ainda aberto:** o "já usado no mês" do limite de extensão é calculado de três jeitos (barra de limite pela API de extensões; semáforo e Meus dados pelos registros de exemplo de `mock/jornadaReal.ts`). Na mesma tela, a barra pode dizer "ok" e o semáforo dizer que estoura. Correção: o semáforo e Meus dados usarem o mesmo `minutosAprovadosNoMes` da barra.
@@ -116,3 +117,9 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
 - **Resumo do dia foi para o cabeçalho (mesma sessão):**
   - **Feito:** `app/src/layout/ResumoNoCabecalho.tsx`: botão com contador ao lado do modo claro/escuro, que abre uma caixa com os itens (fecha com Esc, clique fora, ao escolher um item e ao trocar de tela). O bloco saiu do padrão do Início (`BLOCOS_PADRAO` em `features/inicio/blocos.ts`) e continua disponível em Personalizar. Testes do Início reescritos; `personalizar.test.tsx` voltou à versão original.
   - **Por quê:** o responsável viu no navegador e disse que o bloco ocupava muito a tela de Início.
+- **Entrega (mesma sessão): apresentação e ZIPs**
+  - **Feito:** `Apresentacao_Final_Scua/`: 16 slides em HTML (`apresentacao/`), o sistema compilado com a API simulada (`sistema/`), `servidor.js`, `INICIAR-APRESENTACAO.bat`, 18 capturas reais para o plano B, e `README.md`, `ROTEIRO.md`, `PERGUNTAS-BANCA.md` e `VERIFICACAO.md`. Os slides 13 e 14 listam o que funciona, o que é simulado e o que não foi feito.
+  - **Por quê:** a entrega pede uma apresentação e um ZIP do sistema; o responsável pediu o mesmo modelo da apresentação da Bulbe e que nada do que não foi implementado ficasse escondido.
+  - **Decisão:** entregar a branch `abismo/pilares` com o visual anterior e juntar o visual do Miguel depois (escolha do responsável, por causa do prazo).
+  - **Skills (regras §2):** nenhuma skill usada (a governança do JFrog segue bloqueando); Playwright para capturas e conferência dos slides.
+  - **Pendências:** os nomes da equipe na capa vieram de `DIVISAO-DE-TAREFAS.md` e precisam da conferência do responsável.

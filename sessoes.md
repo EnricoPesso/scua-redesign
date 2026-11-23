@@ -12,7 +12,7 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
 - **Sistema de design (`design-system/`):** tokens Scua, componentes e página de documentação.
 - **Última entrega (23/11, sem commit):** os 5 pilares do "Abismo competitivo": Previsão de jornada (`/previsao`, com semáforo no pedido de extensão), Radar de passivo em R$ (`/radar-de-passivo`), Dossiê do colaborador (`/dossie`), Assistente proativo (resumo do dia numa caixa do cabeçalho e na conversa, aprovação em lote com confirmação) e Meus dados (`/meus-dados`).
 - **Verificação em 23/11:** unitários 1039/1039, e2e 215/215, typecheck, lint e build sem erros, Lighthouse de acessibilidade 100 em Radar, Previsão, Dossiê e Meus dados. Não medido: Lighthouse de performance, Core Web Vitals, e os comandos do `design-system/` (que não foi alterado).
-- **Entrega de 23/11 (16h):** dois ZIPs na raiz do projeto, fora do git: `Apresentacao_Final_Scua.zip` (slides com o sistema ao vivo, no modelo da apresentação da Bulbe) e `Sistema_Scua_Logon.zip` (código-fonte). A pasta `Apresentacao_Final_Scua/` é a origem do primeiro.
+- **Entrega de 23/11 (16h):** dois ZIPs na raiz do projeto, fora do git: `Apresentacao_Final_Scua.zip` (slides com o sistema ao vivo, no modelo da apresentação da Bulbe) e `Sistema_Scua_Logon.zip` (código-fonte). A pasta `Apresentacao_Final_Scua/` é a origem do primeiro. A pasta `ENTREGA/` reúne os dois ZIPs e o `COMO-ABRIR.txt` (passo a passo), prontos para enviar.
 - **Próximo passo:** juntar a `main` (visual do Miguel) com `abismo/pilares`, resolver os 4 conflitos e rodar os testes de novo. Depois, unificar a conta do limite mensal.
 - **Pendências abertas:**
   - Perguntas 61–67 para a Scua (ponto oficial ou complementar, custo-hora, o que o agente coleta, minutos evitados, aprovação pelo assistente, integridade no servidor). A lista do que o Scua NÃO registra em Meus dados é premissa do protótipo.
@@ -123,3 +123,7 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
   - **Decisão:** entregar a branch `abismo/pilares` com o visual anterior e juntar o visual do Miguel depois (escolha do responsável, por causa do prazo).
   - **Skills (regras §2):** nenhuma skill usada (a governança do JFrog segue bloqueando); Playwright para capturas e conferência dos slides.
   - **Pendências:** os nomes da equipe na capa vieram de `DIVISAO-DE-TAREFAS.md` e precisam da conferência do responsável.
+- **Ajustes na apresentação a pedido do responsável (mesma sessão):**
+  - **Feito:** reforço visual (capa com o sistema ao vivo, moldura de navegador, animação de entrada, slides do problema, da pesquisa e dos pilares refeitos, placar nos slides 13 e 14); palco ocupando a janela inteira e barra escondida em tela cheia; destaque laranja sobre a feature em cada tela ao vivo (tecla D); tela do sistema maior; botão "Semáforo no pedido" abrindo direto um pedido. Pasta `ENTREGA/` com os dois ZIPs e o `COMO-ABRIR.txt`.
+  - **Por quê:** o responsável achou a primeira versão fraca, viu bordas pretas em tela cheia, pediu destaque nas features e tela maior, e pediu os arquivos separados com o passo a passo.
+  - **Pendências:** tela cheia não conferida em monitor real; `.bat` não executado com dois cliques; ZIP do sistema não rodado do zero; nomes da equipe na capa a confirmar.

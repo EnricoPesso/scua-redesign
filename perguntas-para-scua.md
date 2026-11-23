@@ -115,3 +115,15 @@ Contexto: o redesign traz um assistente de IA em todas as telas. Ele preenche fo
 58. **Onde a chave fica:** o servidor da Scua vai guardar a chave de cada cliente? Com que criptografia?
 59. **Auditoria:** a API real aceita a marcação "via assistente" nos registros?
 60. **Limites:** precisa de limite de uso por empresa ou por pessoa, para controlar o custo?
+
+## 13. Previsão, radar de passivo, dossiê e Meus dados (adicionadas em 2026-11-23)
+
+Contexto: o redesign ganhou cinco frentes novas, escolhidas a partir da pesquisa de concorrência em [`analise-sistema/concorrencia/`](analise-sistema/concorrencia/): Previsão de jornada, Radar de passivo em R$, Dossiê do colaborador, Assistente proativo e Meus dados. No protótipo elas rodam sobre dados de exemplo.
+
+61. ⭐ **Ponto oficial ou controle complementar:** algum cliente usa o Scua Logon como registro de ponto oficial (REP-P, Portaria 671), ou ele é sempre um controle complementar ao ponto? Isso muda o texto do Dossiê e o que ele pode prometer.
+62. ⭐ **Custo-hora:** o cliente informa salário ou custo-hora em algum lugar do sistema? O Radar de passivo precisa desse valor para estimar em R$. Sem ele, o radar pode trabalhar só em horas.
+63. ⭐ **O que o agente registra:** além de logon, logoff, bloqueios e pausas, o agente coleta imagem da tela, teclas digitadas, sites, aplicativos, webcam ou localização? A tela Meus dados afirma ao colaborador que **não** coleta. É uma premissa do protótipo (`app/src/features/meus-dados/conteudo.ts`) e precisa da confirmação da Scua.
+64. **Minutos evitados:** o agente registra as tentativas de uso barradas pelo bloqueio (quantas e por quanto tempo)? O indicador "evitado pelo bloqueio" depende disso.
+65. **Férias, feriados e afastamentos:** o bloqueio já considera esses dias automaticamente?
+66. **Aprovação pelo assistente:** a Scua aceita que o assistente aprove pedidos em lote depois de uma confirmação explícita do gestor, com a marcação "via assistente" na auditoria?
+67. **Integridade do registro:** a API guarda os registros de logon de forma que não possam ser alterados depois (assinatura ou código de verificação)? O Dossiê mostra um código de integridade calculado no navegador; o ideal é que ele venha do servidor.

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 import { useAssistente } from './estado';
+import { CartaoDaMensagem } from './resumo/Cartoes';
 
 export const AVISO = 'Respostas geradas por IA. Confira antes de salvar. O conteúdo da conversa e os dados da tela aberta são enviados ao provedor de IA configurado.';
 
@@ -39,7 +40,9 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
 
   const sugestoes = a.tipoDoAlvo === 'relatorio'
     ? ['Analisar este relatório', 'Como aprovo uma extensão?']
-    : a.tipoDoAlvo === 'formulario' ? [] : ['Como aprovo uma extensão?', 'Abrir Ausências de ontem'];
+    : a.tipoDoAlvo === 'formulario' ? [] : ['O que precisa de mim hoje?', 'Como aprovo uma extensão?', 'Abrir Ausências de ontem'];
+  // A abertura do dia é do app: as sugestões somem só quando a pessoa começa a conversar.
+  const comecou = a.conversa.some((m) => !m.local);
   const ultima = a.conversa.at(-1);
 
   return (
@@ -52,19 +55,28 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
       )}
 
       <div role="log" aria-live="polite" aria-label="Conversa com o assistente" className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain">
-        {a.conversa.map((m, i) => (
-          <p
-            key={i}
-            className={cn(
-              'max-w-[88%] rounded-lg px-3 py-2 text-sm break-words whitespace-pre-wrap',
-              m.papel === 'usuario' ? 'self-end bg-primary text-primary-foreground' : 'self-start bg-[var(--color-surface-muted)] text-foreground',
-              m.erro && 'border border-[var(--color-danger)]',
-            )}
-          >
-            <span className="sr-only">{m.papel === 'usuario' ? 'Você: ' : 'Assistente: '}</span>
-            {m.texto}
-          </p>
-        ))}
+        {a.conversa.map((m) => {
+          const texto = (
+            <p
+              className={cn(
+                'rounded-lg px-3 py-2 text-sm break-words whitespace-pre-wrap',
+                !m.cartao && 'max-w-[88%]',
+                m.papel === 'usuario' ? 'self-end bg-primary text-primary-foreground' : 'self-start bg-[var(--color-surface-muted)] text-foreground',
+                m.erro && 'border border-[var(--color-danger)]',
+              )}
+            >
+              <span className="sr-only">{m.papel === 'usuario' ? 'Você: ' : 'Assistente: '}</span>
+              {m.texto}
+            </p>
+          );
+          if (!m.cartao) return <div key={m.id} className="contents">{texto}</div>;
+          return (
+            <div key={m.id} className="flex w-full max-w-[96%] flex-col items-start gap-2 self-start">
+              {texto}
+              <div className="w-full"><CartaoDaMensagem mensagem={m} /></div>
+            </div>
+          );
+        })}
         {a.conversa.length > 0 && <div ref={fim} aria-hidden="true" />}
       </div>
 
@@ -73,7 +85,7 @@ export function Conversa({ focarAoAbrir = false, exemplo, className }: { focarAo
         <Button type="button" variant="secondary" className="w-fit max-md:h-11" onClick={() => void a.tentarDeNovo()}>Tentar de novo</Button>
       )}
 
-      {a.conversa.length === 0 && !a.pensando && sugestoes.length > 0 && (
+      {!comecou && !a.pensando && sugestoes.length > 0 && (
         <ul aria-label="Sugestões" className="flex flex-wrap gap-2">
           {sugestoes.map((s) => (
             <li key={s}>

@@ -1,5 +1,5 @@
 import {
-  CalendarClockIcon, CalendarOffIcon, ChartColumnIcon, CoffeeIcon, HistoryIcon, HouseIcon, InfoIcon, LockOpenIcon, SettingsIcon, TimerIcon, UploadIcon, UsersIcon,
+  CalendarClockIcon, CalendarOffIcon, ChartColumnIcon, CoffeeIcon, FileCheckIcon, RadarIcon, ShieldCheckIcon, TrendingUpIcon, HistoryIcon, HouseIcon, InfoIcon, LockOpenIcon, SettingsIcon, TimerIcon, UploadIcon, UsersIcon,
   type LucideIcon,
 } from 'lucide-react';
 import { CONFIGURACOES } from '../features/configuracoes/catalogo';
@@ -8,7 +8,7 @@ import { RELATORIOS, temaDe } from '../features/relatorios/catalogo';
 
 /**
  * Arquitetura de informação do menu. O sistema atual tinha 13 itens + 18 relatórios + 13 de administração,
- * todos soltos. Aqui são 12 itens em 4 grupos por tarefa, e cada perfil só vê o que pode usar.
+ * todos soltos. Aqui são 16 itens em 5 grupos por tarefa, e cada perfil só vê o que pode usar.
  * Relatórios e Configurações têm uma página de entrada própria; as telas internas aparecem na busca.
  */
 export type Permissao = 'extensoes' | 'relatorios' | 'pessoas' | 'administracao';
@@ -30,6 +30,15 @@ export const MENU: GrupoMenu[] = [
       { rotulo: 'Início', para: '/inicio', icone: HouseIcon, permissao: 'relatorios' },
       { rotulo: 'Extensões de jornada', para: '/extensoes', icone: TimerIcon, permissao: 'extensoes' },
       { rotulo: 'Ausências', para: '/ausencias', icone: CalendarOffIcon, permissao: 'relatorios' },
+      { rotulo: 'Meus dados', para: '/meus-dados', icone: ShieldCheckIcon, permissao: 'extensoes' },
+    ],
+  },
+  {
+    titulo: 'Antecipar e provar',
+    itens: [
+      { rotulo: 'Previsão de jornada', para: '/previsao', icone: TrendingUpIcon, permissao: 'relatorios' },
+      { rotulo: 'Radar de passivo', para: '/radar-de-passivo', icone: RadarIcon, permissao: 'relatorios' },
+      { rotulo: 'Dossiê do colaborador', para: '/dossie', icone: FileCheckIcon, permissao: 'pessoas' },
     ],
   },
   {

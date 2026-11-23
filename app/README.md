@@ -45,7 +45,8 @@ Todas as telas do redesign estão no app, cada uma com endereço próprio:
 
 | Grupo do menu | Telas |
 |---|---|
-| Dia a dia | `/inicio` (painel), `/extensoes` (pedir, aprovar, lote), `/ausencias` (linha do tempo e tabela) |
+| Dia a dia | `/inicio` (painel), `/extensoes` (pedir, aprovar, lote), `/ausencias` (linha do tempo e tabela), `/meus-dados` (o que o Scua registra de quem está logado) |
+| Antecipar e provar | `/previsao` (quem deve quebrar uma regra de jornada nos próximos 7 dias), `/radar-de-passivo` (risco em R$ e quanto o bloqueio evitou), `/dossie` (registro íntegro de uma pessoa num período) |
 | Pessoas e jornadas | `/usuarios` (lista + painel com Dados, Feriados, Substituto, Exceções, Férias), `/jornadas`, `/pausas`, `/liberacoes-por-diretoria` |
 | Análise | `/relatorios` (entrada por assunto) e `/relatorios/<slug>`: 17 relatórios no modelo único |
 | Administração | `/configuracoes` e `/configuracoes/<slug>` (12 cadastros no modelo único e Assistente de IA), `/carga-de-dados`, `/auditoria`, `/sobre` |
@@ -54,7 +55,7 @@ O menu mostra só o que o perfil pode usar (`?como=ana` vê só Extensões; `?co
 
 ## Assistente de IA
 
-Uma bolha no canto de todas as telas abre o assistente. Ele preenche formulários (Jornadas e os cadastros do modelo único), analisa o relatório aberto, tira dúvidas e leva até a tela pedida, sempre com as permissões de quem está logado. Ele não exclui nada e não aprova nem reprova pedidos.
+Uma bolha no canto de todas as telas abre o assistente. Ele preenche formulários (Jornadas e os cadastros do modelo único), analisa o relatório aberto, tira dúvidas e leva até a tela pedida, sempre com as permissões de quem está logado. Ele também abre o dia com o que precisa de você (o resumo do dia) e aprova em lote os pedidos de extensão que cabem no limite do grupo, sempre depois de um cartão de confirmação. Ele não exclui nada e não reprova pedidos.
 
 - **Sem chave** (o padrão), funciona em modo demonstração, com respostas simuladas.
 - **Com chave**: copie `.env.example` para `.env.local` e preencha `SCUA_IA_CHAVE` (e, se quiser, `SCUA_IA_PROVEDOR`, `SCUA_IA_MODELO` e `SCUA_IA_MODELO_ANALISE`). A chave só é lida pelo servidor de desenvolvimento; nunca vai para o navegador nem para o git.
@@ -76,6 +77,7 @@ src/
     relatorios/     catalogo.ts + um arquivo por relatório (configuração do modelo de relatório)
     configuracoes/  catalogo.ts + um arquivo por cadastro (configuração do modelo de cadastro)
     carga/ auditoria/ sobre/
+    previsao/ passivo/ dossie/ meus-dados/   usam os registros de jornada de `mock/jornadaReal.ts` e as regras de `lib/conformidade.ts`
 e2e/            Playwright: extensoes.spec.ts (critérios de aceite) e telas.spec.ts (todas as telas × 3 tamanhos)
 ```
 

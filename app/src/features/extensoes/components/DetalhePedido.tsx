@@ -16,6 +16,7 @@ import { avaliarLimite } from '../domain/limite';
 import type { Decisao, MotivoReprovacao, Pagina, Pedido, Permissoes } from '../domain/types';
 import { useCancelarPedido, useDecidir } from '../hooks/mutations';
 import { chaves, useListaPedidos, usePedido, usePermissoes, useResumo } from '../hooks/queries';
+import { SemaforoConformidade } from '../../previsao/components/SemaforoConformidade';
 import { BarraLimite } from './BarraLimite';
 import { GrupoRadio } from './GrupoRadio';
 import { Carregando, PainelMensagem } from './PainelPedido';
@@ -215,6 +216,8 @@ function ConteudoPedido({ pedido, perm, aba, aoFechar }: { pedido: Pedido; perm:
           </Secao>
 
           <UsoDoMes pedido={pedido} />
+
+          {pendente && <SemaforoConformidade pessoaId={pedido.beneficiario.id} dia={pedido.dataInicial} minutos={minutosPorDia(pedido.horario)} dias={contarDias(pedido.dataInicial, pedido.dataFinal)} />}
 
           <Secao titulo="Pedido por">
             <p className="text-sm text-foreground">{textoSolicitante(pedido, perm)}</p>

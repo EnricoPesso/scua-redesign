@@ -18,6 +18,10 @@ const Configuracoes = lazy(() => import('../features/configuracoes/routes'));
 const Carga = lazy(() => import('../features/carga/routes'));
 const Auditoria = lazy(() => import('../features/auditoria/routes'));
 const Sobre = lazy(() => import('../features/sobre/routes'));
+const Previsao = lazy(() => import('../features/previsao/routes'));
+const Passivo = lazy(() => import('../features/passivo/routes'));
+const Dossie = lazy(() => import('../features/dossie/routes'));
+const MeusDados = lazy(() => import('../features/meus-dados/routes'));
 
 /** Só mostra a tela se o perfil permitir; senão, "Sem acesso" (o menu nem mostra o item). */
 function Protegida({ permissao, tela: Tela }: { permissao: Permissao; tela: LazyExoticComponent<ComponentType> }) {
@@ -42,6 +46,10 @@ export function AppRoutes() {
         <Route path="/inicio/*" element={<Protegida permissao="relatorios" tela={Inicio} />} />
         <Route path="/extensoes/*" element={<RotasExtensoes />} />
         <Route path="/ausencias/*" element={<Protegida permissao="relatorios" tela={Ausencias} />} />
+        <Route path="/meus-dados/*" element={<Protegida permissao="extensoes" tela={MeusDados} />} />
+        <Route path="/previsao/*" element={<Protegida permissao="relatorios" tela={Previsao} />} />
+        <Route path="/radar-de-passivo/*" element={<Protegida permissao="relatorios" tela={Passivo} />} />
+        <Route path="/dossie/*" element={<Protegida permissao="pessoas" tela={Dossie} />} />
         <Route path="/usuarios/*" element={<Protegida permissao="pessoas" tela={Usuarios} />} />
         <Route path="/jornadas/*" element={<Protegida permissao="pessoas" tela={Jornadas} />} />
         <Route path="/pausas/*" element={<Protegida permissao="pessoas" tela={Pausas} />} />

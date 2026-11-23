@@ -44,7 +44,7 @@ export function Pagina({ titulo, trilha = [], descricao, acoes, children, classN
 }) {
   useTituloDaAba(titulo);
   return (
-    <main className={cn('mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8', className)}>
+    <main className={cn('mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 print:max-w-none print:px-0 print:py-0', className)}>
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1">
           <Trilha passos={trilha} />

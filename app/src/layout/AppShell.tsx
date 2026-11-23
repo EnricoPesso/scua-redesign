@@ -1,4 +1,5 @@
 import { Bolha } from '../features/assistente/Bolha';
+import { ResumoNoCabecalho } from './ResumoNoCabecalho';
 import { AssistenteProvider } from '../features/assistente/estado';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { MenuIcon, MoonIcon, PanelLeftCloseIcon, PanelLeftOpenIcon, SearchIcon, SunIcon, XIcon } from 'lucide-react';
@@ -142,7 +143,7 @@ export function AppShell() {
       </a>
 
       {/* Menu fixo: só no desktop. */}
-      <aside className={cn('sticky top-0 hidden h-screen shrink-0 flex-col gap-4 overflow-y-auto border-r border-[var(--color-line)] bg-[var(--color-surface)] p-3 lg:flex', recolhido ? 'w-[4.5rem]' : 'w-64')}>
+      <aside className={cn('sticky top-0 hidden h-screen print:!hidden shrink-0 flex-col gap-4 overflow-y-auto border-r border-[var(--color-line)] bg-[var(--color-surface)] p-3 lg:flex', recolhido ? 'w-[4.5rem]' : 'w-64')}>
         <div className={cn('flex min-h-10 items-center px-2', recolhido && 'justify-center px-0')}><Marca curta={recolhido} /></div>
         <div className="flex-1">{permissoes.isPending ? <MenuCarregando /> : <Navegacao grupos={grupos} recolhido={recolhido} />}</div>
         <Button
@@ -174,7 +175,7 @@ export function AppShell() {
       </dialog>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex min-h-14 items-center gap-2 border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 sm:px-6">
+        <header className="sticky top-0 z-20 flex min-h-14 print:hidden items-center gap-2 border-b border-[var(--color-line)] bg-[var(--color-surface)] px-3 sm:px-6">
           <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Abrir menu" onClick={() => gaveta.current?.showModal()}><MenuIcon aria-hidden="true" /></Button>
           <span className="lg:hidden"><Marca curta /></span>
           <button
@@ -186,7 +187,7 @@ export function AppShell() {
             <span className="max-sm:sr-only">Buscar tela</span>
             <kbd className="ml-auto hidden rounded border border-[var(--color-line)] px-1.5 text-xs sm:inline">Ctrl K</kbd>
           </button>
-          <span className="ml-auto max-sm:ml-0"><BotaoTema /></span>
+          <span className="ml-auto flex items-center gap-1 max-sm:ml-0">{permissoes.data && <ResumoNoCabecalho />}<BotaoTema /></span>
           {permissoes.data && <Usuario permissoes={permissoes.data} />}
         </header>
 

@@ -3,6 +3,8 @@
 Cliente: **Scua** (https://scua.com.br/), empresa de gestão de jornada de trabalho. Produto principal: **Scua Logon**.
 Tarefa: refazer a UI e a UX do sistema.
 
+> **Início de sessão:** depois deste arquivo, leia `regras.md` e em seguida `sessoes.md` (onde paramos). Ao terminar cada tarefa, registre no `sessoes.md` o que foi feito e por quê (ver `regras.md` §3).
+
 Este documento cresce aos poucos. Por enquanto ele define só três coisas: **skills e plugins**, **modelos por etapa** e **critérios de pronto**.
 
 ---

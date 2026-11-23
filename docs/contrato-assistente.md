@@ -187,3 +187,35 @@ por `fetch`, sem biblioteca do provedor (`servidor/provedores.ts`).
 | `SCUA_IA_CHAVE` | Chave de API do provedor |
 | `SCUA_IA_MODELO` | Modelo das conversas e do preenchimento. Só o Claude tem padrão. |
 | `SCUA_IA_MODELO_ANALISE` | Modelo para analisar relatórios (opcional) |
+
+## 7. Resumo do dia e aprovação em lote (feitos pelo app)
+
+Estas duas funções **não passam pelo servidor de IA**: o app as resolve sozinho, com os mesmos dados e as mesmas
+chamadas das telas (`src/features/assistente/resumo/`). Por isso o contrato das seções anteriores não muda.
+O servidor real só precisa continuar atendendo `GET /extensoes`, `GET /beneficiarios/:id/resumo` e
+`POST /extensoes/decisao-em-lote`, que a tela de Extensões já usa.
+
+### Resumo do dia
+
+Lista do que precisa de quem está logado, do mais importante ao menos (prioridade alta, média ou baixa). Cada item tem
+título, detalhe e a tela que resolve:
+
+| Item | Quem recebe | Abre |
+|---|---|---|
+| Pedidos de extensão esperando a decisão (quantos, e quantos estão dentro do limite do grupo) | quem aprova | `/extensoes/aprovar` |
+| Horas além da jornada sem aprovação nos últimos 7 dias, na equipe, com o valor estimado em R$ | quem vê relatórios | `/radar-de-passivo` |
+| Pessoas da equipe com hora extra subindo (a última semana passa de 25% sobre a anterior) | quem vê relatórios | `/previsao` |
+| Estações ativas sem registro há mais de 3 dias | administração | `/relatorios/estacoes` |
+| Pedidos da própria pessoa ainda sem resposta | todos | `/extensoes/meus` |
+
+- A equipe é a de quem está logado (direta e indireta). RH e administração veem todos. Quem é só colaborador vê apenas o que é seu: nenhum dado de outra pessoa entra no resumo.
+- Sem itens, a resposta é "Tudo em ordem por aqui."
+- O resumo aparece numa caixa do cabeçalho, ao lado do modo claro/escuro (botão **Resumo do dia** com contador, em todas as telas), como primeira mensagem ao abrir a conversa vazia e num contador na bolha. Quem quiser também pode ligá-lo como bloco do Início em Personalizar. Quem pede "resumo do dia", "o que precisa de mim" ou "o que tenho para hoje" recebe o mesmo resumo.
+- As mensagens de abertura são só do app: não vão para a IA (`mensagens` do pedido nunca começa por elas).
+
+### Aprovação em lote com confirmação
+
+1. A pessoa pede ("aprovar os pedidos dentro do limite") ou toca no item dos pedidos. O app busca a fila **de novo** e separa os pedidos que cabem no limite mensal do grupo (somando, na ordem de criação, os pedidos da mesma pessoa no mês) dos que passam dele. Sem o dado do limite, o pedido fica de fora.
+2. O assistente mostra um cartão com os nomes, as horas, o total e os botões **Aprovar N pedidos** e **Cancelar**. Os pedidos fora do limite nunca entram; o cartão diz quais ficaram de fora e por quê.
+3. **Nada é gravado antes do toque em Aprovar.** Só então o app chama a mesma aprovação em lote da tela de Extensões (`POST /extensoes/decisao-em-lote`, `{ ids, decisao: { acao: 'aprovar' } }`) e mostra quantos foram e quais falharam. Um toque só vale uma vez; Cancelar não chama nada.
+4. Só quem pode aprovar recebe essa opção. O assistente continua sem reprovar e sem excluir: pedidos de reprovar ou excluir são recusados com um atalho para a tela de pedidos.

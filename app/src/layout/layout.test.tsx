@@ -16,20 +16,20 @@ const admin: Permissoes = { ...gestor, podeGerirPessoas: true, podeAdministrar: 
 const rotulos = (p: Permissoes) => menuPara(p).flatMap((g) => g.itens.map((i) => i.rotulo));
 
 describe('menu por perfil', () => {
-  it('colaborador só vê Extensões de jornada, que é a tela inicial', () => {
-    expect(rotulos(base)).toEqual(['Extensões de jornada']);
+  it('colaborador só vê Extensões de jornada e Meus dados; Extensões é a tela inicial', () => {
+    expect(rotulos(base)).toEqual(['Extensões de jornada', 'Meus dados']);
     expect(telaInicial(base)).toBe('/extensoes');
     expect(papelDe(base)).toBe('Colaboração');
   });
 
   it('gestão vê o dia a dia e os relatórios, sem cadastros nem administração', () => {
-    expect(rotulos(gestor)).toEqual(['Início', 'Extensões de jornada', 'Ausências', 'Relatórios']);
+    expect(rotulos(gestor)).toEqual(['Início', 'Extensões de jornada', 'Ausências', 'Meus dados', 'Previsão de jornada', 'Radar de passivo', 'Relatórios']);
     expect(telaInicial(gestor)).toBe('/inicio');
   });
 
-  it('administração vê os 12 itens em 4 grupos', () => {
-    expect(menuPara(admin).map((g) => g.titulo)).toEqual(['Dia a dia', 'Pessoas e jornadas', 'Análise', 'Administração']);
-    expect(rotulos(admin)).toHaveLength(12);
+  it('administração vê os 16 itens em 5 grupos', () => {
+    expect(menuPara(admin).map((g) => g.titulo)).toEqual(['Dia a dia', 'Antecipar e provar', 'Pessoas e jornadas', 'Análise', 'Administração']);
+    expect(rotulos(admin)).toHaveLength(16);
   });
 
   it('quem não pode nada não tem tela inicial', () => {
@@ -87,7 +87,7 @@ describe('casca do app', () => {
     renderApp('/extensoes');
     const [lateral] = await menu();
     await within(lateral).findByRole('link', { name: 'Extensões de jornada' });
-    expect(within(lateral).getAllByRole('link')).toHaveLength(1);
+    expect(within(lateral).getAllByRole('link').map((a) => a.textContent)).toEqual(['Extensões de jornada', 'Meus dados']);
   });
 
   it('"/" leva à primeira tela do perfil', async () => {

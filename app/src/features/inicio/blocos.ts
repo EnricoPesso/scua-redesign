@@ -17,6 +17,7 @@ export interface InfoBloco {
 }
 
 export const BLOCOS_FIXOS: InfoBloco[] = [
+  { id: 'resumo-dia', titulo: 'Resumo do dia', descricao: 'O que precisa de você hoje, com um atalho para resolver com o assistente.', tipo: 'aviso' },
   { id: 'aviso', titulo: 'Pedidos para aprovar', descricao: 'Aviso quando há pedidos de extensão esperando a sua aprovação.', tipo: 'aviso', soQuemAprova: true },
   { id: 'kpi-usuarios', titulo: 'Usuários cadastrados', descricao: 'Quantas pessoas estão cadastradas.', tipo: 'kpi' },
   { id: 'kpi-presentes', titulo: 'Presentes', descricao: 'Quantas pessoas estiveram presentes no período.', tipo: 'kpi' },
@@ -30,7 +31,10 @@ export const BLOCOS_FIXOS: InfoBloco[] = [
   { id: 'ferias', titulo: 'Próximas férias', descricao: 'Quem entra de férias nos próximos 30 dias.', tipo: 'cartao' },
 ];
 
-/** Como o Início vem antes de a pessoa personalizar: igual ao painel original. */
+/**
+ * Como o Início vem antes de a pessoa personalizar: igual ao painel original.
+ * O "Resumo do dia" fica na caixa do cabeçalho (ocupava muito espaço aqui); quem quiser pode ligá-lo em Personalizar.
+ */
 export const BLOCOS_PADRAO = ['aviso', 'kpi-usuarios', 'kpi-presentes', 'kpi-ausentes', 'kpi-horas', 'status', 'historico'];
 
 const PREFIXO = 'rel:';

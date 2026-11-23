@@ -18,6 +18,7 @@ import type { Status } from '../extensoes/domain/types';
 import { usePermissoes } from '../extensoes/hooks/queries';
 import { inicioApi } from './api';
 import { agruparParaExibir, BLOCOS_PADRAO, chaveDaPreferencia, infoDoBloco, lerIdRelatorio, sanitizarPreferencia } from './blocos';
+import { BlocoResumoDoDia } from './BlocoResumoDoDia';
 import { BlocoAusentes, BlocoFerias, BlocoForaDaJornada, BlocoIndicador, BlocoParados } from './BlocosNovos';
 import { PersonalizarInicio } from './PersonalizarInicio';
 import {
@@ -223,6 +224,8 @@ export function InicioPage() {
   const KPIS_DO_RESUMO = ['kpi-usuarios', 'kpi-presentes', 'kpi-ausentes', 'kpi-horas'];
   const bloco = (id: string): ReactNode => {
     switch (id) {
+      case 'resumo-dia':
+        return <Cartao key={id} titulo="Resumo do dia" periodo="O que precisa de você hoje"><BlocoResumoDoDia /></Cartao>;
       case 'aviso':
         if (carregando) return <Skeleton key={id} className="h-[4.75rem] max-md:h-[8.5rem]" />;
         if (!r || r.pendentesParaMim === 0) return null;

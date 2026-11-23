@@ -83,7 +83,7 @@ describe('assistente: conversa e ações', () => {
     expect(ultima()).toHaveTextContent('Nome: Café');
     expect(ultima()).toHaveTextContent('Confira e clique em Salvar.');
     expect(salvar).not.toHaveBeenCalled();
-    expect(assistente.conversa[0]).toEqual({ papel: 'usuario', texto: 'nome: Café' });
+    expect(assistente.conversa[0]).toMatchObject({ papel: 'usuario', texto: 'nome: Café' });
     expect(assistente.simulado).toBe(true);
   });
 

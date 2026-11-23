@@ -3,6 +3,7 @@ import { BotIcon, Trash2Icon, XIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Conversa } from './Conversa';
 import { useAssistente } from './estado';
+import { textoDoContador } from './resumo/resumoDoDia';
 
 /**
  * Bolha do assistente no canto inferior direito + janela de conversa.
@@ -13,6 +14,7 @@ export function Bolha() {
   const a = useAssistente();
   const bolha = useRef<HTMLButtonElement>(null);
   const estavaAberto = useRef(false);
+  const idContador = useId();
   const visivel = a.ativo && a.tipoDoAlvo !== 'formulario';
 
   // Fechou a janela: o foco volta para a bolha.
@@ -30,7 +32,7 @@ export function Bolha() {
           role="dialog"
           aria-label="Assistente Scua"
           onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); a.fechar(); } }}
-          className="fixed right-4 bottom-20 z-40 flex max-h-[min(38rem,calc(100dvh-6rem))] w-96 flex-col gap-3 rounded-xl border border-[var(--color-line-strong)] bg-popover p-4 text-popover-foreground shadow-[var(--shadow-3)] max-md:inset-0 max-md:max-h-none max-md:w-auto max-md:rounded-none max-md:border-0"
+          className="fixed right-4 bottom-20 z-40 flex print:hidden max-h-[min(38rem,calc(100dvh-6rem))] w-96 flex-col gap-3 rounded-xl border border-[var(--color-line-strong)] bg-popover p-4 text-popover-foreground shadow-[var(--shadow-3)] max-md:inset-0 max-md:max-h-none max-md:w-auto max-md:rounded-none max-md:border-0"
         >
           <div className="flex items-center justify-between gap-2">
             <h2 className="flex items-center gap-2 text-base font-bold text-foreground"><BotIcon aria-hidden="true" className="size-5 text-[var(--color-brand-text)]" />Assistente Scua</h2>
@@ -48,12 +50,20 @@ export function Bolha() {
         data-assistente
         aria-label="Assistente Scua"
         aria-expanded={a.aberto}
+        aria-describedby={a.contador > 0 ? idContador : undefined}
         title="Assistente Scua"
         onClick={() => (a.aberto ? a.fechar() : a.abrir())}
-        className={`fixed right-4 bottom-4 z-40 inline-flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-3)] outline-none transition-transform duration-[var(--dur-fast)] hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${a.aberto ? 'max-md:hidden' : ''}`}
+        className={`fixed right-4 bottom-4 z-40 inline-flex print:hidden size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-3)] outline-none transition-transform duration-[var(--dur-fast)] hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none ${a.aberto ? 'max-md:hidden' : ''}`}
       >
         <BotIcon aria-hidden="true" className="size-7" />
+        {a.contador > 0 && (
+          <span aria-hidden="true" data-contador className="absolute -top-1 -right-1 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full border-2 border-background bg-[var(--color-danger)] px-1.5 text-xs leading-none font-bold text-[var(--color-on-danger)]">
+            {a.contador > 9 ? '9+' : a.contador}
+          </span>
+        )}
       </button>
+      {/* O nome do botão continua "Assistente Scua"; o leitor de tela lê isto como descrição. Fica fora do botão para o texto visível bater com o nome. */}
+      {a.contador > 0 && <span id={idContador} className="sr-only print:hidden">{`Assistente, ${textoDoContador(a.contador)}`}</span>}
     </>
   );
 }

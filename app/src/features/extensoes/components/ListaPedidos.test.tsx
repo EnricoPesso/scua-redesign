@@ -99,11 +99,15 @@ describe('Lista de pedidos', () => {
   });
 
   it('erro ao carregar mostra mensagem amigável e tenta de novo', async () => {
-    server.use(http.get('*/api/extensoes', () => HttpResponse.json({ codigo: 'X' }, { status: 500 }), { once: true }));
+    // A API falha até o "Tentar de novo". Não dá para falhar "só a primeira chamada": o resumo do dia
+    // do cabeçalho também consulta os pedidos, e a ordem das chamadas não é garantida.
+    let falhando = true;
+    server.use(http.get('*/api/extensoes', () => (falhando ? HttpResponse.json({ codigo: 'X' }, { status: 500 }) : undefined)));
     const { user } = renderApp('/extensoes/aprovar');
     const alerta = await screen.findByRole('alert');
     expect(alerta).toHaveTextContent('Não conseguimos carregar os pedidos');
     expect(alerta).not.toHaveTextContent('500');
+    falhando = false;
     await user.click(within(alerta).getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByRole('link', { name: 'Rui Alves' })).toBeInTheDocument();
   });

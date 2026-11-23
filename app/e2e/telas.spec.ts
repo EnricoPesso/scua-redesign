@@ -20,6 +20,10 @@ const TELAS: Tela[] = [
   { arquivo: 'inicio', rota: '/inicio', titulo: 'Início' },
   { arquivo: 'extensoes', rota: '/extensoes/aprovar', titulo: 'Extensões de jornada' },
   { arquivo: 'ausencias', rota: '/ausencias', titulo: 'Ausências' },
+  { arquivo: 'meus-dados', rota: '/meus-dados', titulo: 'Meus dados' },
+  { arquivo: 'previsao', rota: '/previsao', titulo: 'Previsão de jornada' },
+  { arquivo: 'radar-de-passivo', rota: '/radar-de-passivo', titulo: 'Radar de passivo' },
+  { arquivo: 'dossie', rota: '/dossie?pessoa=u-ana', titulo: 'Dossiê do colaborador' },
   { arquivo: 'usuarios', rota: '/usuarios', titulo: 'Usuários' },
   { arquivo: 'jornadas', rota: '/jornadas', titulo: 'Jornadas de trabalho' },
   { arquivo: 'pausas', rota: '/pausas', titulo: 'Pausas' },
@@ -116,13 +120,13 @@ test('o botão "Modo escuro" alterna o tema e a escolha vale depois de recarrega
 });
 
 test('todos os links do menu abrem uma tela que existe', async ({ page }) => {
-  // Abre as 12 telas em sequência: o limite padrão de 30 s é por teste, não por tela.
+  // Abre as 16 telas em sequência: o limite padrão de 30 s é por teste, não por tela.
   test.setTimeout(180_000);
   await page.goto('/inicio');
   const menu = page.getByRole('navigation', { name: 'Menu principal' }).first();
   await expect(menu.getByRole('link', { name: 'Sobre' })).toBeVisible();
   const destinos = await menu.getByRole('link').evaluateAll((links: Element[]) => links.map((a) => a.getAttribute('href') ?? ''));
-  expect(destinos).toHaveLength(12);
+  expect(destinos).toHaveLength(16);
   for (const destino of destinos) {
     await page.goto(destino);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 30_000 });
@@ -156,11 +160,11 @@ test('busca de telas (Ctrl+K) abre um relatório pelo nome', async ({ page }) =>
   await expect(page.getByRole('heading', { level: 1, name: 'Batidas de ponto' })).toBeVisible();
 });
 
-test('perfil de colaboração vê só Extensões e é barrado nas outras telas', async ({ page }) => {
+test('perfil de colaboração vê só Extensões e Meus dados e é barrado nas outras telas', async ({ page }) => {
   await page.goto('/?como=ana');
   await expect(page).toHaveURL(/\/extensoes/);
   const menu = page.getByRole('navigation', { name: 'Menu principal' }).first();
-  await expect(menu.getByRole('link')).toHaveCount(1);
+  await expect(menu.getByRole('link')).toHaveText(['Extensões de jornada', 'Meus dados']);
   await page.goto('/usuarios?como=ana');
   await expect(page.getByRole('heading', { level: 1, name: 'Sem acesso' })).toBeVisible();
 });

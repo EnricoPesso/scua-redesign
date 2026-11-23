@@ -3,6 +3,7 @@ import { mesDe } from '../domain/formatacao';
 import { avaliarLimite } from '../domain/limite';
 import type { Horario } from '../domain/types';
 import { useResumo } from '../hooks/queries';
+import { SemaforoConformidade } from '../../previsao/components/SemaforoConformidade';
 import { BarraLimite } from './BarraLimite';
 
 interface Props {
@@ -32,6 +33,7 @@ export function ResumoPedido({ dataInicial, dataFinal, horario, beneficiarioId, 
           : 'Preencha os dias e o horário para ver o total.'}
       </p>
       {dados && <BarraLimite avaliacao={avaliarLimite(dados.minutosAprovadosNoMes, total, dados.limiteMensalMin)} limiteMin={dados.limiteMensalMin} />}
+      {beneficiarioId && total > 0 && <SemaforoConformidade pessoaId={beneficiarioId} dia={dataInicial} minutos={porDia} dias={dias} />}
       {dados?.aprovador && <p className="text-sm text-foreground">Quem aprova: <strong>{dados.aprovador.nome}</strong></p>}
     </section>
   );

@@ -47,7 +47,9 @@ describe('Assistente: bolha e janela', () => {
     const { user } = await abrirInicio();
     await user.click(bolha());
     await user.type(campo(), 'linha 1{Shift>}{Enter}{/Shift}');
-    expect(within(janela()).getByRole('log')).toBeEmptyDOMElement();
+    // Shift+Enter só quebra a linha: nada foi enviado (a conversa tem só a abertura do dia).
+    expect(within(janela()).getByRole('log')).not.toHaveTextContent('linha 1');
+    expect(within(janela()).queryByText('Você:', { exact: false })).not.toBeInTheDocument();
     await user.clear(campo());
     await user.type(campo(), 'qual a capital da França?{Enter}');
     const log = within(janela()).getByRole('log');
@@ -88,6 +90,7 @@ describe('Assistente: bolha e janela', () => {
     await user.type(campo(), 'como funciona a auditoria?{Enter}');
     await within(janela()).findByText(/registra quem alterou/);
     await user.click(within(janela()).getByRole('button', { name: 'Limpar conversa' }));
+    // Limpar esvazia tudo, inclusive a abertura do dia (ela só volta quando a janela é aberta de novo).
     expect(within(janela()).getByRole('log')).toBeEmptyDOMElement();
   });
 

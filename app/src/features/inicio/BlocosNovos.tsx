@@ -8,12 +8,12 @@ import { EstadoErro } from '../../componentes/EstadoErro';
 import { inicioApi } from './api';
 import { textoDoPeriodo, type Periodo } from './domain';
 
-const LINK = 'w-fit rounded-sm text-sm font-semibold text-[var(--color-brand-text)] underline underline-offset-4 outline-none focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center';
-const ITEM = 'flex min-h-11 items-center justify-between gap-3 border-b border-[var(--color-line)] py-2 text-sm last:border-b-0 md:min-h-0';
+const LINK = 'w-fit rounded-sm text-sm font-medium text-muted-foreground underline-offset-4 outline-none transition-colors hover:text-[var(--color-brand-text)] hover:underline focus-visible:ring-3 focus-visible:ring-ring max-md:inline-flex max-md:min-h-11 max-md:items-center';
+const ITEM = 'flex min-h-11 items-center justify-between gap-3 border-b border-[var(--color-line)]/60 py-2.5 text-sm last:border-b-0 md:min-h-0';
 const ddmm = (dia: string) => `${dia.slice(8, 10)}/${dia.slice(5, 7)}`;
 
 function Vazio({ texto }: { texto: string }) {
-  return <p className="rounded-md border border-dashed border-input px-4 py-6 text-center text-sm text-muted-foreground">{texto}</p>;
+  return <p className="py-5 text-sm text-muted-foreground">{texto}</p>;
 }
 
 /** Quem mais esteve ausente no período. */
@@ -118,7 +118,7 @@ export function BlocoIndicador({ slug, indice, periodo }: { slug: string; indice
   return (
     <div className="relative">
       <KpiCard
-        className="h-full [&>p:last-child]:first-letter:uppercase"
+        className="h-full rounded-none border-0 bg-transparent px-5 py-4 shadow-none [&>p:last-child]:first-letter:uppercase"
         label={d?.rotulo ?? relatorio?.titulo ?? 'Indicador'}
         value={d?.valor ?? 0}
         decimals={d?.decimais}

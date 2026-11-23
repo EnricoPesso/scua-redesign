@@ -7,15 +7,16 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
 
 ## Onde paramos (atualizado em 2026-11-23)
 
-- **Branch atual:** `abismo/pilares`. Os 5 pilares foram commitados em 23/11 (`c7437e5`), só local: sem push, PR nem merge. A `main` remota tem um commit do Miguel (`690f777`, paleta e layout novos) que **ainda não foi juntado**: há conflito em `AppShell.tsx`, `Pagina.tsx`, `Bolha.tsx` e `InicioPage.tsx`.
+- **Branch atual:** `main`, atualizada em 23/11 com o merge de `abismo/pilares`. A `main` remota tem os 5 pilares junto com o visual novo do Miguel (commit `690f777`: paleta cinza frio, layout sem caixas, casca refeita). Trabalho novo parte da `main`.
 - **App (`app/`):** redesign completo do Scua Logon em React + Vite com API simulada (MSW). Áreas em `app/src/features/`: assistente, auditoria, ausências, carga, configurações, dossie, extensões, início, jornadas, liberações, meus-dados, passivo, pausas, previsao, relatórios, sobre e usuários.
 - **Sistema de design (`design-system/`):** tokens Scua, componentes e página de documentação.
 - **Última entrega (23/11, sem commit):** os 5 pilares do "Abismo competitivo": Previsão de jornada (`/previsao`, com semáforo no pedido de extensão), Radar de passivo em R$ (`/radar-de-passivo`), Dossiê do colaborador (`/dossie`), Assistente proativo (resumo do dia numa caixa do cabeçalho e na conversa, aprovação em lote com confirmação) e Meus dados (`/meus-dados`).
 - **Verificação em 23/11:** unitários 1039/1039, e2e 215/215, typecheck, lint e build sem erros, Lighthouse de acessibilidade 100 em Radar, Previsão, Dossiê e Meus dados. Não medido: Lighthouse de performance, Core Web Vitals, e os comandos do `design-system/` (que não foi alterado).
 - **Entrega de 23/11 (16h):** dois ZIPs na raiz do projeto, fora do git: `Apresentacao_Final_Scua.zip` (slides com o sistema ao vivo, no modelo da apresentação da Bulbe) e `Sistema_Scua_Logon.zip` (código-fonte). A pasta `Apresentacao_Final_Scua/` é a origem do primeiro. A entrega final é um ZIP único em `ENTREGA/` (`Projeto_Scua_Logon_Pedro_Miguel_Enrico_Bernardo.zip`), com apresentação, código, documentação e repositório.
-- **Próximo passo:** juntar a `main` (visual do Miguel) com `abismo/pilares`, resolver os 4 conflitos e rodar os testes de novo. Depois, unificar a conta do limite mensal.
+- **Próximo passo:** olhar as 5 telas novas com a paleta do Miguel (os testes passaram, mas a aparência não foi conferida) e unificar a conta do limite mensal.
 - **Pendências abertas:**
   - Perguntas 61–67 para a Scua (ponto oficial ou complementar, custo-hora, o que o agente coleta, minutos evitados, aprovação pelo assistente, integridade no servidor). A lista do que o Scua NÃO registra em Meus dados é premissa do protótipo.
+  - **O ZIP entregue em 23/11 tem o visual anterior** (creme e laranja). A `main` tem o visual do Miguel. As funções são as mesmas.
   - **Achado da revisão ainda aberto:** o "já usado no mês" do limite de extensão é calculado de três jeitos (barra de limite pela API de extensões; semáforo e Meus dados pelos registros de exemplo de `mock/jornadaReal.ts`). Na mesma tela, a barra pode dizer "ok" e o semáforo dizer que estoura. Correção: o semáforo e Meus dados usarem o mesmo `minutosAprovadosNoMes` da barra.
   - **Reforço sugerido pela checagem automática de segurança:** o Dossiê só é protegido pela rota (`pessoas`, isto é, RH e administração, que veem todos). Se um dia abrir para gestores, a API do Dossiê precisa do mesmo filtro por equipe de `app/src/lib/visibilidade.ts`.
   - Limites da previsão e do semáforo (cortes de 50/25/10%, margens de 15 min e 90%) foram escolhidos na implementação e precisam de validação de quem conhece o produto.
@@ -131,3 +132,8 @@ Ler no início de cada sessão, depois do `CLAUDE.md` e do `regras.md`. As regra
   - **Feito:** Parte 2 da apresentação, com 55 slides de passo a passo (uma captura real por passo, com o destaque no ponto exato), gerados por automação. Total: 72 slides. ZIP único com quatro pastas: `1_Apresentacao`, `2_Sistema_codigo`, `3_Documentacao` e `4_Repositorio` (histórico do git em arquivo `.bundle`), mais `COMO-ABRIR.txt` e `INTEGRANTES.txt`.
   - **Por quê:** o enunciado do envio final pede tudo num único .zip, com o nome dos integrantes, e slides de 60 a 90. O responsável confirmou os integrantes e que Figma só vale para quem tem.
   - **Pendências:** a entrega saiu depois das 16h. Passo a passo de rodar o código do zero não executado; `.bat` não testado com dois cliques; tela cheia não conferida em monitor real.
+- **Merge na `main` (mesma sessão):**
+  - **Feito:** merge de `origin/main` em `abismo/pilares` e envio para a `main`. Oito arquivos do Miguel entraram sem conflito. Três tiveram conflito (`Pagina.tsx`, `Bolha.tsx`, `AppShell.tsx`): ficou o visual dele e voltaram as funções da branch (esconder menu, cabeçalho e bolha na impressão; botão "Resumo do dia" no cabeçalho; contador na bolha do assistente).
+  - **Verificação com o merge:** unitários 1040/1040, e2e 215/215, typecheck, lint e build sem erros.
+  - **Por quê:** o responsável pediu a `main` atualizada para enviar o link do repositório junto com a entrega.
+  - **Pendências:** a aparência das telas novas com a paleta do Miguel não foi olhada; `npm run contrast` não cobre a sobrescrita de cores em `app/src/index.css`.

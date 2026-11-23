@@ -31,7 +31,7 @@ export function AbasExtensoes({ abas, ativa }: { abas: Aba[]; ativa: Aba }) {
 
   return (
     <div role="tablist" aria-label="Abas de extensões" onKeyDown={aoTeclar}
-      className="flex gap-1 overflow-x-auto overflow-y-hidden border-b border-[var(--color-line)]">
+      className="flex gap-6 overflow-x-auto overflow-y-hidden border-b border-[var(--color-line)]/70">
       {abas.map((aba) => {
         const selecionada = aba === ativa;
         return (
@@ -45,10 +45,10 @@ export function AbasExtensoes({ abas, ativa }: { abas: Aba[]; ativa: Aba }) {
             aria-controls={ID_PAINEL_ABA}
             tabIndex={selecionada ? 0 : -1}
             className={cn(
-              '-mb-px inline-flex min-h-11 items-center border-b-[3px] px-4 text-sm font-semibold whitespace-nowrap outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-inset md:min-h-10',
+              '-mb-px inline-flex min-h-11 items-center border-b-2 px-1 text-sm whitespace-nowrap transition-colors duration-[var(--dur-fast)] outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-inset md:min-h-10',
               selecionada
-                ? 'border-[var(--color-brand)] text-[var(--color-text)]'
-                : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
+                ? 'border-[var(--color-brand)] font-semibold text-[var(--color-text)]'
+                : 'border-transparent font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
             )}
           >
             {ROTULO_ABA[aba]}{aba === 'aprovar' && pendentes.data ? ` (${pendentes.data.pendentes})` : ''}

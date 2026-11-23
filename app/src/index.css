@@ -3,7 +3,95 @@
 @source "../../design-system/src/modelos";
 @source "./";
 
+/*
+ * Paleta sóbria para RH: substitui o bege/pêssego padrão por cinza-ardósia frio e neutro,
+ * mantendo o laranja Scua em um tom mais fechado e institucional (contraste AA com texto branco).
+ * Mantém ../design-system/ intacto: os componentes consomem apenas os tokens semânticos (--color-*).
+ */
+:root {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #edf0f4;
+  --color-text: #1c2430;
+  --color-text-muted: #525e6e;
+  --color-line: #e2e6ed;
+  --color-line-strong: #d0d6e0;
+  --input: #d8dde6;
+
+  --color-brand: #c24d06;
+  --color-brand-text: #a34607;
+  --color-brand-hover: #a64004;
+  --color-on-brand: #ffffff;
+
+  --color-row-hover: #f2f4f7;
+  --color-accent-bg: #edf0f4;
+  --color-focus: #94a3b8;
+  --color-backdrop: rgb(28 36 48 / 0.45);
+
+  --color-danger: #d92d20;
+  --color-danger-hover: #b42318;
+  --color-on-danger: #ffffff;
+  --color-danger-text: #b42318;
+
+  --color-success-bg: #ecfdf3;
+  --color-success-text: #067647;
+  --color-warning-bg: #fffaeb;
+  --color-warning-text: #b54708;
+  --color-danger-bg: #fef3f2;
+  --color-info-bg: #eff8ff;
+  --color-info-text: #175cd3;
+  --color-neutral-bg: #f2f4f7;
+  --color-neutral-text: #344054;
+
+  --color-toast-bg: #1c2430;
+  --color-toast-text: #ffffff;
+
+  --shadow-1: 0 1px 2px rgb(28 36 48 / 0.05);
+  --shadow-2: 0 4px 12px rgb(28 36 48 / 0.08);
+  --shadow-3: 0 12px 32px rgb(28 36 48 / 0.14);
+}
+
+:root.dark {
+  --color-bg: #11151b;
+  --color-surface: #181e27;
+  --color-surface-muted: #222a36;
+  --color-text: #f1f4f8;
+  --color-text-muted: #9aa5b5;
+  --color-line: #2b3442;
+  --color-line-strong: #3f4b5e;
+
+  --color-brand: #e07834;
+  --color-brand-text: #eb8c4c;
+  --color-brand-hover: #ed8e4e;
+  --color-on-brand: #11151b;
+
+  --color-row-hover: #1f2632;
+  --color-accent-bg: #222a36;
+  --color-focus: #f1f4f8;
+  --color-backdrop: rgb(0 0 0 / 0.6);
+
+  --color-neutral-bg: #222a36;
+  --color-neutral-text: #dde3ec;
+  --color-toast-bg: #222a36;
+  --color-toast-text: #f1f4f8;
+}
+
 #root { min-height: 100vh; }
+
+/* Campos de formulário mais limpos e discretos (sem borda escura pesada no repouso ou no hover). */
+:where(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea, [role="combobox"]) {
+  box-shadow: 0 1px 2px rgb(28 36 48 / 0.04);
+  transition: border-color var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+
+:root:not(.dark) :where(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea, [role="combobox"]):hover:not(:disabled) {
+  border-color: #b4becb;
+}
+
+/* Selos de status no tema claro ganham um contorno interno sutil para definição sobre superfícies brancas. */
+:root:not(.dark) [data-slot="badge"] {
+  box-shadow: inset 0 0 0 1px rgb(28 36 48 / 0.07);
+}
 
 /*
  * Celular: todo controle tem pelo menos 44px de área de toque (critério de pronto).

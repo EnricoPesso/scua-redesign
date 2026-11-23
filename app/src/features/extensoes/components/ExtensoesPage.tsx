@@ -9,7 +9,7 @@ import { AbasExtensoes, ID_PAINEL_ABA, idAba } from './AbasExtensoes';
 import { EstadoLista } from './EstadoLista';
 import { ListaPedidos } from './ListaPedidos';
 
-const PAGINA = 'mx-auto grid w-full grid-cols-[minmax(0,1fr)] max-w-[75rem] gap-4 px-4 pt-5 pb-10 md:px-6';
+const PAGINA = 'mx-auto grid w-full grid-cols-[minmax(0,1fr)] max-w-7xl gap-7 px-4 pt-6 pb-12 sm:px-8 lg:pt-8 lg:pb-16';
 
 export function ExtensoesPage() {
   const { aba, id } = useParams();
@@ -35,14 +35,14 @@ export function ExtensoesPage() {
 
   return (
     <main className={PAGINA}>
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">Extensões de jornada</h1>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <h1 className="font-heading text-xl font-bold tracking-tight text-foreground sm:text-2xl">Extensões de jornada</h1>
         {permissoes.data.podePedir && (
           <Link to={{ pathname: '/extensoes/meus/novo', search: aba === 'meus' ? search : '' }} className={cn(buttonVariants(), 'max-md:h-11')}>+ Nova extensão</Link>
         )}
       </header>
       <AbasExtensoes abas={abas} ativa={aba} />
-      <div role="tabpanel" id={ID_PAINEL_ABA} aria-labelledby={idAba(aba)} className="grid min-w-0 gap-4">
+      <div role="tabpanel" id={ID_PAINEL_ABA} aria-labelledby={idAba(aba)} className="grid min-w-0 gap-6">
         <ListaPedidos key={aba} aba={aba} />
       </div>
       {/* Ponto de encaixe dos painéis: formulário (Task 11) e detalhe (Task 12). */}
